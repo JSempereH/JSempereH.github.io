@@ -278,7 +278,7 @@ First, you need to init the version control. As of today, the most used tool is 
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; This will install the default config. Adapt it according to your needs.&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;With the previous setup, you will have the most basic Python project you’ll need. Of course, if you are working on research code you will probably need other tools to track your experiments, make them reproducible, etc. And if it&amp;rsquo;s production code, you will need to add documentation, CD/CI, etc. But that could be covered in more detail in another post 😉&lt;/p&gt;
+&lt;p&gt;With the previous setup, you will have the most basic Python project you’ll need. Of course, if you are working on research code you will probably need other tools to track your experiments, make them reproducible, etc. And if it&amp;rsquo;s production code, you will need to add documentation, CD/CI, etc. But that could be covered in more detail in another post&amp;hellip; if I feel like it 😉&lt;/p&gt;
 &lt;p&gt;Until then, here&amp;rsquo;s a song recommendation ❤️&lt;/p&gt;
 &lt;iframe width=&#34;560&#34; height=&#34;215&#34; src=&#34;https://www.youtube-nocookie.com/embed/NkcUdfHPx7g?si=Zuhx1e1eI676jWf4&#34; title=&#34;YouTube video player&#34; frameborder=&#34;0&#34; allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; allowfullscreen&gt;&lt;/iframe&gt;
 </description>
