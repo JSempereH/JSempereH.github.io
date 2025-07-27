@@ -2,16 +2,16 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Javier Sempere</title>
-        <link>http://localhost:1313/</link>
+        <link>https://jsempereh.github.io/</link>
         <description>Recent content on Javier Sempere</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://jsempereh.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>How to create a simple Python project</title>
-        <link>http://localhost:1313/posts/create-python-repo/</link>
+        <link>https://jsempereh.github.io/posts/create-python-repo/</link>
         <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/posts/create-python-repo/</guid>
+        <guid>https://jsempereh.github.io/posts/create-python-repo/</guid>
         <description>&lt;p&gt;In this post I&amp;rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
 Therefore, there will be no pipelines (like Github Actions or Jenkins).&lt;/p&gt;
 &lt;h1 id=&#34;version-control&#34;&gt;Version control
@@ -37,10 +37,10 @@ First, you need to init the version control. As of today, the most used tool is 
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;This command is setting the name &amp;ldquo;origin&amp;rdquo; to that remote. You can get the URL of the remote Git repository directly on the web:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI.png&#34;
 	width=&#34;966&#34;
 	height=&#34;419&#34;
-	srcset=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
+	srcset=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Example of a Github repo&#34;
@@ -273,10 +273,10 @@ First, you need to init the version control. As of today, the most used tool is 
         </item>
         <item>
         <title>About</title>
-        <link>http://localhost:1313/about/</link>
+        <link>https://jsempereh.github.io/about/</link>
         <pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/about/</guid>
+        <guid>https://jsempereh.github.io/about/</guid>
         <description>&lt;p&gt;I was born in Spain in 2001. I&amp;rsquo;m currently living in Germany with my boyfriend 👬.&lt;/p&gt;
 &lt;p&gt;I like Maths, ML and Philosophy. Probably most of my post will be related to that.&lt;/p&gt;
 &lt;p&gt;I will randomly share songs I like&amp;hellip; and photos of my cats :)&lt;/p&gt;
@@ -290,18 +290,18 @@ First, you need to init the version control. As of today, the most used tool is 
         </item>
         <item>
         <title>Archives</title>
-        <link>http://localhost:1313/archives/</link>
+        <link>https://jsempereh.github.io/archives/</link>
         <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/archives/</guid>
+        <guid>https://jsempereh.github.io/archives/</guid>
         <description></description>
         </item>
         <item>
         <title>Search</title>
-        <link>http://localhost:1313/search/</link>
+        <link>https://jsempereh.github.io/search/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/search/</guid>
+        <guid>https://jsempereh.github.io/search/</guid>
         <description></description>
         </item>
         
