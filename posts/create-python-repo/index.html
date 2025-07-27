@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-us" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins).\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n1 2 cd my-project git init You are probably using Github, Gitlab for Codeberg for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:\n">
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
 <title>How to create a simple Python project</title>
 
 <link rel='canonical' href='https://jsempereh.github.io/posts/create-python-repo/'>
 
 <link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="How to create a simple Python project">
-<meta property='og:description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins).\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n1 2 cd my-project git init You are probably using Github, Gitlab for Codeberg for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:\n">
+<meta property='og:description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
 <meta property='og:url' content='https://jsempereh.github.io/posts/create-python-repo/'>
 <meta property='og:site_name' content='Javier Sempere'>
 <meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:published_time' content='2025-07-20T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-07-20T00:00:00&#43;00:00'/>
 <meta name="twitter:title" content="How to create a simple Python project">
-<meta name="twitter:description" content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins).\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n1 2 cd my-project git init You are probably using Github, Gitlab for Codeberg for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:\n">
+<meta name="twitter:description" content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
     <link rel="shortcut icon" href="/favicon.ico" />
 
     </head>
@@ -337,7 +337,7 @@
     
     
     <p>In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
-Therefore, there will be no pipelines (like Github Actions or Jenkins).</p>
+Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.</p>
 <h1 id="version-control">Version control
 </h1><p>Let&rsquo;s say you have created your local directory: <code>mkdir my-project</code>.
 First, you need to init the version control. As of today, the most used tool is git.</p>
@@ -351,7 +351,10 @@ First, you need to init the version control. As of today, the most used tool is 
 </span></span><span class="line"><span class="cl">git init
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>You are probably using Github, Gitlab for Codeberg for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:</p>
+</div><p>You are probably using <a class="link" href="https://github.com"  target="_blank" rel="noopener"
+    >Github</a>, <a class="link" href="https://about.gitlab.com"  target="_blank" rel="noopener"
+    >Gitlab</a> or <a class="link" href="https://codeberg.org"  target="_blank" rel="noopener"
+    >Codeberg</a> for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -418,7 +421,10 @@ First, you need to init the version control. As of today, the most used tool is 
 </div>
 </div><p>You can indicate whole directories (e.g. <code>.venv/</code>) or specific files, like <em>all the files that end with .log</em>: <code>*.log</code>.</p>
 <h1 id="package-manager">Package manager
-</h1><p>I will use uv for this post, since I think it&rsquo;s one of the best tools. You can also use pip, poetry, pyenv, etc.</p>
+</h1><p>I will use <a class="link" href="https://docs.astral.sh/uv/"  target="_blank" rel="noopener"
+    >uv</a> for this post, since I think it&rsquo;s one of the best tools. You can also use <a class="link" href="https://pypi.org/project/pip/"  target="_blank" rel="noopener"
+    >pip</a>, <a class="link" href="https://python-poetry.org"  target="_blank" rel="noopener"
+    >poetry</a>, etc.</p>
 <p>In case you don&rsquo;t have it yet, you can install it with:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -437,7 +443,7 @@ First, you need to init the version control. As of today, the most used tool is 
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv init
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>This will create the pyproject.toml, uv.lock, main.py (you will probably delete it), README.md, .python-version and a .gitignore (if you don&rsquo;t have it yet).</p>
+</div><p>This will create the <code>pyproject.toml</code>, <code>uv.lock</code>, <code>main.py</code> (you will probably delete it), <code>README.md</code>, <code>.python-version</code> and a <code>.gitignore</code> (if you don&rsquo;t have it yet).</p>
 <ul>
 <li><strong>pyproject.toml</strong>: this is a configuration file. It contains info about the project name, version, authors, dependencies, dev-dependencies (packages only needed for development), etc. For example:</li>
 </ul>
@@ -485,7 +491,7 @@ First, you need to init the version control. As of today, the most used tool is 
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>You can remove a package with <code>uv remove</code>. In case another collaborator is working in your project and they update the packages, you can sync your virtual environment with the dependencies listed in <strong>pyproject.toml</strong> and <strong>uv.lock</strong> with <code>uv sync</code>.</p>
-<p>If you want to install a library locally (not changing the project&rsquo;s dependencies), use <code>uv pip</code>. For example, if you want to create a notebook that uses your python module, but don&rsquo;t want to add <code>ipykernel</code> to the list oof dependencies, you may use:</p>
+<p>If you want to install a library locally (not changing the project&rsquo;s dependencies), use <code>uv pip</code>. For example, if you want to create a notebook that uses your python module, but don&rsquo;t want to add <code>ipykernel</code> to the list of dependencies, you may use:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -535,7 +541,8 @@ First, you need to init the version control. As of today, the most used tool is 
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="pre-commit">Pre-commit
-</h2><p>Instead of running ruff while you are developing the code, you could run it every time you try to commit some code using <strong>pre-commit</strong>. This way, it will format the the code and warn you if changes must be made. Install it also as a dev-package:</p>
+</h2><p>Instead of running ruff while you are developing the code, you could run it every time you try to commit some code using <a class="link" href="https://pre-commit.com"  target="_blank" rel="noopener"
+    >pre-commit</a>. This way, it will format the the code and warn you if changes must be made. Install it also as a dev-package:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -593,7 +600,12 @@ First, you need to init the version control. As of today, the most used tool is 
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pre-commit run --all-files
 </span></span></code></pre></td></tr></table>
 </div>
-</div>
+</div><p><strong>Note:</strong> This will install the default config. Adapt it according to your needs.</p>
+<hr>
+<p>With the previous setup, you will have the most basic Python project you’ll need. Of course, if you are working on research code you will probably need other tools to track your experiments, make them reproducible, etc. And if it&rsquo;s production code, you will need to add documentation, CD/CI, etc. But that could be covered in more detail in another post 😉</p>
+<p>Until then, here&rsquo;s a song recommendation ❤️</p>
+<iframe width="560" height="215" src="https://www.youtube-nocookie.com/embed/NkcUdfHPx7g?si=Zuhx1e1eI676jWf4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 </section>
 
 
