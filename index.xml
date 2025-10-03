@@ -121,12 +121,12 @@ $$&lt;/p&gt;
 &lt;p&gt;$$
 X_k := \sum_{i=1}^k \sigma_i u_i v_i^T
 $$&lt;/p&gt;
-&lt;p&gt;We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $A_k$ has singular values $\sigma_1, \dots, \sigma_k$ and&lt;/p&gt;
+&lt;p&gt;We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $X_k$ has singular values $\sigma_1, \dots, \sigma_k$ and&lt;/p&gt;
 &lt;p&gt;$$
 \lVert X-X_k \rVert_F = \sqrt{\sigma_{k+1}^2+ \dots + \sigma_r^2}
 $$&lt;/p&gt;
 &lt;p&gt;By Eckhart-Young theorem, $X_k$ is &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Low-rank_approximation&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
-    &gt;the best rank-$k$ approximation&lt;/a&gt; of $A$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:&lt;/p&gt;
+    &gt;the best rank-$k$ approximation&lt;/a&gt; of $X$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:&lt;/p&gt;
 &lt;p&gt;$$
 \frac{\lVert X-X_k \rVert_F^2}{\lVert X \rVert_F^2} = \frac{\sigma_{k+1}^2 + \dots + \sigma_r^2}{\sigma_1^2 + \dots + \sigma_r^2}
 $$&lt;/p&gt;

@@ -460,12 +460,12 @@ $$</p>
 <p>$$
 X_k := \sum_{i=1}^k \sigma_i u_i v_i^T
 $$</p>
-<p>We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $A_k$ has singular values $\sigma_1, \dots, \sigma_k$ and</p>
+<p>We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $X_k$ has singular values $\sigma_1, \dots, \sigma_k$ and</p>
 <p>$$
 \lVert X-X_k \rVert_F = \sqrt{\sigma_{k+1}^2+ \dots + \sigma_r^2}
 $$</p>
 <p>By Eckhart-Young theorem, $X_k$ is <a class="link" href="https://en.wikipedia.org/wiki/Low-rank_approximation"  target="_blank" rel="noopener"
-    >the best rank-$k$ approximation</a> of $A$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:</p>
+    >the best rank-$k$ approximation</a> of $X$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:</p>
 <p>$$
 \frac{\lVert X-X_k \rVert_F^2}{\lVert X \rVert_F^2} = \frac{\sigma_{k+1}^2 + \dots + \sigma_r^2}{\sigma_1^2 + \dots + \sigma_r^2}
 $$</p>
