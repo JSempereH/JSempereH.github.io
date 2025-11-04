@@ -2,17 +2,33 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Posts on Javier Sempere</title>
-        <link>https://jsempereh.github.io/posts/</link>
+        <link>http://localhost:1313/posts/</link>
         <description>Recent content in Posts on Javier Sempere</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Sat, 01 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://jsempereh.github.io/posts/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sun, 02 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Privacy-Enhancing Machine Learning</title>
+        <link>http://localhost:1313/posts/tfm/</link>
+        <pubDate>Sun, 02 Nov 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/posts/tfm/</guid>
+        <description>&lt;img src="http://localhost:1313/posts/tfm/TFM_image.png" alt="Featured image of post Privacy-Enhancing Machine Learning" /&gt;&lt;p&gt;Hi!&lt;/p&gt;
+&lt;p&gt;I wanted to share my MSc thesis &lt;em&gt;Privacy-Enhancing Machine Learning&lt;/em&gt; (2024), based mostly on my first year working at GMV.&lt;/p&gt;
+&lt;p&gt;My tutors were &lt;a class=&#34;link&#34; href=&#34;https://www.ucm.es/directorio?id=7440&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Carlos Gregorio Rodríguez&lt;/a&gt; and &lt;a class=&#34;link&#34; href=&#34;https://es.linkedin.com/in/jmaunon&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Juan Miguel Auñón García&lt;/a&gt; (if you have the opportunity, I recommend working with them, I learnt a lot).&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;TFM.pdf&#34; &gt;Here&lt;/a&gt; is the PDF :)&lt;/p&gt;
+&lt;p&gt;And here&amp;rsquo;s the song recommendation 😉&lt;/p&gt;
+&lt;iframe width=&#34;560&#34; height=&#34;215&#34; src=&#34;https://www.youtube-nocookie.com/embed/TCnQGXouAPo?si=ht_IsC7RuhJC_oZH&#34; title=&#34;YouTube video player&#34; frameborder=&#34;0&#34; allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; allowfullscreen&gt;&lt;/iframe&gt;
+</description>
+        </item>
+        <item>
         <title>Aproximación de puntos vía curvas de Bézier</title>
-        <link>https://jsempereh.github.io/posts/tfg/</link>
+        <link>http://localhost:1313/posts/tfg/</link>
         <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
         
-        <guid>https://jsempereh.github.io/posts/tfg/</guid>
-        <description>&lt;img src="https://jsempereh.github.io/posts/tfg/Le_Chien.png" alt="Featured image of post Aproximación de puntos vía curvas de Bézier" /&gt;&lt;p&gt;Hi!&lt;/p&gt;
+        <guid>http://localhost:1313/posts/tfg/</guid>
+        <description>&lt;img src="http://localhost:1313/posts/tfg/Le_Chien.png" alt="Featured image of post Aproximación de puntos vía curvas de Bézier" /&gt;&lt;p&gt;Hi!&lt;/p&gt;
 &lt;p&gt;I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p&gt;
 &lt;p&gt;I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p&gt;
 &lt;p&gt;My tutor was &lt;a class=&#34;link&#34; href=&#34;https://www.ucm.es/imi/marina-logares-jimenez&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -26,10 +42,10 @@
         </item>
         <item>
         <title>PCA is equivalent to a Linear Autoencoder</title>
-        <link>https://jsempereh.github.io/posts/pca-lae/</link>
+        <link>http://localhost:1313/posts/pca-lae/</link>
         <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
         
-        <guid>https://jsempereh.github.io/posts/pca-lae/</guid>
+        <guid>http://localhost:1313/posts/pca-lae/</guid>
         <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;
 &lt;h1 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)
 &lt;/h1&gt;&lt;p&gt;Given $n$ data vector ${x_1,  \dots, x_n} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &amp;lt; m$. PCA finds an orthonormal basis ${u_1, \dots, u_k} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;
@@ -221,10 +237,10 @@ $$&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;Both arrows are normalized to unit length&lt;/strong&gt; in each frame to visualize only their direction (subspace) rather than their magnitude.&lt;/p&gt;
 &lt;p&gt;The learning rate is controlled by a &lt;strong&gt;scheduler&lt;/strong&gt; that reduces it by half every 30 epochs, which helps stabilize convergence in the later stages of training.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif&#34;
 	width=&#34;1200&#34;
 	height=&#34;600&#34;
-	srcset=&#34;https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w&#34;
+	srcset=&#34;http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Example&#34;
@@ -279,10 +295,10 @@ $$&lt;/p&gt;
         </item>
         <item>
         <title>How to create a simple Python project</title>
-        <link>https://jsempereh.github.io/posts/create-python-repo/</link>
+        <link>http://localhost:1313/posts/create-python-repo/</link>
         <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
         
-        <guid>https://jsempereh.github.io/posts/create-python-repo/</guid>
+        <guid>http://localhost:1313/posts/create-python-repo/</guid>
         <description>&lt;p&gt;In this post I&amp;rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
 Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.&lt;/p&gt;
 &lt;h1 id=&#34;version-control&#34;&gt;Version control
@@ -311,10 +327,10 @@ First, you need to init the version control. As of today, the most used tool is 
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;This command is setting the name &amp;ldquo;origin&amp;rdquo; to that remote. You can get the URL of the remote Git repository directly on the web:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI.png&#34;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI.png&#34;
 	width=&#34;966&#34;
 	height=&#34;419&#34;
-	srcset=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
+	srcset=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Example of a Github repo&#34;
