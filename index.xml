@@ -2,16 +2,34 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Javier Sempere</title>
-        <link>http://localhost:1313/</link>
+        <link>https://jsempereh.github.io/</link>
         <description>Recent content on Javier Sempere</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>en-us</language>
-        <lastBuildDate>Fri, 03 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Sat, 01 Nov 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://jsempereh.github.io/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Aproximación de puntos vía curvas de Bézier</title>
+        <link>https://jsempereh.github.io/posts/tfg/</link>
+        <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
+        
+        <guid>https://jsempereh.github.io/posts/tfg/</guid>
+        <description>&lt;img src="https://jsempereh.github.io/posts/tfg/Le_Chien.png" alt="Featured image of post Aproximación de puntos vía curvas de Bézier" /&gt;&lt;p&gt;Hi!&lt;/p&gt;
+&lt;p&gt;I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p&gt;
+&lt;p&gt;My tutor was &lt;a class=&#34;link&#34; href=&#34;https://www.ucm.es/imi/marina-logares-jimenez&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Marina Logares&lt;/a&gt;, an amazing mathematician I admire deeply. Not only is she brilliant at what she does, but she’s also an &lt;a class=&#34;link&#34; href=&#34;https://www.rtve.es/noticias/20210313/marina-logares-matematica-mujer-lesbiana-problemas-especificos-mundo-academico/2081716.shtml&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;activist&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;When I first approached her, I told her I just wanted to explore whatever I felt like and make some art out of it. I even changed the topic halfway through because I got bored and wanted to try something else! Still, the committee actually valued it a lot. I got the highest grade! 😂&lt;/p&gt;
+&lt;p&gt;By the way, it&amp;rsquo;s in spanish. I&amp;rsquo;m too lazy to translate it. Thankfully, we have LLMs for that.&lt;/p&gt;
+&lt;p&gt;The PDF is &lt;a class=&#34;link&#34; href=&#34;TFG.pdf&#34; &gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;And here&amp;rsquo;s the song recommendation 💛&lt;/p&gt;
+&lt;iframe width=&#34;560&#34; height=&#34;215&#34; src=&#34;https://www.youtube-nocookie.com/embed/-xulsY5AGew?si=kIvpWdjrEw7Qdp_7&#34; title=&#34;YouTube video player&#34; frameborder=&#34;0&#34; allow=&#34;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&#34; referrerpolicy=&#34;strict-origin-when-cross-origin&#34; allowfullscreen&gt;&lt;/iframe&gt;</description>
+        </item>
+        <item>
         <title>PCA is equivalent to a Linear Autoencoder</title>
-        <link>http://localhost:1313/posts/pca-lae/</link>
+        <link>https://jsempereh.github.io/posts/pca-lae/</link>
         <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/posts/pca-lae/</guid>
+        <guid>https://jsempereh.github.io/posts/pca-lae/</guid>
         <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;
 &lt;h1 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)
 &lt;/h1&gt;&lt;p&gt;Given $n$ data vector ${x_1,  \dots, x_n} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &amp;lt; m$. PCA finds an orthonormal basis ${u_1, \dots, u_k} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;
@@ -203,10 +221,10 @@ $$&lt;/p&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;Both arrows are normalized to unit length&lt;/strong&gt; in each frame to visualize only their direction (subspace) rather than their magnitude.&lt;/p&gt;
 &lt;p&gt;The learning rate is controlled by a &lt;strong&gt;scheduler&lt;/strong&gt; that reduces it by half every 30 epochs, which helps stabilize convergence in the later stages of training.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif&#34;
+&lt;p&gt;&lt;img src=&#34;https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif&#34;
 	width=&#34;1200&#34;
 	height=&#34;600&#34;
-	srcset=&#34;http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, http://localhost:1313/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w&#34;
+	srcset=&#34;https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, https://jsempereh.github.io/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Example&#34;
@@ -236,7 +254,8 @@ $$&lt;/p&gt;
 &lt;p&gt;Without regularization, LAEs learn this subspace but cannot learn the principal directions themselves due to the symmetry of $\mathcal{L}$  under the action group $GL_k(\mathbb{R})$ of invertible $k \times k$ matrices defined by $(W_d, W_e) \mapsto (GW_d, W_e G^{-1})$:
 $$
 X - (W_e G^{-1})(G W_d)X = X - W_e W_d X
-$$&lt;/p&gt;&lt;/blockquote&gt;
+$$&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;They proved that LAEs with $L_2$-regularization do in fact learn the principal directions as the left singular vectors of the decoder, since the regularization reduces the symmetry group from $GL_k(\mathbb{R})$ to the orthogonal group $O_k (\mathbb{R})$, which preserves the structure of SVD. The loss is then defined as:&lt;/p&gt;
 &lt;p&gt;$$
 \mathcal{L}_\lambda(W_e, W_d) = \mathcal{L}(W_e, W_d) + \lambda (\left| W_1 \right|_F^2 + \left| W_2 \right|_F^2 )
@@ -260,10 +279,10 @@ $$&lt;/p&gt;
         </item>
         <item>
         <title>How to create a simple Python project</title>
-        <link>http://localhost:1313/posts/create-python-repo/</link>
+        <link>https://jsempereh.github.io/posts/create-python-repo/</link>
         <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/posts/create-python-repo/</guid>
+        <guid>https://jsempereh.github.io/posts/create-python-repo/</guid>
         <description>&lt;p&gt;In this post I&amp;rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
 Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.&lt;/p&gt;
 &lt;h1 id=&#34;version-control&#34;&gt;Version control
@@ -292,10 +311,10 @@ First, you need to init the version control. As of today, the most used tool is 
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;This command is setting the name &amp;ldquo;origin&amp;rdquo; to that remote. You can get the URL of the remote Git repository directly on the web:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI.png&#34;
+&lt;p&gt;&lt;img src=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI.png&#34;
 	width=&#34;966&#34;
 	height=&#34;419&#34;
-	srcset=&#34;http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, http://localhost:1313/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
+	srcset=&#34;https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, https://jsempereh.github.io/posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w&#34;
 	loading=&#34;lazy&#34;
 	
 		alt=&#34;Example of a Github repo&#34;
@@ -537,10 +556,10 @@ First, you need to init the version control. As of today, the most used tool is 
         </item>
         <item>
         <title>About</title>
-        <link>http://localhost:1313/about/</link>
+        <link>https://jsempereh.github.io/about/</link>
         <pubDate>Thu, 29 May 2025 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/about/</guid>
+        <guid>https://jsempereh.github.io/about/</guid>
         <description>&lt;p&gt;I was born in Spain in 2001. I&amp;rsquo;m currently living in Germany with my boyfriend 👬.&lt;/p&gt;
 &lt;p&gt;I like Maths, ML and Philosophy. Probably most of my post will be related to that.&lt;/p&gt;
 &lt;p&gt;I will randomly share songs I like&amp;hellip; and photos of my cats :)&lt;/p&gt;
@@ -554,18 +573,18 @@ First, you need to init the version control. As of today, the most used tool is 
         </item>
         <item>
         <title>Archives</title>
-        <link>http://localhost:1313/archives/</link>
+        <link>https://jsempereh.github.io/archives/</link>
         <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/archives/</guid>
+        <guid>https://jsempereh.github.io/archives/</guid>
         <description></description>
         </item>
         <item>
         <title>Search</title>
-        <link>http://localhost:1313/search/</link>
+        <link>https://jsempereh.github.io/search/</link>
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
-        <guid>http://localhost:1313/search/</guid>
+        <guid>https://jsempereh.github.io/search/</guid>
         <description></description>
         </item>
         
