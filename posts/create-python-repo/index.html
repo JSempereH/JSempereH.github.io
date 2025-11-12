@@ -1,769 +1,117 @@
-<!DOCTYPE html>
-<html lang="en-us" dir="ltr">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
-<title>How to create a simple Python project</title>
-
-<link rel='canonical' href='http://localhost:1313/posts/create-python-repo/'>
-
-<link rel="stylesheet" href="/scss/style.min.b0e76e98cdd4f7082d1fc36f7af7e0843a81201db2197c03ca426751dc923735.css"><meta property='og:title' content="How to create a simple Python project">
-<meta property='og:description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
-<meta property='og:url' content='http://localhost:1313/posts/create-python-repo/'>
-<meta property='og:site_name' content='Javier Sempere'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:published_time' content='2025-07-20T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-07-20T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="How to create a simple Python project">
-<meta name="twitter:description" content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n">
-    <link rel="shortcut icon" href="/favicon.ico" />
-<script>
-window.MathJax = {
-  tex: {
-    packages: {'[+]': ['ams']},
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']]
-  }
-};
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    </head>
-    <body class="
-    article-page
-    ">
-    <script>
-        (function() {
-            const colorSchemeKey = 'StackColorScheme';
-            if(!localStorage.getItem(colorSchemeKey)){
-                localStorage.setItem(colorSchemeKey, "auto");
-            }
-        })();
-    </script><script>
-    (function() {
-        const colorSchemeKey = 'StackColorScheme';
-        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
-        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-
-        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
-            
-
-            document.documentElement.dataset.scheme = 'dark';
-        } else {
-            document.documentElement.dataset.scheme = 'light';
-        }
-    })();
-</script>
-<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
-    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
-        <span class="hamburger-box">
-            <span class="hamburger-inner"></span>
-        </span>
-    </button>
-
-    <header>
-        
-            
-        
-        
-        <div class="site-meta">
-            <h1 class="site-name"><a href="/">Javier Sempere</a></h1>
-            <h2 class="site-description"></h2>
-        </div>
-    </header><ol class="menu-social">
-            
-                <li>
-                    <a 
-                        href='https://github.com/JSempereH'
-                        target="_blank"
-                        title="GitHub"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
-</svg>
-
-
-
-                        
-                    </a>
-                </li>
-            
-                <li>
-                    <a 
-                        href='https://www.linkedin.com/in/javier-sempere'
-                        target="_blank"
-                        title="LinkedIn"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-  <title>LinkedIn</title>
-  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.85-3.037
-           -1.851 0-2.134 1.445-2.134 2.939v5.667H9.358V9h3.414v1.561h.049
-           c.476-.9 1.637-1.85 3.372-1.85 3.605 0 4.271 2.373 4.271 5.459v6.282z
-           M5.337 7.433a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.114
-           20.453H3.56V9h3.554v11.453zM22.225 0H1.771C.792 0 0 .774 0
-           1.73v20.538C0 23.23.792 24 1.771 24h20.451c.98 0
-           1.778-.77 1.778-1.732V1.73C24 .773 23.203 0 22.225 0z"></path>
-</svg>
-
-                        
-                    </a>
-                </li>
-            
-                <li>
-                    <a 
-                        href='/index.xml'
-                        target="_blank"
-                        title="RSS"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="5" cy="19" r="1" />
-  <path d="M4 4a16 16 0 0 1 16 16" />
-  <path d="M4 11a9 9 0 0 1 9 9" />
-</svg>
-
-
-
-                        
-                    </a>
-                </li>
-            
-        </ol><ol class="menu" id="main-menu">
-        
-        
-        
-        <li >
-            <a href='/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <polyline points="5 12 3 12 12 3 21 12 19 12" />
-  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-</svg>
-
-
-
-                
-                <span>Home</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/about/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="7" r="4" />
-  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-</svg>
-
-
-
-                
-                <span>About</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/archives/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <rect x="3" y="4" width="18" height="4" rx="2" />
-  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
-  <line x1="10" y1="12" x2="14" y2="12" />
-</svg>
-
-
-
-                
-                <span>Archives</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/search/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="10" cy="10" r="7" />
-  <line x1="21" y1="21" x2="15" y2="15" />
-</svg>
-
-
-
-                
-                <span>Search</span>
-            </a>
-        </li>
-        
-        <li class="menu-bottom-section">
-            <ol class="menu">
-
-                
-                    <li id="dark-mode-toggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="8" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="16" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <span>Dark Mode</span>
-                    </li>
-                
-            </ol>
-        </li>
-    </ol>
-</aside>
-
-    <aside class="sidebar right-sidebar sticky">
-        
-            
-                
-    <section class="widget archives">
-        <div class="widget-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <line x1="5" y1="9" x2="19" y2="9" />
-  <line x1="5" y1="15" x2="19" y2="15" />
-  <line x1="11" y1="4" x2="7" y2="20" />
-  <line x1="17" y1="4" x2="13" y2="20" />
-</svg>
-
-
-
-        </div>
-        <h2 class="widget-title section-title">Table of contents</h2>
-        
-        <div class="widget--toc">
-            <nav id="TableOfContents">
-  <ol>
-    <li><a href="#version-control">Version control</a></li>
-    <li><a href="#package-manager">Package manager</a></li>
-    <li><a href="#clean-python-code">Clean Python code</a>
-      <ol>
-        <li><a href="#linter-and-formatter">Linter and formatter</a></li>
-        <li><a href="#pre-commit">Pre-commit</a></li>
-      </ol>
-    </li>
-  </ol>
-</nav>
-        </div>
-    </section>
-
-            
-        
-    </aside>
-
-
-            <main class="main full-width">
-    <article class="main-article">
-    <header class="article-header">
-
-    <div class="article-details">
-    
-
-    <div class="article-title-wrapper">
-        <h2 class="article-title">
-            <a href="/posts/create-python-repo/">How to create a simple Python project</a>
-        </h2>
-    
-        
-    </div>
-
-    
-    
-    
-    
-    <footer class="article-time">
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-  <circle cx="18" cy="18" r="4" />
-  <path d="M15 3v4" />
-  <path d="M7 3v4" />
-  <path d="M3 11h16" />
-  <path d="M18 16.496v1.504l1 1" />
-</svg>
-                <time class="article-time--published">Jul 20, 2025</time>
-            </div>
-        
-
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    5 minute read
-                </time>
-            </div>
-        
-    </footer>
-    
-
-    
-</div>
-
-</header>
-
-    <section class="article-content">
-    
-    
-    <p>In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
-Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.</p>
-<h1 id="version-control">Version control
-</h1><p>Let&rsquo;s say you have created your local directory: <code>mkdir my-project</code>.
-First, you need to init the version control. As of today, the most used tool is git.</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> my-project
-</span></span><span class="line"><span class="cl">git init
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>You are probably using <a class="link" href="https://github.com"  target="_blank" rel="noopener"
-    >Github</a>, <a class="link" href="https://about.gitlab.com"  target="_blank" rel="noopener"
-    >Gitlab</a> or <a class="link" href="https://codeberg.org"  target="_blank" rel="noopener"
-    >Codeberg</a> for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git remote add origin https://github.com/your-user/your-project.git
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>This command is setting the name &ldquo;origin&rdquo; to that remote. You can get the URL of the remote Git repository directly on the web:</p>
-<p><img src="/posts/create-python-repo/Example-git-GUI.png"
-	width="966"
-	height="419"
-	srcset="/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, /posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w"
-	loading="lazy"
-	
-		alt="Example of a Github repo"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="230"
-		data-flex-basis="553px"
-	
-></p>
-<p>Another way of doing this is directly creating the Github repo and then clone it locally:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone https://github.com/your-user/your-project.git
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>In case it is a private repo, you will need to log in.</p>
-<p>You will need to create a <code>.gitignore</code> file. This will tell Git which file it shouldn&rsquo;t track. For example:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Ignore Python cache</span>
-</span></span><span class="line"><span class="cl">__pycache__/
-</span></span><span class="line"><span class="cl">*.pyc
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Ignore virtual environment</span>
-</span></span><span class="line"><span class="cl">.venv/
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Ignore logs</span>
-</span></span><span class="line"><span class="cl">*.log
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Ignore IDE files</span>
-</span></span><span class="line"><span class="cl">.vscode/
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>You can indicate whole directories (e.g. <code>.venv/</code>) or specific files, like <em>all the files that end with .log</em>: <code>*.log</code>.</p>
-<h1 id="package-manager">Package manager
-</h1><p>I will use <a class="link" href="https://docs.astral.sh/uv/"  target="_blank" rel="noopener"
-    >uv</a> for this post, since I think it&rsquo;s one of the best tools. You can also use <a class="link" href="https://pypi.org/project/pip/"  target="_blank" rel="noopener"
-    >pip</a>, <a class="link" href="https://python-poetry.org"  target="_blank" rel="noopener"
-    >poetry</a>, etc.</p>
-<p>In case you don&rsquo;t have it yet, you can install it with:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -LsSf https://astral.sh/uv/install.sh <span class="p">|</span> sh
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Let&rsquo;s say you are already in your repo directory. Init uv with:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv init
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>This will create the <code>pyproject.toml</code>, <code>uv.lock</code>, <code>main.py</code> (you will probably delete it), <code>README.md</code>, <code>.python-version</code> and a <code>.gitignore</code> (if you don&rsquo;t have it yet).</p>
-<ul>
-<li><strong>pyproject.toml</strong>: this is a configuration file. It contains info about the project name, version, authors, dependencies, dev-dependencies (packages only needed for development), etc. For example:</li>
-</ul>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>project<span class="o">]</span>
-</span></span><span class="line"><span class="cl"><span class="nv">name</span> <span class="o">=</span> <span class="s2">&#34;my_project&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="nv">version</span> <span class="o">=</span> <span class="s2">&#34;0.1.0&#34;</span>
-</span></span><span class="line"><span class="cl">requires-python <span class="o">=</span> <span class="s2">&#34;&gt;=3.12&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="nv">dependencies</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;numpy&gt;=2.3.1&#34;</span><span class="o">]</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="o">[</span>tool.uv<span class="o">]</span>
-</span></span><span class="line"><span class="cl">dev-dependencies <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;pytest&#34;</span>, <span class="s2">&#34;ruff&#34;</span><span class="o">]</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><ul>
-<li><strong>uv.lock</strong>: this lockfile states exact versions of all dependencies, including transitive ones (those required by your direct dependencies).</li>
-</ul>
-<p>If you want to use a new dependency in your code (e.g. numpy) you can use:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv add numpy
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>This will update <strong>pyproject.toml</strong> and <strong>uv.lock</strong>. If you want to install a dev-dependency (e.g. pytest), you use:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv add --dev pytest
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>You can remove a package with <code>uv remove</code>. In case another collaborator is working in your project and they update the packages, you can sync your virtual environment with the dependencies listed in <strong>pyproject.toml</strong> and <strong>uv.lock</strong> with <code>uv sync</code>.</p>
-<p>If you want to install a library locally (not changing the project&rsquo;s dependencies), use <code>uv pip</code>. For example, if you want to create a notebook that uses your python module, but don&rsquo;t want to add <code>ipykernel</code> to the list of dependencies, you may use:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv pip install ipykernel
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>As a rule of thumb, try to minimize the number of dependencies in your project. Maintaining a project means updating the dependencies and handling the possible issues. The fewer the dependencies, the better.</p>
-<h1 id="clean-python-code">Clean Python code
-</h1><p>Let&rsquo;s say you will write your package <strong>my-project</strong> with its <code>__init__.py</code> (so it is treated as a package) and some code. Your directory will look something like this:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span><span class="lnt">9
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">.
-</span></span><span class="line"><span class="cl">├── my-project
-</span></span><span class="line"><span class="cl">│   ├── __init__.py
-</span></span><span class="line"><span class="cl">│   └── my_code.py
-</span></span><span class="line"><span class="cl">├── pyproject.toml
-</span></span><span class="line"><span class="cl">├── README.md
-</span></span><span class="line"><span class="cl">└── uv.lock
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="m">2</span> directories, <span class="m">5</span> files
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>(Ignoring files starting with a <code>.</code>)</p>
-<p>Before you start writing your code, it&rsquo;s better to set up some Python tools that format and correct your code.</p>
-<h2 id="linter-and-formatter">Linter and formatter
-</h2><p>A linter will check your code for potential errors, bad practices, styles issues and bugs. And a formatter will reformat your code automatically, so you don&rsquo;t have to worry about spaces or line breaks.</p>
-<p>Ruff can be used for both linting and formatting, you may install it as a dev-package:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv add --dev ruff
-</span></span></code></pre></td></tr></table>
-</div>
-</div><h2 id="pre-commit">Pre-commit
-</h2><p>Instead of running ruff while you are developing the code, you could run it every time you try to commit some code using <a class="link" href="https://pre-commit.com"  target="_blank" rel="noopener"
-    >pre-commit</a>. This way, it will format the the code and warn you if changes must be made. Install it also as a dev-package:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">uv add --dev pre-commit
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Now you need to create a <code>.pre-commit-config.yaml</code> file in the root of your project. The following config tell pre-commit to run ruff for linting and formatting:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">repos:
-</span></span><span class="line"><span class="cl">  - repo: https://github.com/astral-sh/ruff-pre-commit
-</span></span><span class="line"><span class="cl">    rev: v0.4.8  <span class="c1"># Use the latest tag from https://github.com/astral-sh/ruff-pre-commit/releases</span>
-</span></span><span class="line"><span class="cl">    hooks:
-</span></span><span class="line"><span class="cl">      - id: ruff
-</span></span><span class="line"><span class="cl">      - id: ruff-format
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p><a class="link" href="https://docs.astral.sh/ruff/configuration/"  target="_blank" rel="noopener"
-    >Here</a> you can check Ruff&rsquo;s default configuration.</p>
-<p>Finally, install the Git hook:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pre-commit install
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Now, every time you run <code>git commit</code>, Ruff will check and/or format your staged files automatically. If it requeries a manual change, you won&rsquo;t be able to commit until you fix the code.</p>
-<p>You can ignore pre-commit using <code>-nm</code> instead of <code>-m</code>, for example:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git commit -nm <span class="s2">&#34;This commit hasn&#39;t run pre-commit :(&#34;</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>You may also apply the hook to all files (not just the staged ones) using:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pre-commit run --all-files
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p><strong>Note:</strong> This will install the default config. Adapt it according to your needs.</p>
-<hr>
-<p>With the previous setup, you will have the most basic Python project you’ll need. Of course, if you are working on research code you will probably need other tools to track your experiments, make them reproducible, etc. And if it&rsquo;s production code, you will need to add documentation, CD/CI, etc. But that could be covered in more detail in another post&hellip; if I feel like it 😉</p>
-<p>Until then, here&rsquo;s a song recommendation ❤️</p>
-<iframe width="560" height="215" src="https://www.youtube-nocookie.com/embed/NkcUdfHPx7g?si=Zuhx1e1eI676jWf4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-</section>
-
-
-    <footer class="article-footer">
-    
-
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>Licensed under CC BY-NC-SA 4.0</span>
-    </section>
-    </footer>
-
-
-    
-        
-
-    
-</article>
-
-    
-
-    
-
-     
-    
-        
-    
-
-    <footer class="site-footer">
-    <section class="copyright">
-        &copy; 
-        
-        2025 Javier Sempere
-    </section>
-    
-    <section class="powerby">
-        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
-    </section>
-</footer>
-
-
-    
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    
-    <div class="pswp__bg"></div>
-
-    
-    <div class="pswp__scroll-wrap">
-
-        
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                
-                
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
-                defer
-                >
-            </script><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
-                defer
-                >
-            </script><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
-            ><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
-            >
-
-            </main>
-        </div>
-        <script 
-                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
-                
-                >
-            </script><script type="text/javascript" src="/ts/main.d8f098c77baa74e778d45d7ea49e499a74fea9f1838335951703b31777c88fc6.js" defer></script>
-<script>
-    (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
-
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-
-        document.head.appendChild(customFont);
-    }());
-</script>
-
-    </body>
-</html>
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n"><title>How to create a simple Python project</title><link rel=canonical href=https://jsempereh.github.io/posts/create-python-repo/><link rel=stylesheet href=/scss/style.min.b0e76e98cdd4f7082d1fc36f7af7e0843a81201db2197c03ca426751dc923735.css><meta property='og:title' content="How to create a simple Python project"><meta property='og:description' content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n"><meta property='og:url' content='https://jsempereh.github.io/posts/create-python-repo/'><meta property='og:site_name' content='Javier Sempere'><meta property='og:type' content='article'><meta property='article:section' content='Posts'><meta property='article:published_time' content='2025-07-20T00:00:00+00:00'><meta property='article:modified_time' content='2025-07-20T00:00:00+00:00'><meta name=twitter:title content="How to create a simple Python project"><meta name=twitter:description content="In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia). Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.\nVersion control Let&rsquo;s say you have created your local directory: mkdir my-project. First, you need to init the version control. As of today, the most used tool is git.\n"><link rel="shortcut icon" href=/favicon.ico><script>window.MathJax={tex:{packages:{"[+]":["ams"]},inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]}}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><div class=site-meta><h1 class=site-name><a href=/>Javier Sempere</a></h1><h2 class=site-description></h2></div></header><ol class=menu-social><li><a href=https://github.com/JSempereH target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.linkedin.com/in/javier-sempere target=_blank title=LinkedIn rel=me><svg role="img" viewBox="0 0 24 24" fill="currentColor"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.85-3.037-1.851.0-2.134 1.445-2.134 2.939v5.667H9.358V9h3.414v1.561h.049c.476-.9 1.637-1.85 3.372-1.85 3.605.0 4.271 2.373 4.271 5.459v6.282zM5.337 7.433a2.07 2.07.0 110-4.14 2.07 2.07.0 010 4.14zm1.777 13.02H3.56V9h3.554v11.453zM22.225.0H1.771C.792.0.0.774.0 1.73v20.538C0 23.23.792 24 1.771 24h20.451c.98.0 1.778-.77 1.778-1.732V1.73C24 .773 23.203.0 22.225.0z"/></svg></a></li><li><a href=/index.xml target=_blank title=RSS rel=me><svg class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="5" cy="19" r="1"/><path d="M4 4a16 16 0 0116 16"/><path d="M4 11a9 9 0 019 9"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#version-control>Version control</a></li><li><a href=#package-manager>Package manager</a></li><li><a href=#clean-python-code>Clean Python code</a><ol><li><a href=#linter-and-formatter>Linter and formatter</a></li><li><a href=#pre-commit>Pre-commit</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/posts/create-python-repo/>How to create a simple Python project</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Jul 20, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>5 minute read</time></div></footer></div></header><section class=article-content><p>In this post I&rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).
+Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.</p><h1 id=version-control>Version control</h1><p>Let&rsquo;s say you have created your local directory: <code>mkdir my-project</code>.
+First, you need to init the version control. As of today, the most used tool is git.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>cd</span> my-project
+</span></span><span class=line><span class=cl>git init
+</span></span></code></pre></td></tr></table></div></div><p>You are probably using <a class=link href=https://github.com target=_blank rel=noopener>Github</a>, <a class=link href=https://about.gitlab.com target=_blank rel=noopener>Gitlab</a> or <a class=link href=https://codeberg.org target=_blank rel=noopener>Codeberg</a> for hosting your repo. Let&rsquo;s say you are using Github, and you have already created your repo there. Now you need to add the remote repository reference to your local Git:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>git remote add origin https://github.com/your-user/your-project.git
+</span></span></code></pre></td></tr></table></div></div><p>This command is setting the name &ldquo;origin&rdquo; to that remote. You can get the URL of the remote Git repository directly on the web:</p><p><img src=/posts/create-python-repo/Example-git-GUI.png width=966 height=419 srcset="/posts/create-python-repo/Example-git-GUI_hu_7e61f9b09ce0811d.png 480w, /posts/create-python-repo/Example-git-GUI_hu_375c61ad239c1de7.png 1024w" loading=lazy alt="Example of a Github repo" class=gallery-image data-flex-grow=230 data-flex-basis=553px></p><p>Another way of doing this is directly creating the Github repo and then clone it locally:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>git clone https://github.com/your-user/your-project.git
+</span></span></code></pre></td></tr></table></div></div><p>In case it is a private repo, you will need to log in.</p><p>You will need to create a <code>.gitignore</code> file. This will tell Git which file it shouldn&rsquo;t track. For example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Ignore Python cache</span>
+</span></span><span class=line><span class=cl>__pycache__/
+</span></span><span class=line><span class=cl>*.pyc
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Ignore virtual environment</span>
+</span></span><span class=line><span class=cl>.venv/
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Ignore logs</span>
+</span></span><span class=line><span class=cl>*.log
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Ignore IDE files</span>
+</span></span><span class=line><span class=cl>.vscode/
+</span></span></code></pre></td></tr></table></div></div><p>You can indicate whole directories (e.g. <code>.venv/</code>) or specific files, like <em>all the files that end with .log</em>: <code>*.log</code>.</p><h1 id=package-manager>Package manager</h1><p>I will use <a class=link href=https://docs.astral.sh/uv/ target=_blank rel=noopener>uv</a> for this post, since I think it&rsquo;s one of the best tools. You can also use <a class=link href=https://pypi.org/project/pip/ target=_blank rel=noopener>pip</a>, <a class=link href=https://python-poetry.org target=_blank rel=noopener>poetry</a>, etc.</p><p>In case you don&rsquo;t have it yet, you can install it with:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl -LsSf https://astral.sh/uv/install.sh <span class=p>|</span> sh
+</span></span></code></pre></td></tr></table></div></div><p>Let&rsquo;s say you are already in your repo directory. Init uv with:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv init
+</span></span></code></pre></td></tr></table></div></div><p>This will create the <code>pyproject.toml</code>, <code>uv.lock</code>, <code>main.py</code> (you will probably delete it), <code>README.md</code>, <code>.python-version</code> and a <code>.gitignore</code> (if you don&rsquo;t have it yet).</p><ul><li><strong>pyproject.toml</strong>: this is a configuration file. It contains info about the project name, version, authors, dependencies, dev-dependencies (packages only needed for development), etc. For example:</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=o>[</span>project<span class=o>]</span>
+</span></span><span class=line><span class=cl><span class=nv>name</span> <span class=o>=</span> <span class=s2>&#34;my_project&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>version</span> <span class=o>=</span> <span class=s2>&#34;0.1.0&#34;</span>
+</span></span><span class=line><span class=cl>requires-python <span class=o>=</span> <span class=s2>&#34;&gt;=3.12&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>dependencies</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;numpy&gt;=2.3.1&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>[</span>tool.uv<span class=o>]</span>
+</span></span><span class=line><span class=cl>dev-dependencies <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;pytest&#34;</span>, <span class=s2>&#34;ruff&#34;</span><span class=o>]</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li><strong>uv.lock</strong>: this lockfile states exact versions of all dependencies, including transitive ones (those required by your direct dependencies).</li></ul><p>If you want to use a new dependency in your code (e.g. numpy) you can use:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv add numpy
+</span></span></code></pre></td></tr></table></div></div><p>This will update <strong>pyproject.toml</strong> and <strong>uv.lock</strong>. If you want to install a dev-dependency (e.g. pytest), you use:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv add --dev pytest
+</span></span></code></pre></td></tr></table></div></div><p>You can remove a package with <code>uv remove</code>. In case another collaborator is working in your project and they update the packages, you can sync your virtual environment with the dependencies listed in <strong>pyproject.toml</strong> and <strong>uv.lock</strong> with <code>uv sync</code>.</p><p>If you want to install a library locally (not changing the project&rsquo;s dependencies), use <code>uv pip</code>. For example, if you want to create a notebook that uses your python module, but don&rsquo;t want to add <code>ipykernel</code> to the list of dependencies, you may use:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv pip install ipykernel
+</span></span></code></pre></td></tr></table></div></div><p>As a rule of thumb, try to minimize the number of dependencies in your project. Maintaining a project means updating the dependencies and handling the possible issues. The fewer the dependencies, the better.</p><h1 id=clean-python-code>Clean Python code</h1><p>Let&rsquo;s say you will write your package <strong>my-project</strong> with its <code>__init__.py</code> (so it is treated as a package) and some code. Your directory will look something like this:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>.
+</span></span><span class=line><span class=cl>├── my-project
+</span></span><span class=line><span class=cl>│   ├── __init__.py
+</span></span><span class=line><span class=cl>│   └── my_code.py
+</span></span><span class=line><span class=cl>├── pyproject.toml
+</span></span><span class=line><span class=cl>├── README.md
+</span></span><span class=line><span class=cl>└── uv.lock
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=m>2</span> directories, <span class=m>5</span> files
+</span></span></code></pre></td></tr></table></div></div><p>(Ignoring files starting with a <code>.</code>)</p><p>Before you start writing your code, it&rsquo;s better to set up some Python tools that format and correct your code.</p><h2 id=linter-and-formatter>Linter and formatter</h2><p>A linter will check your code for potential errors, bad practices, styles issues and bugs. And a formatter will reformat your code automatically, so you don&rsquo;t have to worry about spaces or line breaks.</p><p>Ruff can be used for both linting and formatting, you may install it as a dev-package:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv add --dev ruff
+</span></span></code></pre></td></tr></table></div></div><h2 id=pre-commit>Pre-commit</h2><p>Instead of running ruff while you are developing the code, you could run it every time you try to commit some code using <a class=link href=https://pre-commit.com target=_blank rel=noopener>pre-commit</a>. This way, it will format the the code and warn you if changes must be made. Install it also as a dev-package:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>uv add --dev pre-commit
+</span></span></code></pre></td></tr></table></div></div><p>Now you need to create a <code>.pre-commit-config.yaml</code> file in the root of your project. The following config tell pre-commit to run ruff for linting and formatting:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>repos:
+</span></span><span class=line><span class=cl>  - repo: https://github.com/astral-sh/ruff-pre-commit
+</span></span><span class=line><span class=cl>    rev: v0.4.8  <span class=c1># Use the latest tag from https://github.com/astral-sh/ruff-pre-commit/releases</span>
+</span></span><span class=line><span class=cl>    hooks:
+</span></span><span class=line><span class=cl>      - id: ruff
+</span></span><span class=line><span class=cl>      - id: ruff-format
+</span></span></code></pre></td></tr></table></div></div><p><a class=link href=https://docs.astral.sh/ruff/configuration/ target=_blank rel=noopener>Here</a> you can check Ruff&rsquo;s default configuration.</p><p>Finally, install the Git hook:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pre-commit install
+</span></span></code></pre></td></tr></table></div></div><p>Now, every time you run <code>git commit</code>, Ruff will check and/or format your staged files automatically. If it requeries a manual change, you won&rsquo;t be able to commit until you fix the code.</p><p>You can ignore pre-commit using <code>-nm</code> instead of <code>-m</code>, for example:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>git commit -nm <span class=s2>&#34;This commit hasn&#39;t run pre-commit :(&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><p>You may also apply the hook to all files (not just the staged ones) using:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>pre-commit run --all-files
+</span></span></code></pre></td></tr></table></div></div><p><strong>Note:</strong> This will install the default config. Adapt it according to your needs.</p><hr><p>With the previous setup, you will have the most basic Python project you’ll need. Of course, if you are working on research code you will probably need other tools to track your experiments, make them reproducible, etc. And if it&rsquo;s production code, you will need to add documentation, CD/CI, etc. But that could be covered in more detail in another post&mldr; if I feel like it 😉</p><p>Until then, here&rsquo;s a song recommendation ❤️</p><iframe width=560 height=215 src="https://www.youtube-nocookie.com/embed/NkcUdfHPx7g?si=Zuhx1e1eI676jWf4" title="YouTube video player" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy=strict-origin-when-cross-origin allowfullscreen></iframe></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><footer class=site-footer><section class=copyright>&copy;
+2025 Javier Sempere</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.30.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

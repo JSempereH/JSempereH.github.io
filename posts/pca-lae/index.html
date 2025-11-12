@@ -1,748 +1,106 @@
-<!DOCTYPE html>
-<html lang="en-us" dir="ltr">
-    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n">
-<title>PCA is equivalent to a Linear Autoencoder</title>
-
-<link rel='canonical' href='http://localhost:1313/posts/pca-lae/'>
-
-<link rel="stylesheet" href="/scss/style.min.b0e76e98cdd4f7082d1fc36f7af7e0843a81201db2197c03ca426751dc923735.css"><meta property='og:title' content="PCA is equivalent to a Linear Autoencoder">
-<meta property='og:description' content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n">
-<meta property='og:url' content='http://localhost:1313/posts/pca-lae/'>
-<meta property='og:site_name' content='Javier Sempere'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:published_time' content='2025-10-03T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-03T00:00:00&#43;00:00'/>
-<meta name="twitter:title" content="PCA is equivalent to a Linear Autoencoder">
-<meta name="twitter:description" content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n">
-    <link rel="shortcut icon" href="/favicon.ico" />
-<script>
-window.MathJax = {
-  tex: {
-    packages: {'[+]': ['ams']},
-    inlineMath: [['$', '$'], ['\\(', '\\)']],
-    displayMath: [['$$', '$$'], ['\\[', '\\]']]
-  }
-};
-</script>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    </head>
-    <body class="
-    article-page
-    ">
-    <script>
-        (function() {
-            const colorSchemeKey = 'StackColorScheme';
-            if(!localStorage.getItem(colorSchemeKey)){
-                localStorage.setItem(colorSchemeKey, "auto");
-            }
-        })();
-    </script><script>
-    (function() {
-        const colorSchemeKey = 'StackColorScheme';
-        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
-        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
-
-        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
-            
-
-            document.documentElement.dataset.scheme = 'dark';
-        } else {
-            document.documentElement.dataset.scheme = 'light';
-        }
-    })();
-</script>
-<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
-    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
-        <span class="hamburger-box">
-            <span class="hamburger-inner"></span>
-        </span>
-    </button>
-
-    <header>
-        
-            
-        
-        
-        <div class="site-meta">
-            <h1 class="site-name"><a href="/">Javier Sempere</a></h1>
-            <h2 class="site-description"></h2>
-        </div>
-    </header><ol class="menu-social">
-            
-                <li>
-                    <a 
-                        href='https://github.com/JSempereH'
-                        target="_blank"
-                        title="GitHub"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
-</svg>
-
-
-
-                        
-                    </a>
-                </li>
-            
-                <li>
-                    <a 
-                        href='https://www.linkedin.com/in/javier-sempere'
-                        target="_blank"
-                        title="LinkedIn"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-  <title>LinkedIn</title>
-  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.85-3.037
-           -1.851 0-2.134 1.445-2.134 2.939v5.667H9.358V9h3.414v1.561h.049
-           c.476-.9 1.637-1.85 3.372-1.85 3.605 0 4.271 2.373 4.271 5.459v6.282z
-           M5.337 7.433a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.114
-           20.453H3.56V9h3.554v11.453zM22.225 0H1.771C.792 0 0 .774 0
-           1.73v20.538C0 23.23.792 24 1.771 24h20.451c.98 0
-           1.778-.77 1.778-1.732V1.73C24 .773 23.203 0 22.225 0z"></path>
-</svg>
-
-                        
-                    </a>
-                </li>
-            
-                <li>
-                    <a 
-                        href='/index.xml'
-                        target="_blank"
-                        title="RSS"
-                        rel="me"
-                    >
-                        
-                        
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="5" cy="19" r="1" />
-  <path d="M4 4a16 16 0 0 1 16 16" />
-  <path d="M4 11a9 9 0 0 1 9 9" />
-</svg>
-
-
-
-                        
-                    </a>
-                </li>
-            
-        </ol><ol class="menu" id="main-menu">
-        
-        
-        
-        <li >
-            <a href='/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <polyline points="5 12 3 12 12 3 21 12 19 12" />
-  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-</svg>
-
-
-
-                
-                <span>Home</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/about/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="7" r="4" />
-  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-</svg>
-
-
-
-                
-                <span>About</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/archives/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <rect x="3" y="4" width="18" height="4" rx="2" />
-  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
-  <line x1="10" y1="12" x2="14" y2="12" />
-</svg>
-
-
-
-                
-                <span>Archives</span>
-            </a>
-        </li>
-        
-        
-        <li >
-            <a href='/search/' >
-                
-                
-                
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="10" cy="10" r="7" />
-  <line x1="21" y1="21" x2="15" y2="15" />
-</svg>
-
-
-
-                
-                <span>Search</span>
-            </a>
-        </li>
-        
-        <li class="menu-bottom-section">
-            <ol class="menu">
-
-                
-                    <li id="dark-mode-toggle">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="8" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="16" cy="12" r="2" />
-  <rect x="2" y="6" width="20" height="12" rx="6" />
-</svg>
-
-
-
-                        <span>Dark Mode</span>
-                    </li>
-                
-            </ol>
-        </li>
-    </ol>
-</aside>
-
-    <aside class="sidebar right-sidebar sticky">
-        
-            
-                
-    <section class="widget archives">
-        <div class="widget-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <line x1="5" y1="9" x2="19" y2="9" />
-  <line x1="5" y1="15" x2="19" y2="15" />
-  <line x1="11" y1="4" x2="7" y2="20" />
-  <line x1="17" y1="4" x2="13" y2="20" />
-</svg>
-
-
-
-        </div>
-        <h2 class="widget-title section-title">Table of contents</h2>
-        
-        <div class="widget--toc">
-            <nav id="TableOfContents">
-  <ol>
-    <li><a href="#principal-component-analysis-pca">Principal Component Analysis (PCA)</a>
-      <ol>
-        <li><a href="#singular-value-decomposition-svd">Singular Value Decomposition (SVD)</a></li>
-      </ol>
-    </li>
-    <li><a href="#linear-autoencoders-and-pca-equivalence">Linear Autoencoders and PCA equivalence</a>
-      <ol>
-        <li><a href="#connection-to-pca">Connection to PCA</a></li>
-        <li><a href="#linear-autoencoders-dont-recover-exact-principal-components">Linear Autoencoders don&rsquo;t recover exact principal components</a></li>
-      </ol>
-    </li>
-  </ol>
-</nav>
-        </div>
-    </section>
-
-            
-        
-    </aside>
-
-
-            <main class="main full-width">
-    <article class="main-article">
-    <header class="article-header">
-
-    <div class="article-details">
-    
-
-    <div class="article-title-wrapper">
-        <h2 class="article-title">
-            <a href="/posts/pca-lae/">PCA is equivalent to a Linear Autoencoder</a>
-        </h2>
-    
-        
-    </div>
-
-    
-    
-    
-    
-    <footer class="article-time">
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
-  <circle cx="18" cy="18" r="4" />
-  <path d="M15 3v4" />
-  <path d="M7 3v4" />
-  <path d="M3 11h16" />
-  <path d="M18 16.496v1.504l1 1" />
-</svg>
-                <time class="article-time--published">Oct 03, 2025</time>
-            </div>
-        
-
-        
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    13 minute read
-                </time>
-            </div>
-        
-    </footer>
-    
-
-    
-</div>
-
-</header>
-
-    <section class="article-content">
-    
-    
-    <p>Our objective is to compact the representation of data while minimizing the information loss using linear transformations.</p>
-<h1 id="principal-component-analysis-pca">Principal Component Analysis (PCA)
-</h1><p>Given $n$ data vector ${x_1,  \dots, x_n} \in \mathbb{R}^m$, <strong>assuming that are mean centered</strong>, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis ${u_1, \dots, u_k} \in \mathbb{R}^m$ that <em>explains most of the variation of the projected data</em>. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.</p>
-<p>$U$ <em>encodes</em> the  original data $X$ into a lower dimension $z = U^TX$, $z_j= u^T_j x_j$. How do we choose $U$? There are two main approaches:</p>
-<ol>
-<li><strong>Reconstruction error:</strong>  The reconstruction data is $U (U^T X) = \tilde{X}$, therefore we want to minimize $||X - \tilde{X}||$ for some norm (we&rsquo;ll see that later). Therefore, we want to minimize the reconstruction error</li>
-</ol>
-<p>$$
-\min_{U  \in \mathbb{R}^{m \times k}} \sum_{i=1}^n ||x_i - UU^T x_i||^2
-$$</p>
-<ol start="2">
-<li><strong>Projected variance:</strong> Since the data is mean centered, $\hat{\mathbb{E}}[X] = 0$, we want to maximize the variance of the projected data</li>
-</ol>
-<p>$$
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k < m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n"><title>PCA is equivalent to a Linear Autoencoder</title><link rel=canonical href=https://jsempereh.github.io/posts/pca-lae/><link rel=stylesheet href=/scss/style.min.b0e76e98cdd4f7082d1fc36f7af7e0843a81201db2197c03ca426751dc923735.css><meta property='og:title' content="PCA is equivalent to a Linear Autoencoder"><meta property='og:description' content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k < m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n"><meta property='og:url' content='https://jsempereh.github.io/posts/pca-lae/'><meta property='og:site_name' content='Javier Sempere'><meta property='og:type' content='article'><meta property='article:section' content='Posts'><meta property='article:published_time' content='2025-10-03T00:00:00+00:00'><meta property='article:modified_time' content='2025-10-03T00:00:00+00:00'><meta name=twitter:title content="PCA is equivalent to a Linear Autoencoder"><meta name=twitter:description content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations.\nPrincipal Component Analysis (PCA) Given $n$ data vector ${x_1, \\dots, x_n} \\in \\mathbb{R}^m$, assuming that are mean centered, and given a target number of dimensions $k < m$. PCA finds an orthonormal basis ${u_1, \\dots, u_k} \\in \\mathbb{R}^m$ that explains most of the variation of the projected data. Let $U \\in \\mathbb{R}^{m \\times k}$ the matrix whose columns are $u_j \\in \\mathbb{R}^m$ and $X \\in \\mathbb{R}^{m \\times n}$ is a matrix whose columns are the data vector $x_j \\in \\mathbb{R}^m$.\n"><link rel="shortcut icon" href=/favicon.ico><script>window.MathJax={tex:{packages:{"[+]":["ams"]},inlineMath:[["$","$"],["\\(","\\)"]],displayMath:[["$$","$$"],["\\[","\\]"]]}}</script><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id=MathJax-script async src=https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js></script></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label="Toggle Menu">
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><div class=site-meta><h1 class=site-name><a href=/>Javier Sempere</a></h1><h2 class=site-description></h2></div></header><ol class=menu-social><li><a href=https://github.com/JSempereH target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.linkedin.com/in/javier-sempere target=_blank title=LinkedIn rel=me><svg role="img" viewBox="0 0 24 24" fill="currentColor"><title>LinkedIn</title><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.85-3.037-1.851.0-2.134 1.445-2.134 2.939v5.667H9.358V9h3.414v1.561h.049c.476-.9 1.637-1.85 3.372-1.85 3.605.0 4.271 2.373 4.271 5.459v6.282zM5.337 7.433a2.07 2.07.0 110-4.14 2.07 2.07.0 010 4.14zm1.777 13.02H3.56V9h3.554v11.453zM22.225.0H1.771C.792.0.0.774.0 1.73v20.538C0 23.23.792 24 1.771 24h20.451c.98.0 1.778-.77 1.778-1.732V1.73C24 .773 23.203.0 22.225.0z"/></svg></a></li><li><a href=/index.xml target=_blank title=RSS rel=me><svg class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="5" cy="19" r="1"/><path d="M4 4a16 16 0 0116 16"/><path d="M4 11a9 9 0 019 9"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/search/><svg class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg>
+<span>Search</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>Dark Mode</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">Table of contents</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#principal-component-analysis-pca>Principal Component Analysis (PCA)</a><ol><li><a href=#singular-value-decomposition-svd>Singular Value Decomposition (SVD)</a></li></ol></li><li><a href=#linear-autoencoders-and-pca-equivalence>Linear Autoencoders and PCA equivalence</a><ol><li><a href=#connection-to-pca>Connection to PCA</a></li><li><a href=#linear-autoencoders-dont-recover-exact-principal-components>Linear Autoencoders don&rsquo;t recover exact principal components</a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><div class=article-title-wrapper><h2 class=article-title><a href=/posts/pca-lae/>PCA is equivalent to a Linear Autoencoder</a></h2></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published>Oct 03, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>13 minute read</time></div></footer></div></header><section class=article-content><p>Our objective is to compact the representation of data while minimizing the information loss using linear transformations.</p><h1 id=principal-component-analysis-pca>Principal Component Analysis (PCA)</h1><p>Given $n$ data vector ${x_1, \dots, x_n} \in \mathbb{R}^m$, <strong>assuming that are mean centered</strong>, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis ${u_1, \dots, u_k} \in \mathbb{R}^m$ that <em>explains most of the variation of the projected data</em>. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.</p><p>$U$ <em>encodes</em> the original data $X$ into a lower dimension $z = U^TX$, $z_j= u^T_j x_j$. How do we choose $U$? There are two main approaches:</p><ol><li><strong>Reconstruction error:</strong> The reconstruction data is $U (U^T X) = \tilde{X}$, therefore we want to minimize $||X - \tilde{X}||$ for some norm (we&rsquo;ll see that later). Therefore, we want to minimize the reconstruction error</li></ol><p>$$
+\min_{U \in \mathbb{R}^{m \times k}} \sum_{i=1}^n ||x_i - UU^T x_i||^2
+$$</p><ol start=2><li><strong>Projected variance:</strong> Since the data is mean centered, $\hat{\mathbb{E}}[X] = 0$, we want to maximize the variance of the projected data</li></ol><p>$$
 \max_{U \in \mathbb{R}^{m \times k}, \hspace{.5 em}U^T U = I} \hat{\mathbb{E}} [\lVert U^T X \rVert^2]
-$$</p>
-<p>Actually, these two approaches are equivalent. By the Pythagorean decomposition, given a vector $x \in \mathbb{R}^m$,</p>
-<p>$$
+$$</p><p>Actually, these two approaches are equivalent. By the Pythagorean decomposition, given a vector $x \in \mathbb{R}^m$,</p><p>$$
 x = UU^Tx + (I - UU^T)x
-$$</p>
-<p>For simplicity, let&rsquo;s consider $k=1$, following the second approach we want to find the direction where the variance of the projected data is maximized.
-The columns vectors of $U$ must be orthonormal $(U^T U = I_k)$ to avoid degenerate solutions $(|u|=\infty)$. Take into account that since $U$ is not a square matrix, this <strong>doesn&rsquo;t imply</strong> that $UU^T = I_m$, $UU^T$ will be a projection matrix into a $k$-dimensional subspace.</p>
-<p>$$
+$$</p><p>For simplicity, let&rsquo;s consider $k=1$, following the second approach we want to find the direction where the variance of the projected data is maximized.
+The columns vectors of $U$ must be orthonormal $(U^T U = I_k)$ to avoid degenerate solutions $(|u|=\infty)$. Take into account that since $U$ is not a square matrix, this <strong>doesn&rsquo;t imply</strong> that $UU^T = I_m$, $UU^T$ will be a projection matrix into a $k$-dimensional subspace.</p><p>$$
 \begin{aligned}
-&amp;\max_{\lVert \mathbf{u}\rVert=1}  \hat{\mathbb{E}} \Big[ \big( \mathbf{u}^\top \mathbf{x} \big)^2 \Big] \\
-&amp;= \max_{|\mathbf{u}|=1}  \frac{1}{n} \sum_{i=1}^n \big( \mathbf{u}^\top \mathbf{x}_i \big)^2 \\
-&amp;= \max_{\lVert \mathbf{u} \rVert =1}  \frac{1}{n} \lVert \mathbf{u}^\top \mathbf{X} \rVert^2 \\
-&amp;= \max_{|\mathbf{u}|=1}  \mathbf{u}^\top \Big( \frac{1}{n} \mathbf{X} \mathbf{X}^\top \Big) \mathbf{u} \\
-&amp;= \text{largest eigenvalue of } S \overset{\text{def}}{=} \frac{1}{n} \mathbf{X} \mathbf{X}^\top \\
-&amp;\text{where } S \text{ is the sample covariance matrix of the data.}
+&\max_{\lVert \mathbf{u}\rVert=1} \hat{\mathbb{E}} \Big[ \big( \mathbf{u}^\top \mathbf{x} \big)^2 \Big] \\
+&= \max_{|\mathbf{u}|=1} \frac{1}{n} \sum_{i=1}^n \big( \mathbf{u}^\top \mathbf{x}_i \big)^2 \\
+&= \max_{\lVert \mathbf{u} \rVert =1} \frac{1}{n} \lVert \mathbf{u}^\top \mathbf{X} \rVert^2 \\
+&= \max_{|\mathbf{u}|=1} \mathbf{u}^\top \Big( \frac{1}{n} \mathbf{X} \mathbf{X}^\top \Big) \mathbf{u} \\
+&= \text{largest eigenvalue of } S \overset{\text{def}}{=} \frac{1}{n} \mathbf{X} \mathbf{X}^\top \\
+&\text{where } S \text{ is the sample covariance matrix of the data.}
 \end{aligned}
-$$</p>
-<p>Because the variance of the projected data (in the direction of $u$) is given by:</p>
-<p>$$
+$$</p><p>Because the variance of the projected data (in the direction of $u$) is given by:</p><p>$$
 \frac{1}{n} \sum_{i=1}^n (u^T x_i - u^T \bar{x})^2 = u^T S u
-$$</p>
-<p>Since $u^T u = | u|_2^2 = 1$, the optimization problem is equivalent to</p>
-<p>$$
+$$</p><p>Since $u^T u = | u|_2^2 = 1$, the optimization problem is equivalent to</p><p>$$
 \begin{aligned}
-&amp; \max_u &amp;&amp; u^T S u \\
-&amp; \text{subject to} &amp;&amp; \lVert u\rVert_2^2 = 1, \quad u \in \mathbb{R}^k
+& \max_u && u^T S u \\
+& \text{subject to} && \lVert u\rVert_2^2 = 1, \quad u \in \mathbb{R}^k
 \end{aligned}
-$$</p>
-<p>The Lagrangian of this problem is $\mathcal{L}(u) = u^T S u - \lambda(u^T  u - 1)$, where $\lambda$ is the Lagrange multiplier. The gradient of $\mathcal{L}(u)$ with respect to $u$ is:</p>
-<p>$$
+$$</p><p>The Lagrangian of this problem is $\mathcal{L}(u) = u^T S u - \lambda(u^T u - 1)$, where $\lambda$ is the Lagrange multiplier. The gradient of $\mathcal{L}(u)$ with respect to $u$ is:</p><p>$$
 \frac{\partial \mathcal{L} (u)}{\partial u} = S u - \lambda u
-$$</p>
-<p>Therefore, $\frac{\partial \mathcal{L} (u)}{\partial u} = 0 \leftrightarrow Su = \lambda u$. Since $u \neq 0$, $\lambda$ is a eigenvalue. In the optimization problem, we have now</p>
-<p>$$
+$$</p><p>Therefore, $\frac{\partial \mathcal{L} (u)}{\partial u} = 0 \leftrightarrow Su = \lambda u$. Since $u \neq 0$, $\lambda$ is a eigenvalue. In the optimization problem, we have now</p><p>$$
 \begin{aligned}
-&amp; \max_u &amp;&amp; \lambda u^T u \\
-&amp; \text{subject to} &amp;&amp; |u|_2^2 = 1, \quad Su = \lambda u \quad u \in \mathbb{R}^k \
+& \max_u && \lambda u^T u \\
+& \text{subject to} && |u|_2^2 = 1, \quad Su = \lambda u \quad u \in \mathbb{R}^k \
 \end{aligned}
-$$</p>
-<p>Since $u^T u = |u|_2^2 = 1$, we just want to find the largest eigenvalue of the covariance matrix $S$.</p>
-<p>By induction, it can be easily proved that we want to project the data in $k$-dimensional space, we need to find the $k$ eigenvectors of $S$ associated with the $k$ largest eigenvalues. This would be done supposing it holds for some general value $k$, and showing it consequently holds for $k+1$, imposing the orthonormality of the eigenvectors in the Lagrange formulation (see <a class="link" href="https://www.bishopbook.com/"  target="_blank" rel="noopener"
-    >Section 16.1.2 from Bishop&rsquo;s Deep Learning book</a>, I really recommend this book ☺️).</p>
-<p>Since $S$ is a symmetric positive semidefinite matrix, it has some <a class="link" href="https://people.math.harvard.edu/~knill/teaching/math22b2019/handouts/lecture17.pdf"  target="_blank" rel="noopener"
-    >nice propertities</a>: we know there is an <a class="link" href="#singular-value-decomposition-svd" >eigenvalue decomposition</a> of the form $S = Q \Lambda Q^T$, where $Q$ is an orthogonal matrix ($QQ^T = I$) and $\Lambda$ is a diagonal matrix with nonnegative eintries $\lambda_i$ such that $\lambda_1 \geq \lambda_2 \geq \dots \geq \lambda_k \geq 0$. The objective function is then $u^T S u = u^T Q \Lambda Q^T u = w^t \Lambda w = \sum_{i=1}^k \lambda_i w_i^2$, which is constrained to $\sum_{i=1}^k w_i^2 = 1$ since $|w|_2 = |Q^Tu|_2 = |u|_2 = 1$.</p>
-<p>Since $\lambda_1 \geq \lambda_i$, $\forall i \neq 1$, we have that $w^* = e_1 = (1,0,\dots,0)\in \mathbb{R}^k$. Therefore, $u^* = Q e_1 = q_1$, the first column of $Q$ (the eigenvector corresponding to the largest eigenvalue of $S$). The rest of the principal component vectors can be found by solving a sequence of similar optimization problems with the additional constraint that the solution must be orthogonal to all the previous solutions in the sequence. The solution of the $i-th$ problem is, inductively, $q_i$ (the $i-th$ eigenvector of $S$). In practice, $SVD$ already gives us the orthonormal basis we are looking for.</p>
-<p>Note that $u \perp (x_i - uu^Tx_i) = 0$ by the Pythagorean decomposition</p>
-<p>Taking expectations</p>
-<p>$$
+$$</p><p>Since $u^T u = |u|_2^2 = 1$, we just want to find the largest eigenvalue of the covariance matrix $S$.</p><p>By induction, it can be easily proved that we want to project the data in $k$-dimensional space, we need to find the $k$ eigenvectors of $S$ associated with the $k$ largest eigenvalues. This would be done supposing it holds for some general value $k$, and showing it consequently holds for $k+1$, imposing the orthonormality of the eigenvectors in the Lagrange formulation (see <a class=link href=https://www.bishopbook.com/ target=_blank rel=noopener>Section 16.1.2 from Bishop&rsquo;s Deep Learning book</a>, I really recommend this book ☺️).</p><p>Since $S$ is a symmetric positive semidefinite matrix, it has some <a class=link href=https://people.math.harvard.edu/~knill/teaching/math22b2019/handouts/lecture17.pdf target=_blank rel=noopener>nice propertities</a>: we know there is an <a class=link href=#singular-value-decomposition-svd>eigenvalue decomposition</a> of the form $S = Q \Lambda Q^T$, where $Q$ is an orthogonal matrix ($QQ^T = I$) and $\Lambda$ is a diagonal matrix with nonnegative eintries $\lambda_i$ such that $\lambda_1 \geq \lambda_2 \geq \dots \geq \lambda_k \geq 0$. The objective function is then $u^T S u = u^T Q \Lambda Q^T u = w^t \Lambda w = \sum_{i=1}^k \lambda_i w_i^2$, which is constrained to $\sum_{i=1}^k w_i^2 = 1$ since $|w|_2 = |Q^Tu|_2 = |u|_2 = 1$.</p><p>Since $\lambda_1 \geq \lambda_i$, $\forall i \neq 1$, we have that $w^* = e_1 = (1,0,\dots,0)\in \mathbb{R}^k$. Therefore, $u^* = Q e_1 = q_1$, the first column of $Q$ (the eigenvector corresponding to the largest eigenvalue of $S$). The rest of the principal component vectors can be found by solving a sequence of similar optimization problems with the additional constraint that the solution must be orthogonal to all the previous solutions in the sequence. The solution of the $i-th$ problem is, inductively, $q_i$ (the $i-th$ eigenvector of $S$). In practice, $SVD$ already gives us the orthonormal basis we are looking for.</p><p>Note that $u \perp (x_i - uu^Tx_i) = 0$ by the Pythagorean decomposition</p><p>Taking expectations</p><p>$$
 \hat{\mathbb{E}}[|x|^2] = \hat{\mathbb{E}}[|U^Tx|^2] + \hat{\mathbb{E}}[|x-UU^Tx|^2]
-$$</p>
-<p>We can see that minimizing the reconstruction error is equivalent to maximizing the captured variance.</p>
-<p>$$
+$$</p><p>We can see that minimizing the reconstruction error is equivalent to maximizing the captured variance.</p><p>$$
 \sum_{i=1}^n | x_i - uu^T x_i |^2 = \sum_{i=1}^n (|x_i|^2 - (u^T x_i)^2) = constant - \sum_{i=1}^n (u^Tx_i)^2 = constant - |u^T X|^2
-$$</p>
-<h2 id="singular-value-decomposition-svd">Singular Value Decomposition (SVD)
-</h2><p>Let $X$ be the real $m \times n$ matrix of rank $r$, $I_r$ the $r \times r$ identity matrix. A singular value decomposition of $X$ is $X = U \Sigma V^T$ where:</p>
-<ul>
-<li>$U \in \mathcal{M}_{m\times r}(\mathbb{R})$ such that $U^T U = I_r$. Note that the columns ${u_1,\dots,u_r}$ form an orthonormal set.</li>
-<li>$V \in \mathcal{M}_{n \times r}(\mathbb{R})$ such that $V^T V = I_r$. Note that the columns ${v_1,\dots, v_r}$ form an orthonormal set.</li>
-<li>$\Sigma = \begin{pmatrix}
-\sigma_1 &amp; 0        &amp; \cdots &amp; 0 \\
-0        &amp; \sigma_2 &amp; \cdots &amp; 0 \\
-\vdots   &amp; \vdots   &amp; \ddots &amp; \vdots \\
-0        &amp; 0        &amp; \cdots &amp; \sigma_r \\
-\end{pmatrix}$ where $\sigma_1 \geq \dots \geq \sigma_r &gt; 0$</li>
-</ul>
-<p>Every matrix $X \in \mathcal{M}_{m\times n}(\mathbb{R})$ has an SVD.</p>
-<p>Since $u_i \in \mathbb{R}^{m \times 1}$ and $v_i^T \in \mathbb{R}^{1 \times n}$, $X$ can be expressed as</p>
-<p>$$
+$$</p><h2 id=singular-value-decomposition-svd>Singular Value Decomposition (SVD)</h2><p>Let $X$ be the real $m \times n$ matrix of rank $r$, $I_r$ the $r \times r$ identity matrix. A singular value decomposition of $X$ is $X = U \Sigma V^T$ where:</p><ul><li>$U \in \mathcal{M}_{m\times r}(\mathbb{R})$ such that $U^T U = I_r$. Note that the columns ${u_1,\dots,u_r}$ form an orthonormal set.</li><li>$V \in \mathcal{M}_{n \times r}(\mathbb{R})$ such that $V^T V = I_r$. Note that the columns ${v_1,\dots, v_r}$ form an orthonormal set.</li><li>$\Sigma = \begin{pmatrix}
+\sigma_1 & 0 & \cdots & 0 \\
+0 & \sigma_2 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & \sigma_r \\
+\end{pmatrix}$ where $\sigma_1 \geq \dots \geq \sigma_r > 0$</li></ul><p>Every matrix $X \in \mathcal{M}_{m\times n}(\mathbb{R})$ has an SVD.</p><p>Since $u_i \in \mathbb{R}^{m \times 1}$ and $v_i^T \in \mathbb{R}^{1 \times n}$, $X$ can be expressed as</p><p>$$
 X = \sum_{i=1}^r \sigma_i u_i v_i^T
-$$</p>
-<p>We can extend $U$ to an $m \times m$ orthogonal matrix $\hat{U}$ by adding $m-r$ extra columns, we can expand $V$ to an $n \times n$ orthogonal matrix $\hat{V}$ adding $n-r$ extra columns, and we can expand $\Sigma$ to an $m \times n$ matrix $\hat{\Sigma}$ by adding extra entries that are all zero. We will refer to this factorization as the <strong>full SVD</strong>. <a class="link" href="https://youtu.be/vSczTbgc8Rc?si=Fn2o_JlLgrxrI_0V&amp;t=605"  target="_blank" rel="noopener"
-    >Geometrically</a>, we are applying a rotation to $X$, followed by a scaling, followed by another rotation. For now on, we will denote the full SDV just as $U\Sigma V^T$.</p>
-<p>Given any SVD of $X$, the singular values are the square roots of the nonzero eigenvalues of $X^TX$ or $XX^T$ (they have the same eigenvalues). From</p>
-<p>$$
+$$</p><p>We can extend $U$ to an $m \times m$ orthogonal matrix $\hat{U}$ by adding $m-r$ extra columns, we can expand $V$ to an $n \times n$ orthogonal matrix $\hat{V}$ adding $n-r$ extra columns, and we can expand $\Sigma$ to an $m \times n$ matrix $\hat{\Sigma}$ by adding extra entries that are all zero. We will refer to this factorization as the <strong>full SVD</strong>. <a class=link href="https://youtu.be/vSczTbgc8Rc?si=Fn2o_JlLgrxrI_0V&amp;t=605" target=_blank rel=noopener>Geometrically</a>, we are applying a rotation to $X$, followed by a scaling, followed by another rotation. For now on, we will denote the full SDV just as $U\Sigma V^T$.</p><p>Given any SVD of $X$, the singular values are the square roots of the nonzero eigenvalues of $X^TX$ or $XX^T$ (they have the same eigenvalues). From</p><p>$$
 X^T X V
 = \left( U \Sigma V^T \right)^T \left( U \Sigma V^T \right) V
 = V \Sigma^T U^T U \Sigma V^T V
 = V \Sigma^T \Sigma V^T V
 = V \Sigma^2
-$$</p>
-<p>it follows that each right singular vector $v_i$ of $X$ is an eigenvector of $X^TX$ with non-zero eigenvalue $\sigma_i^2$ for $i=1,\dots, r$. The remaining $n-r$ columns of $V$ span the eigenspace of $X^TX$ corresponding to the eigenvalue $0$. One can show a similar result for $X X^T$. For any full SDV $X = U \Sigma V^T$, the columns of $U$ spans an orthonormal set of eigenvectors of $X X^T$ and the columns of $V$ spans an orthonormal set of eigenvectors of $X^T X$.</p>
-<p>Let&rsquo;s introduce the <strong>Frobenius matrix norm</strong>:</p>
-<p>$$
+$$</p><p>it follows that each right singular vector $v_i$ of $X$ is an eigenvector of $X^TX$ with non-zero eigenvalue $\sigma_i^2$ for $i=1,\dots, r$. The remaining $n-r$ columns of $V$ span the eigenspace of $X^TX$ corresponding to the eigenvalue $0$. One can show a similar result for $X X^T$. For any full SDV $X = U \Sigma V^T$, the columns of $U$ spans an orthonormal set of eigenvectors of $X X^T$ and the columns of $V$ spans an orthonormal set of eigenvectors of $X^T X$.</p><p>Let&rsquo;s introduce the <strong>Frobenius matrix norm</strong>:</p><p>$$
 \begin{aligned}
-&amp;\lVert X \rVert_F := \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2} = \sqrt{trace(X^T X)} \\
-&amp;= \sqrt{trace((U \Sigma V^T)^T(U \Sigma V^T))} = \sqrt{trace(\Sigma^T \Sigma)} \\
-&amp;= \sqrt{\sigma_1^2 + \dots \sigma_r^2}
+&\lVert X \rVert_F := \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2} = \sqrt{trace(X^T X)} \\
+&= \sqrt{trace((U \Sigma V^T)^T(U \Sigma V^T))} = \sqrt{trace(\Sigma^T \Sigma)} \\
+&= \sqrt{\sigma_1^2 + \dots \sigma_r^2}
 \end{aligned}
-$$</p>
-<p>Given the SVD of $X = \sum_{i=1}^r \sigma_i u_i v_i^T$, $k \leq r$, we can obtain a rank-$k$ matrix $X_k$ by truncating the SVD after the first $k$ terms:</p>
-<p>$$
+$$</p><p>Given the SVD of $X = \sum_{i=1}^r \sigma_i u_i v_i^T$, $k \leq r$, we can obtain a rank-$k$ matrix $X_k$ by truncating the SVD after the first $k$ terms:</p><p>$$
 X_k := \sum_{i=1}^k \sigma_i u_i v_i^T
-$$</p>
-<p>We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $X_k$ has singular values $\sigma_1, \dots, \sigma_k$ and</p>
-<p>$$
+$$</p><p>We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $X_k$ has singular values $\sigma_1, \dots, \sigma_k$ and</p><p>$$
 \lVert X-X_k \rVert_F = \sqrt{\sigma_{k+1}^2+ \dots + \sigma_r^2}
-$$</p>
-<p>By Eckhart-Young theorem, $X_k$ is <a class="link" href="https://en.wikipedia.org/wiki/Low-rank_approximation"  target="_blank" rel="noopener"
-    >the best rank-$k$ approximation</a> of $X$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:</p>
-<p>$$
+$$</p><p>By Eckhart-Young theorem, $X_k$ is <a class=link href=https://en.wikipedia.org/wiki/Low-rank_approximation target=_blank rel=noopener>the best rank-$k$ approximation</a> of $X$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:</p><p>$$
 \frac{\lVert X-X_k \rVert_F^2}{\lVert X \rVert_F^2} = \frac{\sigma_{k+1}^2 + \dots + \sigma_r^2}{\sigma_1^2 + \dots + \sigma_r^2}
-$$</p>
-<p>For PCA we can use SVD: let&rsquo;s assume we have the mean centered input data ${x_1, \dots, x_n} \in \mathbb{R}^m$. If we set $k \leq m$, we want to find $\{ \tilde{x}_1, \dots, \tilde{x}_n \} \in \mathbb{R}^m$ with rank $\leq k$ (they must lie in a subspace of dimension at most $k$), writing the mean-cetered data and the approximations as column matrices:</p>
-<p>$$
+$$</p><p>For PCA we can use SVD: let&rsquo;s assume we have the mean centered input data ${x_1, \dots, x_n} \in \mathbb{R}^m$. If we set $k \leq m$, we want to find $\{ \tilde{x}_1, \dots, \tilde{x}_n \} \in \mathbb{R}^m$ with rank $\leq k$ (they must lie in a subspace of dimension at most $k$), writing the mean-cetered data and the approximations as column matrices:</p><p>$$
 \mathbf{X} := \left(
 \begin{array}{ccc}
-x_1 &amp; \cdots &amp; x_n
+x_1 & \cdots & x_n
 \end{array}
 \right),\quad
 \tilde{\mathbf{X}} := \left(
 \begin{array}{ccc}
-\tilde{x}_1 &amp; \cdots &amp; \tilde{x}_n
+\tilde{x}_1 & \cdots & \tilde{x}_n
 \end{array}
 \right)
-$$</p>
-<p>The reconstruction error is $\left| X - \tilde{X} \right|_F^2$. By Eckhart-Young Theorem an optimal choice of $\tilde{X}$ is the matrix $X_k$ via a truncated SVD.</p>
-<p>If $U_k$ is the $n \times k$ matrix whose columns are the top $k$ left singular vectors of $X$, then</p>
-<p>$$ X_k = U_k U_k^T X = X_k Z $$</p>
-<p>where $Z = U_k^T X$ are the coefficients that respectively approximate each mean centered data point as a linar combination of the top $k$ left eigenvectors.</p>
-<h1 id="linear-autoencoders-and-pca-equivalence">Linear Autoencoders and PCA equivalence
-</h1><p>An <strong>autoencoder</strong> is a type of neural network trained to reconstruct its input. It consists of two components:</p>
-<ul>
-<li>An <strong>encoder</strong> function $f: \mathbb{R}^m \to \mathbb{R}^k$ that maps the input to a latent (compressed) representation.</li>
-<li>A <strong>decoder</strong> function $g: \mathbb{R}^k \to \mathbb{R}^m$ that reconstructs the input from the latent representation.</li>
-</ul>
-<p>For a <strong>linear autoencoder</strong>, both the encoder and decoder are linear maps:</p>
-<p>$$
+$$</p><p>The reconstruction error is $\left| X - \tilde{X} \right|_F^2$. By Eckhart-Young Theorem an optimal choice of $\tilde{X}$ is the matrix $X_k$ via a truncated SVD.</p><p>If $U_k$ is the $n \times k$ matrix whose columns are the top $k$ left singular vectors of $X$, then</p><p>$$ X_k = U_k U_k^T X = X_k Z $$</p><p>where $Z = U_k^T X$ are the coefficients that respectively approximate each mean centered data point as a linar combination of the top $k$ left eigenvectors.</p><h1 id=linear-autoencoders-and-pca-equivalence>Linear Autoencoders and PCA equivalence</h1><p>An <strong>autoencoder</strong> is a type of neural network trained to reconstruct its input. It consists of two components:</p><ul><li>An <strong>encoder</strong> function $f: \mathbb{R}^m \to \mathbb{R}^k$ that maps the input to a latent (compressed) representation.</li><li>A <strong>decoder</strong> function $g: \mathbb{R}^k \to \mathbb{R}^m$ that reconstructs the input from the latent representation.</li></ul><p>For a <strong>linear autoencoder</strong>, both the encoder and decoder are linear maps:</p><p>$$
 f(x) = W_e^T x, \quad g(z) = W_d^T z
-$$</p>
-<p>where $W_e \in \mathbb{R}^{m \times k}$ and $W_d \in \mathbb{R}^{m \times k}$. Given a dataset of $n$ mean-centered data vectors ${x_1, \dots, x_n} \in \mathbb{R}^m$, we arrange them into a matrix:</p>
-<p>$$
+$$</p><p>where $W_e \in \mathbb{R}^{m \times k}$ and $W_d \in \mathbb{R}^{m \times k}$. Given a dataset of $n$ mean-centered data vectors ${x_1, \dots, x_n} \in \mathbb{R}^m$, we arrange them into a matrix:</p><p>$$
 X = \begin{pmatrix}
-x_1 &amp; \cdots &amp; x_n
+x_1 & \cdots & x_n
 \end{pmatrix}
-$$</p>
-<p>The reconstruction is:</p>
-<p>$$
+$$</p><p>The reconstruction is:</p><p>$$
 \tilde{X} = W_d^T W_e^T X
-$$</p>
-<p>The objective is to find $W_e$ and $W_d$ that minimize the reconstruction error, typically measured using the <strong>spectral norm</strong>:</p>
-<p>$$
+$$</p><p>The objective is to find $W_e$ and $W_d$ that minimize the reconstruction error, typically measured using the <strong>spectral norm</strong>:</p><p>$$
 \mathcal{L}(W_e, W_d) = \left| X - \tilde{X} \right|_2^2 = \left| X - W_d^T W_e^T X \right|_2^2
-$$</p>
-<p>But that objective function to minimize is similar to the one we saw in the reconstruction-error formulation for the PCA. However, here we are not constraining the matrices $W_e$ and $W_d$ as we did with $U$.</p>
-<h2 id="connection-to-pca">Connection to PCA
-</h2><p>If the autoencoder has a single linear hidden layer, no biases, mean-centered input, and is trained with squared error loss, the optimal solution for the weight matrices spans the same subspace as the top $k$ principal components of $X$, (see <a class="link" href="https://www.sciencedirect.com/science/article/abs/pii/0893608089900141"  target="_blank" rel="noopener"
-    >Baldi and Hornik, 1989</a>). Actually, even if the units are not linear, the networks projects the input onto the subspace spanned by the first $k$ principal components of the input (see <a class="link" href="https://publications.idiap.ch/downloads/reports/2000/rr00-16.pdf"  target="_blank" rel="noopener"
-    >Bourlard and Kamp, 1988</a>).</p>
-<p>In particular:</p>
-<ul>
-<li>The rows of $W_e^T$ span the same subspace as the top $k$ left singular vectors of $X$ (i.e., $U_k$ from the truncated SVD of $X$).</li>
-<li>The reconstructed data matrix $\tilde{X}$ is the projection of $X$ onto the subspace spanned by these top $k$ components.</li>
-</ul>
-<p>Formally, if $U_k$ contains the top $k$ left singular vectors of $X$, the optimal reconstruction is:</p>
-<p>$$
+$$</p><p>But that objective function to minimize is similar to the one we saw in the reconstruction-error formulation for the PCA. However, here we are not constraining the matrices $W_e$ and $W_d$ as we did with $U$.</p><h2 id=connection-to-pca>Connection to PCA</h2><p>If the autoencoder has a single linear hidden layer, no biases, mean-centered input, and is trained with squared error loss, the optimal solution for the weight matrices spans the same subspace as the top $k$ principal components of $X$, (see <a class=link href=https://www.sciencedirect.com/science/article/abs/pii/0893608089900141 target=_blank rel=noopener>Baldi and Hornik, 1989</a>). Actually, even if the units are not linear, the networks projects the input onto the subspace spanned by the first $k$ principal components of the input (see <a class=link href=https://publications.idiap.ch/downloads/reports/2000/rr00-16.pdf target=_blank rel=noopener>Bourlard and Kamp, 1988</a>).</p><p>In particular:</p><ul><li>The rows of $W_e^T$ span the same subspace as the top $k$ left singular vectors of $X$ (i.e., $U_k$ from the truncated SVD of $X$).</li><li>The reconstructed data matrix $\tilde{X}$ is the projection of $X$ onto the subspace spanned by these top $k$ components.</li></ul><p>Formally, if $U_k$ contains the top $k$ left singular vectors of $X$, the optimal reconstruction is:</p><p>$$
 \tilde{X} = U_k U_k^T X
-$$</p>
-<p>which is precisely the truncated SVD reconstruction (the PCA rank-$k$ approximation).</p>
-<p>Thus, a linear autoencoder trained in this setting essentially learns the PCA solution: it projects the data onto a lower-dimensional linear subspace that captures the directions of highest variance, and then reconstructs the data from this projection.</p>
-<p><strong>Example:</strong></p>
-<p>The following animation illustrates how a <strong>linear autoencoder progressively learns the principal direction of a 2D dataset</strong>.</p>
-<ul>
-<li>
-<p>On the <strong>left plot</strong>, the scatter plot shows the input 2D data points sampled from a normal distribution with a non-diagonal covariance matrix (i.e., correlated variables).</p>
-<ul>
-<li>The <strong>green arrow</strong> represents the first principal component computed by <strong>PCA</strong>. This direction captures the largest variance in the data and remains fixed throughout the animation.</li>
-<li>The <strong>red arrow</strong> represents the first component (first row of the encoder’s weight matrix) learned by the <strong>autoencoder</strong> during training. This arrow evolves over epochs as the autoencoder updates its weights to better reconstruct the data.</li>
-</ul>
-</li>
-<li>
-<p>On the <strong>right plot</strong>, the training <strong>loss value (mean squared error)</strong> is plotted against the number of epochs. This shows how the reconstruction error decreases as the autoencoder progressively aligns its learned component with the true principal direction.</p>
-</li>
-</ul>
-<p><strong>Both arrows are normalized to unit length</strong> in each frame to visualize only their direction (subspace) rather than their magnitude.</p>
-<p>The learning rate is controlled by a <strong>scheduler</strong> that reduces it by half every 30 epochs, which helps stabilize convergence in the later stages of training.</p>
-<p><img src="/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif"
-	width="1200"
-	height="600"
-	srcset="/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, /posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w"
-	loading="lazy"
-	
-		alt="Example"
-	
-	
-		class="gallery-image" 
-		data-flex-grow="200"
-		data-flex-basis="480px"
-	
-></p>
-<h2 id="linear-autoencoders-dont-recover-exact-principal-components">Linear Autoencoders don&rsquo;t recover exact principal components
-</h2><p>PCA imposes:</p>
-<ul>
-<li>Orthonormality: $U_k^T U_k = I$</li>
-<li>Ordering by explained variance (via eigenvalues)</li>
-</ul>
-<p>A linear autoencoder does <strong>not</strong> enforce:</p>
-<ul>
-<li>Orthogonality between encoding directions</li>
-<li>Ordering of the directions</li>
-<li>Unit norms for basis vectors</li>
-</ul>
-<p>Thus, even though it learns to project onto the same subspace, its basis vectors (rows of $W_e$ or columns of $W_e^T$) might differ from the true principal components.</p>
-<p>Note that even if we force $W_e = W_d^T$, the learned subspace basis vectors may still differ from exact PCA vectors. Since any rotation within the latent k-dimensional space preserves the reconstruction error, as <a class="link" href="https://arxiv.org/abs/1901.08168"  target="_blank" rel="noopener"
-    >Kunin, D. et al. (2019)</a> states:</p>
-<blockquote>
-<p>Without regularization, LAEs learn this subspace but cannot learn the principal directions themselves due to the symmetry of $\mathcal{L}$  under the action group $GL_k(\mathbb{R})$ of invertible $k \times k$ matrices defined by $(W_d, W_e) \mapsto (GW_d, W_e G^{-1})$:
+$$</p><p>which is precisely the truncated SVD reconstruction (the PCA rank-$k$ approximation).</p><p>Thus, a linear autoencoder trained in this setting essentially learns the PCA solution: it projects the data onto a lower-dimensional linear subspace that captures the directions of highest variance, and then reconstructs the data from this projection.</p><p><strong>Example:</strong></p><p>The following animation illustrates how a <strong>linear autoencoder progressively learns the principal direction of a 2D dataset</strong>.</p><ul><li><p>On the <strong>left plot</strong>, the scatter plot shows the input 2D data points sampled from a normal distribution with a non-diagonal covariance matrix (i.e., correlated variables).</p><ul><li>The <strong>green arrow</strong> represents the first principal component computed by <strong>PCA</strong>. This direction captures the largest variance in the data and remains fixed throughout the animation.</li><li>The <strong>red arrow</strong> represents the first component (first row of the encoder’s weight matrix) learned by the <strong>autoencoder</strong> during training. This arrow evolves over epochs as the autoencoder updates its weights to better reconstruct the data.</li></ul></li><li><p>On the <strong>right plot</strong>, the training <strong>loss value (mean squared error)</strong> is plotted against the number of epochs. This shows how the reconstruction error decreases as the autoencoder progressively aligns its learned component with the true principal direction.</p></li></ul><p><strong>Both arrows are normalized to unit length</strong> in each frame to visualize only their direction (subspace) rather than their magnitude.</p><p>The learning rate is controlled by a <strong>scheduler</strong> that reduces it by half every 30 epochs, which helps stabilize convergence in the later stages of training.</p><p><img src=/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler.gif width=1200 height=600 srcset="/posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_fa37ea6dd65cf1a3.gif 480w, /posts/pca-lae/ae_vs_pca_first_component_loss_scheduler_hu_2c8b72d1f9090a18.gif 1024w" loading=lazy alt=Example class=gallery-image data-flex-grow=200 data-flex-basis=480px></p><h2 id=linear-autoencoders-dont-recover-exact-principal-components>Linear Autoencoders don&rsquo;t recover exact principal components</h2><p>PCA imposes:</p><ul><li>Orthonormality: $U_k^T U_k = I$</li><li>Ordering by explained variance (via eigenvalues)</li></ul><p>A linear autoencoder does <strong>not</strong> enforce:</p><ul><li>Orthogonality between encoding directions</li><li>Ordering of the directions</li><li>Unit norms for basis vectors</li></ul><p>Thus, even though it learns to project onto the same subspace, its basis vectors (rows of $W_e$ or columns of $W_e^T$) might differ from the true principal components.</p><p>Note that even if we force $W_e = W_d^T$, the learned subspace basis vectors may still differ from exact PCA vectors. Since any rotation within the latent k-dimensional space preserves the reconstruction error, as <a class=link href=https://arxiv.org/abs/1901.08168 target=_blank rel=noopener>Kunin, D. et al. (2019)</a> states:</p><blockquote><p>Without regularization, LAEs learn this subspace but cannot learn the principal directions themselves due to the symmetry of $\mathcal{L}$ under the action group $GL_k(\mathbb{R})$ of invertible $k \times k$ matrices defined by $(W_d, W_e) \mapsto (GW_d, W_e G^{-1})$:
 $$
 X - (W_e G^{-1})(G W_d)X = X - W_e W_d X
-$$</p>
-</blockquote>
-<p>They proved that LAEs with $L_2$-regularization do in fact learn the principal directions as the left singular vectors of the decoder, since the regularization reduces the symmetry group from $GL_k(\mathbb{R})$ to the orthogonal group $O_k (\mathbb{R})$, which preserves the structure of SVD. The loss is then defined as:</p>
-<p>$$
+$$</p></blockquote><p>They proved that LAEs with $L_2$-regularization do in fact learn the principal directions as the left singular vectors of the decoder, since the regularization reduces the symmetry group from $GL_k(\mathbb{R})$ to the orthogonal group $O_k (\mathbb{R})$, which preserves the structure of SVD. The loss is then defined as:</p><p>$$
 \mathcal{L}_\lambda(W_e, W_d) = \mathcal{L}(W_e, W_d) + \lambda (\left| W_1 \right|_F^2 + \left| W_2 \right|_F^2 )
-$$</p>
-<p>All stationary points satify $W_e = W_d^T$</p>
-<p><a class="link" href="https://arxiv.org/abs/2007.06731"  target="_blank" rel="noopener"
-    >Bao, X et al. 2020</a> proposed that the rows of $W_d$ and the columns of $W_e$ are penalized with differents weights (non-uniform $L_2$-regularization). Let $0 &lt; \lambda_1 &lt; \cdots &lt; \lambda_k$ and $\Lambda = diag(\lambda_1,\dots, \lambda_k)$. The proposed loss funcion is</p>
-<p>$$
+$$</p><p>All stationary points satify $W_e = W_d^T$</p><p><a class=link href=https://arxiv.org/abs/2007.06731 target=_blank rel=noopener>Bao, X et al. 2020</a> proposed that the rows of $W_d$ and the columns of $W_e$ are penalized with differents weights (non-uniform $L_2$-regularization). Let $0 &lt; \lambda_1 &lt; \cdots &lt; \lambda_k$ and $\Lambda = diag(\lambda_1,\dots, \lambda_k)$. The proposed loss funcion is</p><p>$$
 \mathcal{L}_{\lambda&rsquo;}(W_e, W_d) = \left| X - W_d W_e X \right|_F^2 + \left| \Lambda^{1/2} W_e \right|_F^2 + \left| W_d \Lambda^{1/2} \right|_F^2
-$$</p>
-<p>This loss function also satifies $W_e = W_d^T$ and the global minimum recovers the ordered, axis-aligned individual principal directions. However, the convergence is slow due to ill-conditioning at global optima using gradient-descent update rules. In the paper, a modification of the update rule is proposed to tackle this: the rotation augmented gradient (RAG).</p>
-<hr>
-<p>As we have seen, the vectors of weights of a linear autoencoder form a basis set that spans the same subspace as PCA, however, these vectors are not orthogonal or normalized. Considering there are <a class="link" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.IncrementalPCA.html#sklearn.decomposition.IncrementalPCA"  target="_blank" rel="noopener"
-    >online PCA</a> algorithms, there is no advantage in using a linear autoencoder. However, deep autoencoders with non-linear layers are not restricted to linear transformations, therefore it will better capture the latent space of complex, non-linear data thanks to its flexibility, at the cost of loosing the simple <a class="link" href="https://en.wikipedia.org/wiki/Explainable_artificial_intelligence"  target="_blank" rel="noopener"
-    >interpretation</a> a PCA provides. You could also use <a class="link" href="https://graphics.stanford.edu/courses/cs233-25-spring/ReferencedPapers/scholkopf_kernel.pdf"  target="_blank" rel="noopener"
-    >Kernel PCA</a> (or its variants), which can be more suitable if you are not working with Big Data, although it&rsquo;s sensitive to the kernel you use.</p>
-<p>That&rsquo;s all for today :)</p>
-<p>If you spot any error, please open an issue in the <a class="link" href="https://github.com/JSempereH/JSempereH.github.io"  target="_blank" rel="noopener"
-    >web&rsquo;s repo</a>. Thx!</p>
-<iframe width="560" height="215" src="https://www.youtube-nocookie.com/embed/yWAyg3WeKh0?si=u9GDZtVZQKVCNnYi" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</section>
-
-
-    <footer class="article-footer">
-    
-
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>Licensed under CC BY-NC-SA 4.0</span>
-    </section>
-    </footer>
-
-
-    
-        
-
-    
-</article>
-
-    
-
-    
-
-     
-    
-        
-    
-
-    <footer class="site-footer">
-    <section class="copyright">
-        &copy; 
-        
-        2025 Javier Sempere
-    </section>
-    
-    <section class="powerby">
-        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.30.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
-    </section>
-</footer>
-
-
-    
-<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-    
-    <div class="pswp__bg"></div>
-
-    
-    <div class="pswp__scroll-wrap">
-
-        
-        <div class="pswp__container">
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-            <div class="pswp__item"></div>
-        </div>
-
-        
-        <div class="pswp__ui pswp__ui--hidden">
-
-            <div class="pswp__top-bar">
-
-                
-
-                <div class="pswp__counter"></div>
-
-                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-                <button class="pswp__button pswp__button--share" title="Share"></button>
-
-                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-                
-                
-                <div class="pswp__preloader">
-                    <div class="pswp__preloader__icn">
-                        <div class="pswp__preloader__cut">
-                            <div class="pswp__preloader__donut"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                <div class="pswp__share-tooltip"></div>
-            </div>
-
-            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-            </button>
-
-            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-            </button>
-
-            <div class="pswp__caption">
-                <div class="pswp__caption__center"></div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
-                defer
-                >
-            </script><script 
-                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
-                defer
-                >
-            </script><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
-            ><link 
-                rel="stylesheet" 
-                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
-            >
-
-            </main>
-        </div>
-        <script 
-                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
-                
-                >
-            </script><script type="text/javascript" src="/ts/main.d8f098c77baa74e778d45d7ea49e499a74fea9f1838335951703b31777c88fc6.js" defer></script>
-<script>
-    (function () {
-        const customFont = document.createElement('link');
-        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
-
-        customFont.type = "text/css";
-        customFont.rel = "stylesheet";
-
-        document.head.appendChild(customFont);
-    }());
-</script>
-
-    </body>
-</html>
+$$</p><p>This loss function also satifies $W_e = W_d^T$ and the global minimum recovers the ordered, axis-aligned individual principal directions. However, the convergence is slow due to ill-conditioning at global optima using gradient-descent update rules. In the paper, a modification of the update rule is proposed to tackle this: the rotation augmented gradient (RAG).</p><hr><p>As we have seen, the vectors of weights of a linear autoencoder form a basis set that spans the same subspace as PCA, however, these vectors are not orthogonal or normalized. Considering there are <a class=link href=https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.IncrementalPCA.html#sklearn.decomposition.IncrementalPCA target=_blank rel=noopener>online PCA</a> algorithms, there is no advantage in using a linear autoencoder. However, deep autoencoders with non-linear layers are not restricted to linear transformations, therefore it will better capture the latent space of complex, non-linear data thanks to its flexibility, at the cost of loosing the simple <a class=link href=https://en.wikipedia.org/wiki/Explainable_artificial_intelligence target=_blank rel=noopener>interpretation</a> a PCA provides. You could also use <a class=link href=https://graphics.stanford.edu/courses/cs233-25-spring/ReferencedPapers/scholkopf_kernel.pdf target=_blank rel=noopener>Kernel PCA</a> (or its variants), which can be more suitable if you are not working with Big Data, although it&rsquo;s sensitive to the kernel you use.</p><p>That&rsquo;s all for today :)</p><p>If you spot any error, please open an issue in the <a class=link href=https://github.com/JSempereH/JSempereH.github.io target=_blank rel=noopener>web&rsquo;s repo</a>. Thx!</p><iframe width=560 height=215 src="https://www.youtube-nocookie.com/embed/yWAyg3WeKh0?si=u9GDZtVZQKVCNnYi" title="YouTube video player" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy=strict-origin-when-cross-origin allowfullscreen></iframe></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><footer class=site-footer><section class=copyright>&copy;
+2025 Javier Sempere</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>Theme <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.30.0>Stack</a></b> designed by <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a></section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
