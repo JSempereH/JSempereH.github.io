@@ -2,24 +2,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>ML on Javier Sempere</title>
-    <link>https://example.org/tags/ml/</link>
+    <link>http://localhost:1313/tags/ml/</link>
     <description>Recent content in ML on Javier Sempere</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 02 Nov 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://example.org/tags/ml/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/ml/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Privacy-Enhancing Machine Learning</title>
-      <link>https://example.org/notes/tfm/</link>
+      <link>http://localhost:1313/notes/tfm/</link>
       <pubDate>Sun, 02 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.org/notes/tfm/</guid>
+      <guid>http://localhost:1313/notes/tfm/</guid>
       <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my MSc thesis &lt;em&gt;Privacy-Enhancing Machine Learning&lt;/em&gt; (2024), based mostly on my first year working at GMV.&lt;/p&gt;&#xA;&lt;p&gt;My tutors were &lt;a href=&#34;https://www.ucm.es/directorio?id=7440&#34;&gt;Carlos Gregorio Rodríguez&lt;/a&gt; and &lt;a href=&#34;https://es.linkedin.com/in/jmaunon&#34;&gt;Juan Miguel Auñón García&lt;/a&gt; (if you have the opportunity, I recommend working with them, I learnt a lot).&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;TFM.pdf&#34;&gt;Here&lt;/a&gt; is the PDF :)&lt;/p&gt;</description>
     </item>
     <item>
       <title>PCA is equivalent to a Linear Autoencoder</title>
-      <link>https://example.org/notes/pca-lae/</link>
+      <link>http://localhost:1313/notes/pca-lae/</link>
       <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.org/notes/pca-lae/</guid>
+      <guid>http://localhost:1313/notes/pca-lae/</guid>
       <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;&#xA;&lt;h2 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)&lt;/h2&gt;&#xA;&lt;p&gt;Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;</description>
     </item>
   </channel>
