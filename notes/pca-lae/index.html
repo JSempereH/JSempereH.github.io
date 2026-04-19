@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCA is equivalent to a Linear Autoencoder · Javier Sempere</title>
+
+
+
+
+
+
+<link rel="stylesheet" href="https://example.org/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css" integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin="anonymous">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$', right: '$', display: false}
+    ]
+  })">
+</script>
+</head>
+<body>
+  
+  <header>
+    <div class="header-inner">
+  <a href="/" class="header-logo">Javier Sempere</a>
+  <nav class="header-nav">
+    <a href="https://github.com/JSempereH" target="_blank">GitHub</a>
+  </nav>
+</div>
+  </header>
+  
+  <main>
+    
+<main class="note-single">
+  <div class="note-container">
+
+    <a href="/notes" class="back">← notes</a>
+
+    <h1 class="note-heading">PCA is equivalent to a Linear Autoencoder</h1>
+
+    <div class="note-meta">
+      <time>2025-10-03</time>
+      
+        
+        <a href="/tags/math" class="tag">Math</a>
+      
+        
+        <a href="/tags/ml" class="tag">ML</a>
+      
+    </div>
+
+    
+        <details class="toc" open>
+        <summary class="toc-title">Content</summary>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#principal-component-analysis-pca">Principal Component Analysis (PCA)</a>
+      <ul>
+        <li><a href="#singular-value-decomposition-svd">Singular Value Decomposition (SVD)</a></li>
+      </ul>
+    </li>
+    <li><a href="#linear-autoencoders-and-pca-equivalence">Linear Autoencoders and PCA equivalence</a>
+      <ul>
+        <li><a href="#connection-to-pca">Connection to PCA</a></li>
+        <li><a href="#linear-autoencoders-dont-recover-exact-principal-components">Linear Autoencoders don&rsquo;t recover exact principal components</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+        </details>
+    
+
+    <div class="note-body">
+      <p>Our objective is to compact the representation of data while minimizing the information loss using linear transformations.</p>
+<h2 id="principal-component-analysis-pca">Principal Component Analysis (PCA)</h2>
+<p>Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, <strong>assuming that are mean centered</strong>, and given a target number of dimensions $k < m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that <em>explains most of the variation of the projected data</em>. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.</p>
+<p>$U$ <em>encodes</em> the  original data $X$ into a lower dimension $z = U^TX$, $z_j= u^T_j x_j$. How do we choose $U$? There are two main approaches:</p>
+<ol>
+<li><strong>Reconstruction error:</strong>  The reconstruction data is $U (U^T X) = \tilde{X}$, therefore we want to minimize $||X - \tilde{X}||$ for some norm (we&rsquo;ll see that later). Therefore, we want to minimize the reconstruction error</li>
+</ol>
+$$
+\min_{U  \in \mathbb{R}^{m \times k}} \sum_{i=1}^n ||x_i - UU^T x_i||^2
+$$<ol start="2">
+<li><strong>Projected variance:</strong> Since the data is mean centered, $\hat{\mathbb{E}}[X] = 0$, we want to maximize the variance of the projected data</li>
+</ol>
+$$
+\max_{U \in \mathbb{R}^{m \times k}, \hspace{.5 em}U^T U = I} \hat{\mathbb{E}} [\lVert U^T X \rVert^2] 
+$$<p>Actually, these two approaches are equivalent. By the Pythagorean decomposition, given a vector $x \in \mathbb{R}^m$,</p>
+$$
+x = UU^Tx + (I - UU^T)x
+$$<p>For simplicity, let&rsquo;s consider $k=1$, following the second approach we want to find the direction where the variance of the projected data is maximized.
+The columns vectors of $U$ must be orthonormal $(U^T U = I_k)$ to avoid degenerate solutions $(\|u\|=\infty)$. Take into account that since $U$ is not a square matrix, this <strong>doesn&rsquo;t imply</strong> that $UU^T = I_m$, $UU^T$ will be a projection matrix into a $k$-dimensional subspace.</p>
+$$
+\begin{aligned}
+&\max_{\lVert \mathbf{u}\rVert=1}  \hat{\mathbb{E}} \Big[ \big( \mathbf{u}^\top \mathbf{x} \big)^2 \Big] \\\
+&= \max_{\|\mathbf{u}\|=1}  \frac{1}{n} \sum_{i=1}^n \big( \mathbf{u}^\top \mathbf{x}_i \big)^2 \\\
+&= \max\_{\lVert \mathbf{u} \rVert =1}  \frac{1}{n} \lVert \mathbf{u}^\top \mathbf{X} \rVert^2 \\\
+&= \max\_{\|\mathbf{u}\|=1}  \mathbf{u}^\top \Big( \frac{1}{n} \mathbf{X} \mathbf{X}^\top \Big) \mathbf{u} \\\
+&= \text{largest eigenvalue of } S \overset{\text{def}}{=} \frac{1}{n} \mathbf{X} \mathbf{X}^\top \\\
+&\text{where } S \text{ is the sample covariance matrix of the data.}
+\end{aligned}
+$$<p>Because the variance of the projected data (in the direction of $u$) is given by:</p>
+$$
+\frac{1}{n} \sum_{i=1}^n (u^T x_i - u^T \bar{x})^2 = u^T S u
+$$<p>Since $u^T u = \| u\|_2^2 = 1$, the optimization problem is equivalent to</p>
+$$
+\begin{aligned}
+& \max_u && u^T S u \\\
+& \text{subject to} && \lVert u\rVert_2^2 = 1, \quad u \in \mathbb{R}^k
+\end{aligned}
+$$<p>The Lagrangian of this problem is $\mathcal{L}(u) = u^T S u - \lambda(u^T  u - 1)$, where $\lambda$ is the Lagrange multiplier. The gradient of $\mathcal{L}(u)$ with respect to $u$ is:</p>
+$$
+\frac{\partial \mathcal{L} (u)}{\partial u} = S u - \lambda u
+$$<p>Therefore, $\frac{\partial \mathcal{L} (u)}{\partial u} = 0 \leftrightarrow Su = \lambda u$. Since $u \neq 0$, $\lambda$ is a eigenvalue. In the optimization problem, we have now</p>
+$$
+\begin{aligned}
+& \max_u && \lambda u^T u \\\
+& \text{subject to} && \|u\|_2^2 = 1, \quad Su = \lambda u \quad u \in \mathbb{R}^k \\
+\end{aligned}
+$$<p>Since $u^T u = \|u\|_2^2 = 1$, we just want to find the largest eigenvalue of the covariance matrix $S$.</p>
+<p>By induction, it can be easily proved that we want to project the data in $k$-dimensional space, we need to find the $k$ eigenvectors of $S$ associated with the $k$ largest eigenvalues. This would be done supposing it holds for some general value $k$, and showing it consequently holds for $k+1$, imposing the orthonormality of the eigenvectors in the Lagrange formulation (see <a href="https://www.bishopbook.com/">Section 16.1.2 from Bishop&rsquo;s Deep Learning book</a>, I really recommend this book ☺️).</p>
+<p>Since $S$ is a symmetric positive semidefinite matrix, it has some <a href="https://people.math.harvard.edu/~knill/teaching/math22b2019/handouts/lecture17.pdf">nice propertities</a>: we know there is an <a href="#singular-value-decomposition-svd">eigenvalue decomposition</a> of the form $S = Q \Lambda Q^T$, where $Q$ is an orthogonal matrix ($QQ^T = I$) and $\Lambda$ is a diagonal matrix with nonnegative eintries $\lambda_i$ such that $\lambda_1 \geq \lambda_2 \geq \dots \geq \lambda_k \geq 0$. The objective function is then $u^T S u = u^T Q \Lambda Q^T u = w^t \Lambda w = \sum_{i=1}^k \lambda_i w_i^2$, which is constrained to $\sum_{i=1}^k w_i^2 = 1$ since $\|w\|_2 = \|Q^Tu\|_2 = \|u\|_2 = 1$.</p>
+<p>Since $\lambda_1 \geq \lambda_i$, $\forall i \neq 1$, we have that $w^* = e_1 = (1,0,\dots,0)\in \mathbb{R}^k$. Therefore, $u^* = Q e_1 = q_1$, the first column of $Q$ (the eigenvector corresponding to the largest eigenvalue of $S$). The rest of the principal component vectors can be found by solving a sequence of similar optimization problems with the additional constraint that the solution must be orthogonal to all the previous solutions in the sequence. The solution of the $i-th$ problem is, inductively, $q_i$ (the $i-th$ eigenvector of $S$). In practice, $SVD$ already gives us the orthonormal basis we are looking for.</p>
+<p>Note that $u \perp (x_i - uu^Tx_i) = 0$ by the Pythagorean decomposition</p>
+<p>Taking expectations</p>
+$$
+\hat{\mathbb{E}}[\|x\|^2] = \hat{\mathbb{E}}[\|U^Tx\|^2] + \hat{\mathbb{E}}[\|x-UU^Tx\|^2]
+$$<p>We can see that minimizing the reconstruction error is equivalent to maximizing the captured variance.</p>
+$$
+\sum_{i=1}^n \| x_i - uu^T x_i \|^2 = \sum_{i=1}^n (\|x_i\|^2 - (u^T x_i)^2) = constant - \sum_{i=1}^n (u^Tx_i)^2 = constant - \|u^T X\|^2
+$$<h3 id="singular-value-decomposition-svd">Singular Value Decomposition (SVD)</h3>
+<p>Let $X$ be the real $m \times n$ matrix of rank $r$, $I_r$ the $r \times r$ identity matrix. A singular value decomposition of $X$ is $X = U \Sigma V^T$ where:</p>
+<ul>
+<li>$U \in \mathcal{M}_{m\times r}(\mathbb{R})$ such that $U^T U = I_r$. Note that the columns $\{u_1,\dots,u_r\}$ form an orthonormal set.</li>
+<li>$V \in \mathcal{M}_{n \times r}(\mathbb{R})$ such that $V^T V = I_r$. Note that the columns $\{v_1,\dots, v_r\}$ form an orthonormal set.</li>
+<li>$\Sigma = \begin{pmatrix}
+\sigma_1 & 0        & \cdots & 0 \\\
+0        & \sigma_2 & \cdots & 0 \\\
+\vdots   & \vdots   & \ddots & \vdots \\\
+0        & 0        & \cdots & \sigma_r \\\
+\end{pmatrix}$ where $\sigma_1 \geq \dots \geq \sigma_r > 0$</li>
+</ul>
+<p>Every matrix $X \in \mathcal{M}_{m\times n}(\mathbb{R})$ has an SVD.</p>
+<p>Since $u_i \in \mathbb{R}^{m \times 1}$ and $v_i^T \in \mathbb{R}^{1 \times n}$, $X$ can be expressed as</p>
+$$
+X = \sum_{i=1}^r \sigma_i u_i v_i^T
+$$<p>We can extend $U$ to an $m \times m$ orthogonal matrix $\hat{U}$ by adding $m-r$ extra columns, we can expand $V$ to an $n \times n$ orthogonal matrix $\hat{V}$ adding $n-r$ extra columns, and we can expand $\Sigma$ to an $m \times n$ matrix $\hat{\Sigma}$ by adding extra entries that are all zero. We will refer to this factorization as the <strong>full SVD</strong>. <a href="https://youtu.be/vSczTbgc8Rc?si=Fn2o_JlLgrxrI_0V&amp;t=605">Geometrically</a>, we are applying a rotation to $X$, followed by a scaling, followed by another rotation. For now on, we will denote the full SDV just as $U\Sigma V^T$.</p>
+<p>Given any SVD of $X$, the singular values are the square roots of the nonzero eigenvalues of $X^TX$ or $XX^T$ (they have the same eigenvalues). From</p>
+$$
+X^T X V 
+= \left( U \Sigma V^T \right)^T \left( U \Sigma V^T \right) V 
+= V \Sigma^T U^T U \Sigma V^T V 
+= V \Sigma^T \Sigma V^T V 
+= V \Sigma^2
+$$<p>it follows that each right singular vector $v_i$ of $X$ is an eigenvector of $X^TX$ with non-zero eigenvalue $\sigma_i^2$ for $i=1,\dots, r$. The remaining $n-r$ columns of $V$ span the eigenspace of $X^TX$ corresponding to the eigenvalue $0$. One can show a similar result for $X X^T$. For any full SDV $X = U \Sigma V^T$, the columns of $U$ spans an orthonormal set of eigenvectors of $X X^T$ and the columns of $V$ spans an orthonormal set of eigenvectors of $X^T X$.</p>
+<p>Let&rsquo;s introduce the <strong>Frobenius matrix norm</strong>:</p>
+$$
+\begin{aligned}
+&\lVert X \rVert_F := \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{ij}^2} = \sqrt{trace(X^T X)} \\\
+&= \sqrt{trace((U \Sigma V^T)^T(U \Sigma V^T))} = \sqrt{trace(\Sigma^T \Sigma)} \\\
+&= \sqrt{\sigma_1^2 + \dots \sigma_r^2}
+\end{aligned}
+$$<p>Given the SVD of $X = \sum_{i=1}^r \sigma_i u_i v_i^T$, $k \leq r$, we can obtain a rank-$k$ matrix $X_k$ by truncating the SVD after the first $k$ terms:</p>
+$$
+X_k := \sum_{i=1}^k \sigma_i u_i v_i^T
+$$<p>We can see that $Img(X_k) = span(u_1,\dots,u_k)$, $X_k$ has singular values $\sigma_1, \dots, \sigma_k$ and</p>
+$$
+\lVert X-X_k \rVert_F = \sqrt{\sigma_{k+1}^2+ \dots + \sigma_r^2}
+$$<p>By Eckhart-Young theorem, $X_k$ is <a href="https://en.wikipedia.org/wiki/Low-rank_approximation">the best rank-$k$ approximation</a> of $X$ w.r.t the Frobenius norm. Actually, this also applies to any unitarily invariant norm, like the spectral norm $||\cdot||_2$. The explained variance ratio measures the relative error of this low-rank approximation:</p>
+$$
+\frac{\lVert X-X_k \rVert_F^2}{\lVert X \rVert_F^2} = \frac{\sigma_{k+1}^2 + \dots + \sigma_r^2}{\sigma_1^2 + \dots + \sigma_r^2}
+$$<p>For PCA we can use SVD: let&rsquo;s assume we have the mean centered input data $\{x_1, \dots, x_n\} \in \mathbb{R}^m$. If we set $k \leq m$, we want to find $\\{ \tilde{x}_1, \dots, \tilde{x}_n \\} \in \mathbb{R}^m$ with rank $\leq k$ (they must lie in a subspace of dimension at most $k$), writing the mean-cetered data and the approximations as column matrices:</p>
+$$
+\mathbf{X} := \left(
+\begin{array}{ccc}
+x_1 & \cdots & x_n
+\end{array}
+\right),\quad
+\tilde{\mathbf{X}} := \left(
+\begin{array}{ccc}
+\tilde{x}_1 & \cdots & \tilde{x}_n
+\end{array}
+\right)
+$$<p>The reconstruction error is $\left\| X - \tilde{X} \right\|_F^2$. By Eckhart-Young Theorem an optimal choice of $\tilde{X}$ is the matrix $X_k$ via a truncated SVD.</p>
+<p>If $U_k$ is the $n \times k$ matrix whose columns are the top $k$ left singular vectors of $X$, then</p>
+$$ X_k = U_k U_k^T X = X_k Z $$<p>where $Z = U_k^T X$ are the coefficients that respectively approximate each mean centered data point as a linar combination of the top $k$ left eigenvectors.</p>
+<h2 id="linear-autoencoders-and-pca-equivalence">Linear Autoencoders and PCA equivalence</h2>
+<p>An <strong>autoencoder</strong> is a type of neural network trained to reconstruct its input. It consists of two components:</p>
+<ul>
+<li>An <strong>encoder</strong> function $f: \mathbb{R}^m \to \mathbb{R}^k$ that maps the input to a latent (compressed) representation.</li>
+<li>A <strong>decoder</strong> function $g: \mathbb{R}^k \to \mathbb{R}^m$ that reconstructs the input from the latent representation.</li>
+</ul>
+<p>For a <strong>linear autoencoder</strong>, both the encoder and decoder are linear maps:</p>
+$$
+f(x) = W_e^T x, \quad g(z) = W_d^T z
+$$<p>where $W_e \in \mathbb{R}^{m \times k}$ and $W_d \in \mathbb{R}^{m \times k}$. Given a dataset of $n$ mean-centered data vectors $\{x_1, \dots, x_n\} \in \mathbb{R}^m$, we arrange them into a matrix:</p>
+$$
+X = \begin{pmatrix}
+x_1 & \cdots & x_n
+\end{pmatrix}
+$$<p>The reconstruction is:</p>
+$$
+\tilde{X} = W_d^T W_e^T X
+$$<p>The objective is to find $W_e$ and $W_d$ that minimize the reconstruction error, typically measured using the <strong>spectral norm</strong>:</p>
+$$
+\mathcal{L}(W_e, W_d) = \left\| X - \tilde{X} \right\|_2^2 = \left\| X - W_d^T W_e^T X \right\|_2^2
+$$<p>But that objective function to minimize is similar to the one we saw in the reconstruction-error formulation for the PCA. However, here we are not constraining the matrices $W_e$ and $W_d$ as we did with $U$.</p>
+<h3 id="connection-to-pca">Connection to PCA</h3>
+<p>If the autoencoder has a single linear hidden layer, no biases, mean-centered input, and is trained with squared error loss, the optimal solution for the weight matrices spans the same subspace as the top $k$ principal components of $X$, (see <a href="https://www.sciencedirect.com/science/article/abs/pii/0893608089900141">Baldi and Hornik, 1989</a>). Actually, even if the units are not linear, the networks projects the input onto the subspace spanned by the first $k$ principal components of the input (see <a href="https://publications.idiap.ch/downloads/reports/2000/rr00-16.pdf">Bourlard and Kamp, 1988</a>).</p>
+<p>In particular:</p>
+<ul>
+<li>The rows of $W_e^T$ span the same subspace as the top $k$ left singular vectors of $X$ (i.e., $U_k$ from the truncated SVD of $X$).</li>
+<li>The reconstructed data matrix $\tilde{X}$ is the projection of $X$ onto the subspace spanned by these top $k$ components.</li>
+</ul>
+<p>Formally, if $U_k$ contains the top $k$ left singular vectors of $X$, the optimal reconstruction is:</p>
+$$
+\tilde{X} = U_k U_k^T X
+$$<p>which is precisely the truncated SVD reconstruction (the PCA rank-$k$ approximation).</p>
+<p>Thus, a linear autoencoder trained in this setting essentially learns the PCA solution: it projects the data onto a lower-dimensional linear subspace that captures the directions of highest variance, and then reconstructs the data from this projection.</p>
+<p><strong>Example:</strong></p>
+<p>The following animation illustrates how a <strong>linear autoencoder progressively learns the principal direction of a 2D dataset</strong>.</p>
+<ul>
+<li>
+<p>On the <strong>left plot</strong>, the scatter plot shows the input 2D data points sampled from a normal distribution with a non-diagonal covariance matrix (i.e., correlated variables).</p>
+<ul>
+<li>The <strong>green arrow</strong> represents the first principal component computed by <strong>PCA</strong>. This direction captures the largest variance in the data and remains fixed throughout the animation.</li>
+<li>The <strong>red arrow</strong> represents the first component (first row of the encoder’s weight matrix) learned by the <strong>autoencoder</strong> during training. This arrow evolves over epochs as the autoencoder updates its weights to better reconstruct the data.</li>
+</ul>
+</li>
+<li>
+<p>On the <strong>right plot</strong>, the training <strong>loss value (mean squared error)</strong> is plotted against the number of epochs. This shows how the reconstruction error decreases as the autoencoder progressively aligns its learned component with the true principal direction.</p>
+</li>
+</ul>
+<p><strong>Both arrows are normalized to unit length</strong> in each frame to visualize only their direction (subspace) rather than their magnitude.</p>
+<p>The learning rate is controlled by a <strong>scheduler</strong> that reduces it by half every 30 epochs, which helps stabilize convergence in the later stages of training.</p>
+<p><img src="ae_vs_pca_first_component_loss_scheduler.gif" alt="Example"></p>
+<h3 id="linear-autoencoders-dont-recover-exact-principal-components">Linear Autoencoders don&rsquo;t recover exact principal components</h3>
+<p>PCA imposes:</p>
+<ul>
+<li>Orthonormality: $U_k^T U_k = I$</li>
+<li>Ordering by explained variance (via eigenvalues)</li>
+</ul>
+<p>A linear autoencoder does <strong>not</strong> enforce:</p>
+<ul>
+<li>Orthogonality between encoding directions</li>
+<li>Ordering of the directions</li>
+<li>Unit norms for basis vectors</li>
+</ul>
+<p>Thus, even though it learns to project onto the same subspace, its basis vectors (rows of $W_e$ or columns of $W_e^T$) might differ from the true principal components.</p>
+<p>Note that even if we force $W_e = W_d^T$, the learned subspace basis vectors may still differ from exact PCA vectors. Since any rotation within the latent k-dimensional space preserves the reconstruction error, as <a href="https://arxiv.org/abs/1901.08168">Kunin, D. et al. (2019)</a> states:</p>
+<blockquote>
+<p>Without regularization, LAEs learn this subspace but cannot learn the principal directions themselves due to the symmetry of $\mathcal{L}$  under the action group $GL_k(\mathbb{R})$ of invertible $k \times k$ matrices defined by $(W_d, W_e) \mapsto (GW_d, W_e G^{-1})$:
+</p>
+$$
+X - (W_e G^{-1})(G W_d)X = X - W_e W_d X
+$$</blockquote>
+<p>They proved that LAEs with $L_2$-regularization do in fact learn the principal directions as the left singular vectors of the decoder, since the regularization reduces the symmetry group from $GL_k(\mathbb{R})$ to the orthogonal group $O_k (\mathbb{R})$, which preserves the structure of SVD. The loss is then defined as:</p>
+$$
+\mathcal{L}_\lambda(W_e, W_d) = \mathcal{L}(W_e, W_d) + \lambda (\left\| W_1 \right\|_F^2 + \left\| W_2 \right\|_F^2 )
+$$<p>All stationary points satify $W_e = W_d^T$</p>
+<p><a href="https://arxiv.org/abs/2007.06731">Bao, X et al. 2020</a> proposed that the rows of $W_d$ and the columns of $W_e$ are penalized with differents weights (non-uniform $L_2$-regularization). Let $0 < \lambda_1 < \cdots < \lambda_k$ and $\Lambda = diag(\lambda_1,\dots, \lambda_k)$. The proposed loss funcion is</p>
+$$
+\mathcal{L}_{\lambda'}(W_e, W_d) = \left\| X - W_d W_e X \right\|_F^2 + \left\| \Lambda^{1/2} W_e \right\|_F^2 + \left\| W_d \Lambda^{1/2} \right\|_F^2
+$$<p>This loss function also satifies $W_e = W_d^T$ and the global minimum recovers the ordered, axis-aligned individual principal directions. However, the convergence is slow due to ill-conditioning at global optima using gradient-descent update rules. In the paper, a modification of the update rule is proposed to tackle this: the rotation augmented gradient (RAG).</p>
+<hr>
+<p>As we have seen, the vectors of weights of a linear autoencoder form a basis set that spans the same subspace as PCA, however, these vectors are not orthogonal or normalized. Considering there are <a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.IncrementalPCA.html#sklearn.decomposition.IncrementalPCA">online PCA</a> algorithms, there is no advantage in using a linear autoencoder. However, deep autoencoders with non-linear layers are not restricted to linear transformations, therefore it will better capture the latent space of complex, non-linear data thanks to its flexibility, at the cost of loosing the simple <a href="https://en.wikipedia.org/wiki/Explainable_artificial_intelligence">interpretation</a> a PCA provides. You could also use <a href="https://graphics.stanford.edu/courses/cs233-25-spring/ReferencedPapers/scholkopf_kernel.pdf">Kernel PCA</a> (or its variants), which can be more suitable if you are not working with Big Data, although it&rsquo;s sensitive to the kernel you use.</p>
+<p>That&rsquo;s all for today :)</p>
+<p>If you spot any error, please open an issue in the <a href="https://github.com/JSempereH/JSempereH.github.io">web&rsquo;s repo</a>. Thx!</p>
+<div class="video-wrapper">
+  <iframe
+    src="https://www.youtube-nocookie.com/embed/yWAyg3WeKh0"
+    title="Song recommendation :)"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+    loading="lazy">
+  </iframe>
+</div>
+
+    </div>
+
+  </div>
+</main>
+
+  </main>
+  
+
+  
+  <script src="https://example.org/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
+</body>
+</html>

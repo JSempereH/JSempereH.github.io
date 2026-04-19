@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Notes on Javier Sempere</title>
+    <link>https://example.org/notes/</link>
+    <description>Recent content in Notes on Javier Sempere</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 02 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://example.org/notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Privacy-Enhancing Machine Learning</title>
+      <link>https://example.org/notes/tfm/</link>
+      <pubDate>Sun, 02 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>https://example.org/notes/tfm/</guid>
+      <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my MSc thesis &lt;em&gt;Privacy-Enhancing Machine Learning&lt;/em&gt; (2024), based mostly on my first year working at GMV.&lt;/p&gt;&#xA;&lt;p&gt;My tutors were &lt;a href=&#34;https://www.ucm.es/directorio?id=7440&#34;&gt;Carlos Gregorio Rodríguez&lt;/a&gt; and &lt;a href=&#34;https://es.linkedin.com/in/jmaunon&#34;&gt;Juan Miguel Auñón García&lt;/a&gt; (if you have the opportunity, I recommend working with them, I learnt a lot).&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;TFM.pdf&#34;&gt;Here&lt;/a&gt; is the PDF :)&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Aproximación de puntos vía curvas de Bézier</title>
+      <link>https://example.org/notes/tfg/</link>
+      <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>https://example.org/notes/tfg/</guid>
+      <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p&gt;&#xA;&lt;p&gt;I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>PCA is equivalent to a Linear Autoencoder</title>
+      <link>https://example.org/notes/pca-lae/</link>
+      <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
+      <guid>https://example.org/notes/pca-lae/</guid>
+      <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;&#xA;&lt;h2 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)&lt;/h2&gt;&#xA;&lt;p&gt;Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>How to create a simple Python project</title>
+      <link>https://example.org/notes/create-python-repo/</link>
+      <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>https://example.org/notes/create-python-repo/</guid>
+      <description>&lt;p&gt;In this post I&amp;rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).&#xA;Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.&lt;/p&gt;&#xA;&lt;h2 id=&#34;version-control&#34;&gt;Version control&lt;/h2&gt;&#xA;&lt;p&gt;Let&amp;rsquo;s say you have created your local directory: &lt;code&gt;mkdir my-project&lt;/code&gt;.&#xA;First, you need to init the version control. As of today, the most used tool is git.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
