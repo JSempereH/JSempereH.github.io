@@ -2,31 +2,31 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on Javier Sempere</title>
-    <link>http://localhost:1313/tags/</link>
+    <link>https://JSempereH.github.io/tags/</link>
     <description>Recent content in Tags on Javier Sempere</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 02 Nov 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://JSempereH.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>ML</title>
-      <link>http://localhost:1313/tags/ml/</link>
+      <link>https://JSempereH.github.io/tags/ml/</link>
       <pubDate>Sun, 02 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/ml/</guid>
+      <guid>https://JSempereH.github.io/tags/ml/</guid>
       <description></description>
     </item>
     <item>
       <title>Math</title>
-      <link>http://localhost:1313/tags/math/</link>
+      <link>https://JSempereH.github.io/tags/math/</link>
       <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/math/</guid>
+      <guid>https://JSempereH.github.io/tags/math/</guid>
       <description></description>
     </item>
     <item>
       <title>Programming</title>
-      <link>http://localhost:1313/tags/programming/</link>
+      <link>https://JSempereH.github.io/tags/programming/</link>
       <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/tags/programming/</guid>
+      <guid>https://JSempereH.github.io/tags/programming/</guid>
       <description></description>
     </item>
   </channel>

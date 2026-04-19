@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Programming on Javier Sempere</title>
-    <link>http://localhost:1313/tags/programming/</link>
+    <link>https://JSempereH.github.io/tags/programming/</link>
     <description>Recent content in Programming on Javier Sempere</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 20 Jul 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/programming/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://JSempereH.github.io/tags/programming/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How to create a simple Python project</title>
-      <link>http://localhost:1313/notes/create-python-repo/</link>
+      <link>https://JSempereH.github.io/notes/create-python-repo/</link>
       <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/notes/create-python-repo/</guid>
+      <guid>https://JSempereH.github.io/notes/create-python-repo/</guid>
       <description>&lt;p&gt;In this post I&amp;rsquo;d like to write down the steps to make the simplest Python project you could make. Mainly focused for research projects (e.g. people in academia).&#xA;Therefore, there will be no pipelines (like Github Actions or Jenkins), nor any docs.&lt;/p&gt;&#xA;&lt;h2 id=&#34;version-control&#34;&gt;Version control&lt;/h2&gt;&#xA;&lt;p&gt;Let&amp;rsquo;s say you have created your local directory: &lt;code&gt;mkdir my-project&lt;/code&gt;.&#xA;First, you need to init the version control. As of today, the most used tool is git.&lt;/p&gt;</description>
     </item>
   </channel>
