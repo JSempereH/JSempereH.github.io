@@ -6,8 +6,15 @@
     <description>Recent content in Math on Javier Sempere</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 01 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 22 May 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://jsempereh.github.io/tags/math/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Regression under multicollinearity: PCR, PLS, and penalised methods</title>
+      <link>https://jsempereh.github.io/notes/pls-regression/</link>
+      <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://jsempereh.github.io/notes/pls-regression/</guid>
+      <description>&lt;p&gt;Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes&#xA;singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post&#xA;surveys four strategies for dealing with that problem. The first two (PCR and PLS)&#xA;compress the predictors into a small number of components before regressing. The last&#xA;two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.&#xA;They attack the same problem from opposite directions, and which one works best depends&#xA;entirely on the structure of the signal in your data.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Aproximación de puntos vía curvas de Bézier</title>
       <link>https://jsempereh.github.io/notes/tfg/</link>
