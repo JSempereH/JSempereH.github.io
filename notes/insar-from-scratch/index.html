@@ -1,0 +1,120 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (I): What a Radar Interferometer Actually Measures · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (I): What a Radar Interferometer Actually Measures</h1><div class=note-meta><time>2026-06-12</time>
+<a href=/tags/insar class=tag>InSAR</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#sar-a-radar-camera-not-an-optical-camera>SAR: a radar camera, not an optical camera</a></li><li><a href=#from-a-single-image-to-an-interferogram>From a single image to an interferogram</a></li><li><a href=#whats-actually-inside-the-interferometric-phase>What&rsquo;s actually inside the interferometric phase</a><ul><li><a href=#a-closer-look-the-topographic-term>A closer look: the topographic term</a></li></ul></li><li><a href=#the-phase-unwrapping-problem>The phase unwrapping problem</a></li><li><a href=#from-a-pair-of-images-to-a-time-series>From a pair of images to a time series</a></li><li><a href=#persistent-scatterers-ps-and-distributed-scatterers-ds>Persistent Scatterers (PS) and Distributed Scatterers (DS)</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the first post in a series called <strong>Probabilistic InSAR</strong>. The end goal is to
+treat radar interferometry as a statistical estimation problem: given a noisy,
+wrapped, spatially correlated set of observations, recover the ground displacement
+signal we actually care about. Before any of that makes sense, we need to be precise
+about what a radar interferometer measures in the first place. That is the only goal
+of this post.</p><h2 id=sar-a-radar-camera-not-an-optical-camera>SAR: a radar camera, not an optical camera</h2><p>A SAR (<em>Synthetic Aperture Radar</em>) satellite doesn&rsquo;t take a passive picture of
+reflected light like an optical camera. It emits microwave pulses toward the ground
+and measures the signal that bounces back (backscatter). For each pulse, it recovers
+two things per ground point:</p><ul><li><strong>Amplitude</strong>: how much energy came back (related to roughness and material of the
+object).</li><li><strong>Phase</strong>: where in the wave cycle the returning signal arrived, a value in
+$[0, 2\pi)$.</li></ul><p>The phase is what interests us, because it encodes the <strong>distance</strong> traveled by the
+wave, with a precision of fractions of a wavelength (millimeters), far finer than the
+pixel&rsquo;s spatial resolution (meters).</p><h2 id=from-a-single-image-to-an-interferogram>From a single image to an interferogram</h2><p>A single SAR image is useless for measuring absolute distance: the phase is ambiguous
+modulo $2\pi$, and we don&rsquo;t know how many full wave cycles fit along the path. The
+solution is <strong>differential</strong>: two acquisitions of the same area are taken at
+different times (or from slightly different positions), and the phase of one is
+subtracted from the other, pixel by pixel. This subtraction is called an
+<strong>interferogram</strong>.</p><p>If nothing changed between the two acquisitions, the differential phase should be
+essentially constant (aside from orbital geometry effects). If the ground moved in
+the satellite&rsquo;s viewing direction (line of sight, <em>LOS</em>) between acquisitions, that
+motion is encoded in the differential phase.</p><img src=/notes/insar-from-scratch/insar_geometry_hu_3ab9a5ffef697860.webp alt="InSAR acquisition geometry" loading=lazy><h2 id=whats-actually-inside-the-interferometric-phase>What&rsquo;s actually inside the interferometric phase</h2><p>The phase observed at a pixel in an interferogram isn&rsquo;t just &ldquo;deformation.&rdquo; It&rsquo;s a
+mixture of several distinct physical contributions, all superimposed into the same
+real number modulo $2\pi$:</p>$$
+\phi = \phi_{\text{topo}} + \phi_{\text{defo}} + \phi_{\text{atm}} + \phi_{\text{orb}} + \phi_{\text{noise}}
+$$<ul><li>$\phi_{\text{topo}}$: the topographic effect (the height difference between the
+actual surface and a reference digital elevation model).</li><li>$\phi_{\text{defo}}$: the term we actually want, ground motion projected onto the
+line of sight.</li><li>$\phi_{\text{atm}}$: signal delay from propagating through the atmosphere (mainly
+water vapor), which varies in time and has nothing to do with the ground.</li><li>$\phi_{\text{orb}}$: residual errors in the satellite&rsquo;s known orbit.</li><li>$\phi_{\text{noise}}$: instrument thermal noise and decorrelation (the target
+physically changed between acquisitions, so the phase is no longer comparable).</li></ul><p>Separating these terms is, in essence, the whole problem of InSAR. You can already
+see why it&rsquo;s ill-posed: you have <strong>one</strong> observed number per pixel and <strong>five</strong>
+physical processes mixed inside it. There&rsquo;s no unique solution without imposing
+additional assumptions on how each term behaves (e.g., that deformation is &ldquo;smooth&rdquo;
+in time, or that the atmosphere varies spatially in a certain way).</p><h3 id=a-closer-look-the-topographic-term>A closer look: the topographic term</h3><p>$\phi_{\text{topo}}$ is worth writing out explicitly, because unlike the others it
+has a clean closed form and it&rsquo;s the easiest one to simulate. From the acquisition
+geometry sketched above, an elevation $h$ above the reference surface shortens the
+slant range by approximately $h \cos\theta$, where $\theta$ is the incidence angle.
+Projecting that onto the baseline gives the standard first-order result</p>$$
+\phi_{\text{topo}} \approx \frac{4\pi}{\lambda} \frac{B_{\perp}}{R \sin\theta}\, h,
+$$<p>where $B_{\perp}$ is the component of the baseline perpendicular to the line of
+sight, $\lambda$ the radar wavelength, and $R$ the slant range. Because this is only
+ever observed modulo $2\pi$, there&rsquo;s a characteristic elevation change that drives it
+through one full cycle, the <strong>ambiguity height</strong>:</p>$$
+h_{2\pi} = \frac{\lambda R \sin\theta}{2 B_{\perp}}.
+$$<p>For Sentinel-1 ($\lambda = 5.55\,\text{cm}$, $R \approx 850\,\text{km}$,
+$\theta \approx 35°$) and a modest $B_{\perp} = 100\,\text{m}$ baseline, that comes
+out to roughly 135 m per fringe. We can simulate this directly: generate a synthetic
+DEM, apply the formula above, and wrap the result into $(-\pi, \pi]$ with
+<code>np.angle(np.exp(i * phase))</code>, exactly what a real interferogram looks like before
+unwrapping.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=k>as</span> <span class=nn>plt</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rng</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>default_rng</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># a synthetic &#34;volcano&#34; DEM</span>
+</span></span><span class=line><span class=cl><span class=n>n</span> <span class=o>=</span> <span class=mi>300</span>
+</span></span><span class=line><span class=cl><span class=n>x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linspace</span><span class=p>(</span><span class=o>-</span><span class=mi>5000</span><span class=p>,</span> <span class=mi>5000</span><span class=p>,</span> <span class=n>n</span><span class=p>)</span>  <span class=c1># metres</span>
+</span></span><span class=line><span class=cl><span class=n>y</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linspace</span><span class=p>(</span><span class=o>-</span><span class=mi>5000</span><span class=p>,</span> <span class=mi>5000</span><span class=p>,</span> <span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>X</span><span class=p>,</span> <span class=n>Y</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>meshgrid</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>r</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>sqrt</span><span class=p>(</span><span class=n>X</span><span class=o>**</span><span class=mi>2</span> <span class=o>+</span> <span class=n>Y</span><span class=o>**</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>cone</span> <span class=o>=</span> <span class=mi>1200</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=p>(</span><span class=n>r</span> <span class=o>/</span> <span class=mi>2000</span><span class=p>)</span> <span class=o>**</span> <span class=mf>1.5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>ripples</span> <span class=o>=</span> <span class=mi>40</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>sin</span><span class=p>(</span><span class=n>r</span> <span class=o>/</span> <span class=mi>250</span><span class=p>)</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=n>r</span> <span class=o>/</span> <span class=mi>4000</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>dem</span> <span class=o>=</span> <span class=n>cone</span> <span class=o>+</span> <span class=n>ripples</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Sentinel-1-like acquisition geometry</span>
+</span></span><span class=line><span class=cl><span class=n>wavelength</span> <span class=o>=</span> <span class=mf>0.0555</span>     <span class=c1># m, C-band</span>
+</span></span><span class=line><span class=cl><span class=n>R</span> <span class=o>=</span> <span class=mi>850_000</span>              <span class=c1># m, slant range</span>
+</span></span><span class=line><span class=cl><span class=n>theta</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>deg2rad</span><span class=p>(</span><span class=mi>35</span><span class=p>)</span>   <span class=c1># incidence angle</span>
+</span></span><span class=line><span class=cl><span class=n>B_perp</span> <span class=o>=</span> <span class=mi>100</span>              <span class=c1># m, perpendicular baseline</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>k</span> <span class=o>=</span> <span class=mi>4</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>pi</span> <span class=o>*</span> <span class=n>B_perp</span> <span class=o>/</span> <span class=p>(</span><span class=n>wavelength</span> <span class=o>*</span> <span class=n>R</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>sin</span><span class=p>(</span><span class=n>theta</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>phase_topo</span> <span class=o>=</span> <span class=n>k</span> <span class=o>*</span> <span class=n>dem</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>h_amb</span> <span class=o>=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>pi</span> <span class=o>/</span> <span class=n>k</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;ambiguity height: </span><span class=si>{</span><span class=n>h_amb</span><span class=si>:</span><span class=s2>.1f</span><span class=si>}</span><span class=s2> m&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>noise</span> <span class=o>=</span> <span class=n>rng</span><span class=o>.</span><span class=n>normal</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mf>0.15</span><span class=p>,</span> <span class=n>dem</span><span class=o>.</span><span class=n>shape</span><span class=p>)</span>  <span class=c1># decorrelation-like phase noise</span>
+</span></span><span class=line><span class=cl><span class=n>wrapped</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>angle</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=mi>1</span><span class=n>j</span> <span class=o>*</span> <span class=p>(</span><span class=n>phase_topo</span> <span class=o>+</span> <span class=n>noise</span><span class=p>)))</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ambiguity height: 135.3 m
+</span></span></code></pre></div><img src=/notes/insar-from-scratch/wrapped_interferogram_hu_f00986ffb0d83a81.webp alt="Synthetic DEM and its wrapped interferometric phase" loading=lazy><p>Each closed ring around the peak is one full $2\pi$ cycle, i.e. one
+$h_{2\pi} \approx 135\,\text{m}$ step in elevation. A 1200 m cone produces roughly
+nine rings, which is exactly what&rsquo;s in the figure. This is a good visual reminder of
+the next problem: the color at any pixel only tells you the phase modulo $2\pi$, not
+which ring, and therefore which elevation, you&rsquo;re actually looking at.</p><h2 id=the-phase-unwrapping-problem>The phase unwrapping problem</h2><p>Since phase is only observed modulo $2\pi$, reconstructing the true signal requires
+deciding how many whole $2\pi$ cycles to add or subtract at each pixel to &ldquo;unwrap&rdquo; it
+into a continuous function. This is called <strong>phase unwrapping</strong>, and it&rsquo;s itself a
+nontrivial combinatorial optimization problem, especially in areas with high noise or
+decorrelation. Unwrapping errors leave a characteristic fingerprint: jumps of exactly
+$\pm\lambda/2$ (half a wavelength) in the time series.</p><h2 id=from-a-pair-of-images-to-a-time-series>From a pair of images to a time series</h2><p>A single interferogram gives a map of relative deformation between two dates. What&rsquo;s
+actually interesting is the <strong>kinematic behavior</strong>: how a point moves over months or
+years. For that, a stack of $N$ SAR images of the same area is assembled (same
+satellite, similar geometry), and a phase time series per pixel is built, typically
+relative to a master image and a fixed reference point (which is assumed, with
+caveats, to be motionless).</p><p>This already starts to sound like statistics: for every point in space we have a
+vector of observations over time, with noise, from which we want to estimate a
+handful of kinematic parameters (velocity, whether there are jumps, whether there&rsquo;s
+seasonality&mldr;). Formally, we can think of the time series at a point as a random
+vector $y \in \mathbb{R}^m$ with</p>$$
+\mathbb{E}[y] = Ax, \qquad \operatorname{Cov}(y) = Q_{yy},
+$$<p>where $A$ is a known design matrix, $x$ is an unknown parameter vector, and $Q_{yy}$
+is the covariance matrix of the observations. This is nothing more than a generalized
+linear regression model. We&rsquo;ll build on it once we get to the statistical modeling.</p><h2 id=persistent-scatterers-ps-and-distributed-scatterers-ds>Persistent Scatterers (PS) and Distributed Scatterers (DS)</h2><p>Not all pixels are equally useful. A SAR pixel spans several meters on a side and
+contains the combined contribution of many tiny physical &ldquo;scatterers&rdquo; (a rooftop, a
+rock, an antenna&mldr;). If those scatterers change configuration between acquisitions
+(moving vegetation, water, disturbed soil), the phase stops being comparable over
+time: this is <strong>temporal decorrelation</strong>, and it makes the pixel useless for
+time-series analysis.</p><p>Two classical strategies address this:</p><ul><li><strong>Persistent Scatterers (PS)</strong>: pixels dominated by a single stable, highly
+reflective object (metallic structures, building corners, exposed rock). Their
+phase is reliable over time because the &ldquo;object&rdquo; doesn&rsquo;t change.</li><li><strong>Distributed Scatterers (DS)</strong>: groups of spatially homogeneous pixels (natural
+terrain, fields) that, when averaged, yield a more stable phase signal, even though
+individually they&rsquo;re noisy.</li></ul><p>With this vocabulary in place (interferogram, differential phase, its components,
+unwrapping, PS/DS, time series), we have what&rsquo;s needed to move on to the underlying
+statistical model: how a point&rsquo;s time series is formalized as a Gaussian random
+vector and estimated via generalized least squares.</p><h2 id=references>References</h2><ul><li>Bamler, R. & Hartl, P. (1998). Synthetic aperture radar interferometry. <em>Inverse
+Problems</em>, 14(4), R1-R54. <a href=https://doi.org/10.1088/0266-5611/14/4/001>https://doi.org/10.1088/0266-5611/14/4/001</a></li><li>Hanssen, R. F. (2001). <em>Radar Interferometry: Data Interpretation and Error
+Analysis</em>. Springer.</li><li>Ferretti, A., Prati, C., & Rocca, F. (2001). Permanent scatterers in SAR
+interferometry. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 39(1), 8-20.
+<a href=https://doi.org/10.1109/36.898661>https://doi.org/10.1109/36.898661</a></li></ul><hr><p>Today&rsquo;s song recommendation :)</p><div class=video-wrapper><iframe src=https://www.youtube-nocookie.com/embed/qyQGn6E3Lcg title="Song recommendation :)" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading=lazy></iframe></div><p>Another recommendation: check the story behind it 😉</p></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>

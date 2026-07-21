@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Physics on Javier Sempere</title>
+    <link>http://localhost:1414/tags/physics/</link>
+    <description>Recent content in Physics on Javier Sempere</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 21 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1414/tags/physics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>InSAR from scratch: how radar sees elevation</title>
+      <link>http://localhost:1414/notes/insar-from-scratch/</link>
+      <pubDate>Tue, 21 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1414/notes/insar-from-scratch/</guid>
+      <description>&lt;p&gt;This opens a small series on &lt;strong&gt;Interferometric Synthetic Aperture Radar (InSAR)&lt;/strong&gt;,&#xA;the technique behind most modern maps of volcanic inflation, earthquake deformation,&#xA;and slow ground subsidence, all derived from satellites that never physically touch&#xA;the ground. The whole series will build up the pipeline one piece at a time: this post&#xA;covers where the interferometric phase comes from and why it wraps; later ones will&#xA;deal with coherence and decorrelation, phase unwrapping, and turning wrapped fringes&#xA;into an actual displacement time series (SBAS/PSI).&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

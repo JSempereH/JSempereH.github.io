@@ -1,33 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Math on Javier Sempere</title>
-    <link>https://jsempereh.github.io/tags/math/</link>
-    <description>Recent content in Math on Javier Sempere</description>
-    <generator>Hugo</generator>
-    <language>en-us</language>
-    <lastBuildDate>Fri, 22 May 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://jsempereh.github.io/tags/math/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Regression under multicollinearity: PCR, PLS, and penalised methods</title>
-      <link>https://jsempereh.github.io/notes/pls-regression/</link>
-      <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://jsempereh.github.io/notes/pls-regression/</guid>
-      <description>&lt;p&gt;Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes&#xA;singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post&#xA;surveys four strategies for dealing with that problem. The first two (PCR and PLS)&#xA;compress the predictors into a small number of components before regressing. The last&#xA;two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.&#xA;They attack the same problem from opposite directions, and which one works best depends&#xA;entirely on the structure of the signal in your data.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Aproximación de puntos vía curvas de Bézier</title>
-      <link>https://jsempereh.github.io/notes/tfg/</link>
-      <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>https://jsempereh.github.io/notes/tfg/</guid>
-      <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p&gt;&#xA;&lt;p&gt;I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>PCA is equivalent to a Linear Autoencoder</title>
-      <link>https://jsempereh.github.io/notes/pca-lae/</link>
-      <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>https://jsempereh.github.io/notes/pca-lae/</guid>
-      <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;&#xA;&lt;h2 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)&lt;/h2&gt;&#xA;&lt;p&gt;Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;</description>
-    </item>
-  </channel>
-</rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Math on Javier Sempere</title><link>https://JSempereH.github.io/tags/math/</link><description>Recent content in Math on Javier Sempere</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 22 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://JSempereH.github.io/tags/math/index.xml" rel="self" type="application/rss+xml"/><item><title>Regression under multicollinearity: PCR, PLS, and penalised methods</title><link>https://JSempereH.github.io/notes/pls-regression/</link><pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/pls-regression/</guid><description>&lt;p>Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes
+singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post
+surveys four strategies for dealing with that problem. The first two (PCR and PLS)
+compress the predictors into a small number of components before regressing. The last
+two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.
+They attack the same problem from opposite directions, and which one works best depends
+entirely on the structure of the signal in your data.&lt;/p></description></item><item><title>Aproximación de puntos vía curvas de Bézier</title><link>https://JSempereH.github.io/notes/tfg/</link><pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/tfg/</guid><description>&lt;p>Hi!&lt;/p>
+&lt;p>I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p>
+&lt;p>I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p></description></item><item><title>PCA is equivalent to a Linear Autoencoder</title><link>https://JSempereH.github.io/notes/pca-lae/</link><pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/pca-lae/</guid><description>&lt;p>Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p>
+&lt;h2 id="principal-component-analysis-pca">Principal Component Analysis (PCA)&lt;/h2>
+&lt;p>Given $n$ data vector $\{x_1, \dots, x_n\} \in \mathbb{R}^m$, &lt;strong>assuming that are mean centered&lt;/strong>, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em>explains most of the variation of the projected data&lt;/em>. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p></description></item></channel></rss>

@@ -1,361 +1,182 @@
-<!DOCTYPE html>
-<html lang="en-us" dir="ltr">
-<head>
-  <meta charset="UTF-8">
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regression under multicollinearity: PCR, PLS, and penalised methods · Javier Sempere</title>
-
-
-
-
-
-
-<link rel="stylesheet" href="https://jsempereh.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css" integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin="anonymous">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body, {
-    delimiters: [
-      {left: '$$', right: '$$', display: true},
-      {left: '$', right: '$', display: false}
-    ]
-  })">
-</script>
-</head>
-<body>
-  
-  <header>
-    <div class="header-inner">
-  <a href="/" class="header-logo">Javier Sempere</a>
-  <nav class="header-nav">
-    <a href="https://github.com/JSempereH" target="_blank">GitHub</a>
-  </nav>
-</div>
-  </header>
-  
-  <main>
-    
-<main class="note-single">
-  <div class="note-container">
-
-    <a href="/notes" class="back">← notes</a>
-
-    <h1 class="note-heading">Regression under multicollinearity: PCR, PLS, and penalised methods</h1>
-
-    <div class="note-meta">
-      <time>2026-05-22</time>
-      
-        
-        <a href="/tags/math" class="tag">Math</a>
-      
-        
-        <a href="/tags/ml" class="tag">ML</a>
-      
-    </div>
-
-    
-        <details class="toc" open>
-        <summary class="toc-title">Content</summary>
-        <nav id="TableOfContents">
-  <ul>
-    <li><a href="#notation">Notation</a></li>
-    <li><a href="#principal-components-regression">Principal Components Regression</a></li>
-    <li><a href="#partial-least-squares">Partial Least Squares</a>
-      <ul>
-        <li><a href="#the-nipals-algorithm-univariate-">The NIPALS algorithm (univariate )</a></li>
-        <li><a href="#python-example-pcr-vs-pls">Python example (PCR vs PLS)</a></li>
-      </ul>
-    </li>
-    <li><a href="#penalised-regression-ridge-and-lasso">Penalised Regression: Ridge and Lasso</a>
-      <ul>
-        <li><a href="#ridge-regression">Ridge Regression</a></li>
-        <li><a href="#lasso-regression">Lasso Regression</a></li>
-        <li><a href="#geometric-intuition">Geometric intuition</a></li>
-        <li><a href="#python-example-ridge-vs-lasso">Python example (Ridge vs Lasso)</a></li>
-        <li><a href="#elastic-net-the-best-of-both">Elastic Net: the best of both</a></li>
-      </ul>
-    </li>
-    <li><a href="#when-to-use-each-method">When to use each method</a></li>
-  </ul>
-</nav>
-        </details>
-    
-
-    <div class="note-body">
-      <p>Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>Regression under multicollinearity: PCR, PLS, and penalised methods · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>Regression under multicollinearity: PCR, PLS, and penalised methods</h1><div class=note-meta><time>2026-05-22</time>
+<a href=/tags/math class=tag>Math</a>
+<a href=/tags/ml class=tag>ML</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#notation>Notation</a></li><li><a href=#principal-components-regression>Principal Components Regression</a></li><li><a href=#partial-least-squares>Partial Least Squares</a><ul><li><a href=#the-nipals-algorithm-univariate->The NIPALS algorithm (univariate )</a></li><li><a href=#python-example-pcr-vs-pls>Python example (PCR vs PLS)</a></li></ul></li><li><a href=#penalised-regression-ridge-and-lasso>Penalised Regression: Ridge and Lasso</a><ul><li><a href=#ridge-regression>Ridge Regression</a></li><li><a href=#lasso-regression>Lasso Regression</a></li><li><a href=#geometric-intuition>Geometric intuition</a></li><li><a href=#python-example-ridge-vs-lasso>Python example (Ridge vs Lasso)</a></li><li><a href=#elastic-net-the-best-of-both>Elastic Net: the best of both</a></li></ul></li><li><a href=#when-to-use-each-method>When to use each method</a></li></ul></nav></details><div class=note-body><p>Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes
 singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post
 surveys four strategies for dealing with that problem. The first two (PCR and PLS)
 compress the predictors into a small number of components before regressing. The last
 two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.
 They attack the same problem from opposite directions, and which one works best depends
-entirely on the structure of the signal in your data.</p>
-<h2 id="notation">Notation</h2>
-<ul>
-<li>$Y \in \mathbb{R}^{n \times k}$: $n$ observations on $k$ response variables.</li>
-<li>$X \in \mathbb{R}^{n \times p}$: $n$ observations on $p$ predictors.</li>
-</ul>
-<hr>
-<h2 id="principal-components-regression">Principal Components Regression</h2>
-<p>The simplest fix for rank-deficient $X$ is to replace the original $p$ predictors
+entirely on the structure of the signal in your data.</p><h2 id=notation>Notation</h2><ul><li>$Y \in \mathbb{R}^{n \times k}$: $n$ observations on $k$ response variables.</li><li>$X \in \mathbb{R}^{n \times p}$: $n$ observations on $p$ predictors.</li></ul><hr><h2 id=principal-components-regression>Principal Components Regression</h2><p>The simplest fix for rank-deficient $X$ is to replace the original $p$ predictors
 with $M \ll p$ orthogonal linear combinations that capture most of the variance in $X$.
-That is exactly what PCR does.</p>
-<p>We apply the thin SVD to the column-centred $X$:</p>
-$$
+That is exactly what PCR does.</p><p>We apply the thin SVD to the column-centred $X$:</p>$$
 X = U \Sigma V^\top, \qquad U^\top U = V^\top V = I_r
 $$<p>The columns of $V \in \mathbb{R}^{p \times r}$ are the <strong>loadings</strong> (directions in
 predictor space) and the columns of $Z = U\Sigma = XV \in \mathbb{R}^{n \times r}$ are
 the <strong>scores</strong>. PCR keeps the first $M$ scores — those corresponding to the $M$ largest
-singular values — and regresses $Y$ on them:</p>
-$$
+singular values — and regresses $Y$ on them:</p>$$
 \hat{Y}_{\text{PCR}} = Z_M \hat{B}_M, \qquad \hat{B}_M = (Z_M^\top Z_M)^{-1} Z_M^\top Y.
 $$<p>Because the columns of $Z_M$ are orthogonal, this reduces to $M$ independent univariate
-regressions, one per component.</p>
-<p><strong>The catch.</strong> PCA is blind to $Y$: it selects directions that explain the variance of
+regressions, one per component.</p><p><strong>The catch.</strong> PCA is blind to $Y$: it selects directions that explain the variance of
 $X$, with no regard for how useful those directions are for predicting $Y$. If the
 signal lives in a low-variance corner of the predictor space, PCR will miss it entirely
 unless $M$ is large enough to reach that corner, at which point we have gained little
-over OLS.</p>
-<p>See this <a href="https://www.youtube.com/watch?v=Uo19ST0IEZI&amp;t=325s">video</a> for an intuitive
-walkthrough.</p>
-<hr>
-<h2 id="partial-least-squares">Partial Least Squares</h2>
-<p>PLS fixes the blind spot of PCR by letting $Y$ participate in the construction of the
+over OLS.</p><p>See this <a href="https://www.youtube.com/watch?v=Uo19ST0IEZI&amp;t=325s">video</a> for an intuitive
+walkthrough.</p><hr><h2 id=partial-least-squares>Partial Least Squares</h2><p>PLS fixes the blind spot of PCR by letting $Y$ participate in the construction of the
 components. Instead of maximising the variance of $X$ explained by each component, PLS
 maximises the <strong>covariance</strong> between the component and $Y$. The result is a
 <strong>supervised</strong> dimensionality-reduction method: the latent directions are chosen
-precisely because they are predictive, not merely because they are large.</p>
-<p><strong>Reference:</strong> Abdi, H. (2010). Partial least squares regression and projection on
+precisely because they are predictive, not merely because they are large.</p><p><strong>Reference:</strong> Abdi, H. (2010). Partial least squares regression and projection on
 latent structure regression (PLS Regression). <em>WIREs Computational Statistics</em>, 2(1),
-97–106. <a href="https://doi.org/10.1002/wics.51">https://doi.org/10.1002/wics.51</a></p>
-<h3 id="the-nipals-algorithm-univariate-">The NIPALS algorithm (univariate $y$)</h3>
-<p>Like PCR, PLS is not scale-invariant, so we first standardise each $x_j$ to mean $0$
+97–106. <a href=https://doi.org/10.1002/wics.51>https://doi.org/10.1002/wics.51</a></p><h3 id=the-nipals-algorithm-univariate->The NIPALS algorithm (univariate $y$)</h3><p>Like PCR, PLS is not scale-invariant, so we first standardise each $x_j$ to mean $0$
 and variance $1$. Set $\hat{y}^{(0)} = \bar{y}\,\mathbf{1}$ and
-$x_j^{(0)} = x_j$ for $j = 1, \dots, p$.</p>
-<p>For $m = 1, 2, \dots, M$:</p>
-<ol>
-<li>
-<p><strong>Score:</strong> $z_m = \displaystyle\sum_{j=1}^{p} \psi_{mj}\, x_j^{(m-1)}$, where the
-weights are $\psi_{mj} = \langle x_j^{(m-1)},\, y \rangle$.</p>
-</li>
-<li>
-<p><strong>Regress $y$ on $z_m$:</strong>
-</p>
-$$
+$x_j^{(0)} = x_j$ for $j = 1, \dots, p$.</p><p>For $m = 1, 2, \dots, M$:</p><ol><li><p><strong>Score:</strong> $z_m = \displaystyle\sum_{j=1}^{p} \psi_{mj}\, x_j^{(m-1)}$, where the
+weights are $\psi_{mj} = \langle x_j^{(m-1)},\, y \rangle$.</p></li><li><p><strong>Regress $y$ on $z_m$:</strong></p>$$
 \hat{\theta}_m = \frac{\langle z_m, y \rangle}{\langle z_m, z_m \rangle}
-$$</li>
-<li>
-<p><strong>Update the fitted values:</strong>
-</p>
-$$
+$$</li><li><p><strong>Update the fitted values:</strong></p>$$
 \hat{y}^{(m)} = \hat{y}^{(m-1)} + \hat{\theta}_m z_m
-$$</li>
-<li>
-<p><strong>Deflate</strong> — orthogonalise each predictor with respect to $z_m$:
-</p>
-$$
+$$</li><li><p><strong>Deflate</strong> — orthogonalise each predictor with respect to $z_m$:</p>$$
 x_j^{(m)} = x_j^{(m-1)} - \frac{\langle z_m,\, x_j^{(m-1)} \rangle}
 {\langle z_m, z_m \rangle}\, z_m, \qquad j = 1, \dots, p.
-$$</li>
-</ol>
-<p>The output is the sequence $\bigl\{\hat{y}^{(m)}\bigr\}_{m=1}^{M}$. Because each $z_m$
+$$</li></ol><p>The output is the sequence $\bigl\{\hat{y}^{(m)}\bigr\}_{m=1}^{M}$. Because each $z_m$
 is a linear combination of the (deflated) $x_j$&rsquo;s, we always have
 $\hat{y}^{(m)} = X\hat{\beta}^{(m)}$ for a recoverable coefficient vector
-$\hat{\beta}^{(m)}$.</p>
-<blockquote>
-<p><strong>Intuition.</strong> The weight $\psi_{mj} = \langle x_j^{(m-1)}, y \rangle$ is the sample
+$\hat{\beta}^{(m)}$.</p><blockquote><p><strong>Intuition.</strong> The weight $\psi_{mj} = \langle x_j^{(m-1)}, y \rangle$ is the sample
 covariance between predictor $j$ and the response. Predictors that correlate more
 strongly with $y$ receive larger weights, so $z_m$ points in the direction of maximum
 covariance with $y$, not maximum variance of $X$ alone. Deflation then removes the
-variation already explained, so successive components are non-redundant.</p></blockquote>
-<h3 id="python-example-pcr-vs-pls">Python example (PCR vs PLS)</h3>
-<p>The clearest way to see the difference between PCR and PLS is to construct a dataset
+variation already explained, so successive components are non-redundant.</p></blockquote><h3 id=python-example-pcr-vs-pls>Python example (PCR vs PLS)</h3><p>The clearest way to see the difference between PCR and PLS is to construct a dataset
 where they are forced to diverge. We build $X$ with two kinds of columns: 2 <strong>signal</strong>
 columns (low variance, $\sigma = 1$) that directly determine $y$, and 10 <strong>noise</strong>
 columns (high variance, $\sigma = 10$) that are completely unrelated to $y$. PCR ranks
 directions by variance, so it focuses on the noise and wastes its early components on
 it. PLS ranks directions by covariance with $y$, so it homes in on the signal from the
-very first component.</p>
-<p>Here is the <a href="https://gist.github.com/JSempereH/28aa6f08d56d34c23b14e34c18345fb5">Gist</a>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.cross_decomposition</span> <span class="kn">import</span> <span class="n">PLSRegression</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">signal</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>        <span class="c1"># low variance, drives y</span>
-</span></span><span class="line"><span class="cl"><span class="n">noise</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span> <span class="o">*</span> <span class="mi">10</span>  <span class="c1"># high variance, unrelated to y</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">signal</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">signal</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">signal</span><span class="p">,</span> <span class="n">noise</span><span class="p">])</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">pcr_pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&#34;scaler&#34;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
-</span></span><span class="line"><span class="cl">                     <span class="p">(</span><span class="s2">&#34;pca&#34;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span>
-</span></span><span class="line"><span class="cl">                     <span class="p">(</span><span class="s2">&#34;ols&#34;</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())])</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">pls_pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s2">&#34;scaler&#34;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
-</span></span><span class="line"><span class="cl">                     <span class="p">(</span><span class="s2">&#34;pls&#34;</span><span class="p">,</span> <span class="n">PLSRegression</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">))])</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">M</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
-</span></span><span class="line"><span class="cl">    <span class="n">pcr_pipe</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">pca__n_components</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">pls_pipe</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="n">pls__n_components</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">pcr_cv</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">pcr_pipe</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&#34;r2&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="n">pls_cv</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">pls_pipe</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">&#34;r2&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;M=</span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s2">  PCR CV-R² = </span><span class="si">{</span><span class="n">pcr_cv</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">   PLS CV-R² = </span><span class="si">{</span><span class="n">pls_cv</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">M</span><span class="o">=</span><span class="m">1</span>  PCR CV-R² <span class="o">=</span> 0.018   PLS CV-R² <span class="o">=</span> 0.709
-</span></span><span class="line"><span class="cl"><span class="nv">M</span><span class="o">=</span><span class="m">2</span>  PCR CV-R² <span class="o">=</span> 0.096   PLS CV-R² <span class="o">=</span> 0.913
-</span></span><span class="line"><span class="cl"><span class="nv">M</span><span class="o">=</span><span class="m">3</span>  PCR CV-R² <span class="o">=</span> 0.184   PLS CV-R² <span class="o">=</span> 0.953
-</span></span><span class="line"><span class="cl"><span class="nv">M</span><span class="o">=</span><span class="m">5</span>  PCR CV-R² <span class="o">=</span> 0.250   PLS CV-R² <span class="o">=</span> 0.961
-</span></span></code></pre></div><blockquote>
-<p><strong>Why does this happen?</strong> PCR is blind to $Y$: its first components capture the
+very first component.</p><p>Here is the <a href=https://gist.github.com/JSempereH/28aa6f08d56d34c23b14e34c18345fb5>Gist</a>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.cross_decomposition</span> <span class=kn>import</span> <span class=n>PLSRegression</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.decomposition</span> <span class=kn>import</span> <span class=n>PCA</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.linear_model</span> <span class=kn>import</span> <span class=n>LinearRegression</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.preprocessing</span> <span class=kn>import</span> <span class=n>StandardScaler</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.model_selection</span> <span class=kn>import</span> <span class=n>cross_val_score</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.pipeline</span> <span class=kn>import</span> <span class=n>Pipeline</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rng</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>default_rng</span><span class=p>(</span><span class=mi>42</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>n</span> <span class=o>=</span> <span class=mi>100</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>signal</span> <span class=o>=</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>((</span><span class=n>n</span><span class=p>,</span> <span class=mi>2</span><span class=p>))</span>        <span class=c1># low variance, drives y</span>
+</span></span><span class=line><span class=cl><span class=n>noise</span>  <span class=o>=</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>((</span><span class=n>n</span><span class=p>,</span> <span class=mi>10</span><span class=p>))</span> <span class=o>*</span> <span class=mi>10</span>  <span class=c1># high variance, unrelated to y</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>y</span> <span class=o>=</span> <span class=mi>3</span> <span class=o>*</span> <span class=n>signal</span><span class=p>[:,</span> <span class=mi>0</span><span class=p>]</span> <span class=o>-</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>signal</span><span class=p>[:,</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=mf>0.5</span> <span class=o>*</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>(</span><span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>X</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>hstack</span><span class=p>([</span><span class=n>signal</span><span class=p>,</span> <span class=n>noise</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>pcr_pipe</span> <span class=o>=</span> <span class=n>Pipeline</span><span class=p>([(</span><span class=s2>&#34;scaler&#34;</span><span class=p>,</span> <span class=n>StandardScaler</span><span class=p>()),</span>
+</span></span><span class=line><span class=cl>                     <span class=p>(</span><span class=s2>&#34;pca&#34;</span><span class=p>,</span> <span class=n>PCA</span><span class=p>(</span><span class=n>n_components</span><span class=o>=</span><span class=mi>2</span><span class=p>)),</span>
+</span></span><span class=line><span class=cl>                     <span class=p>(</span><span class=s2>&#34;ols&#34;</span><span class=p>,</span> <span class=n>LinearRegression</span><span class=p>())])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>pls_pipe</span> <span class=o>=</span> <span class=n>Pipeline</span><span class=p>([(</span><span class=s2>&#34;scaler&#34;</span><span class=p>,</span> <span class=n>StandardScaler</span><span class=p>()),</span>
+</span></span><span class=line><span class=cl>                     <span class=p>(</span><span class=s2>&#34;pls&#34;</span><span class=p>,</span> <span class=n>PLSRegression</span><span class=p>(</span><span class=n>n_components</span><span class=o>=</span><span class=mi>2</span><span class=p>))])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>M</span> <span class=ow>in</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>5</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>    <span class=n>pcr_pipe</span><span class=o>.</span><span class=n>set_params</span><span class=p>(</span><span class=n>pca__n_components</span><span class=o>=</span><span class=n>M</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>pls_pipe</span><span class=o>.</span><span class=n>set_params</span><span class=p>(</span><span class=n>pls__n_components</span><span class=o>=</span><span class=n>M</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>pcr_cv</span> <span class=o>=</span> <span class=n>cross_val_score</span><span class=p>(</span><span class=n>pcr_pipe</span><span class=p>,</span> <span class=n>X</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>cv</span><span class=o>=</span><span class=mi>5</span><span class=p>,</span> <span class=n>scoring</span><span class=o>=</span><span class=s2>&#34;r2&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>mean</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>pls_cv</span> <span class=o>=</span> <span class=n>cross_val_score</span><span class=p>(</span><span class=n>pls_pipe</span><span class=p>,</span> <span class=n>X</span><span class=p>,</span> <span class=n>y</span><span class=p>,</span> <span class=n>cv</span><span class=o>=</span><span class=mi>5</span><span class=p>,</span> <span class=n>scoring</span><span class=o>=</span><span class=s2>&#34;r2&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>mean</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;M=</span><span class=si>{</span><span class=n>M</span><span class=si>}</span><span class=s2>  PCR CV-R² = </span><span class=si>{</span><span class=n>pcr_cv</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>   PLS CV-R² = </span><span class=si>{</span><span class=n>pls_cv</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>M</span><span class=o>=</span><span class=m>1</span>  PCR CV-R² <span class=o>=</span> 0.018   PLS CV-R² <span class=o>=</span> 0.709
+</span></span><span class=line><span class=cl><span class=nv>M</span><span class=o>=</span><span class=m>2</span>  PCR CV-R² <span class=o>=</span> 0.096   PLS CV-R² <span class=o>=</span> 0.913
+</span></span><span class=line><span class=cl><span class=nv>M</span><span class=o>=</span><span class=m>3</span>  PCR CV-R² <span class=o>=</span> 0.184   PLS CV-R² <span class=o>=</span> 0.953
+</span></span><span class=line><span class=cl><span class=nv>M</span><span class=o>=</span><span class=m>5</span>  PCR CV-R² <span class=o>=</span> 0.250   PLS CV-R² <span class=o>=</span> 0.961
+</span></span></code></pre></div><blockquote><p><strong>Why does this happen?</strong> PCR is blind to $Y$: its first components capture the
 high-variance noise directions. PLS computes weights
 $\psi_{mj} = \langle x_j, y \rangle$, so the noisy predictors, uncorrelated with
-$y$, get near-zero weight and are effectively ignored from the very first component.</p></blockquote>
-<hr>
-<h2 id="penalised-regression-ridge-and-lasso">Penalised Regression: Ridge and Lasso</h2>
-<p>PCR and PLS deal with multicollinearity by discarding dimensions. But there is a
+$y$, get near-zero weight and are effectively ignored from the very first component.</p></blockquote><hr><h2 id=penalised-regression-ridge-and-lasso>Penalised Regression: Ridge and Lasso</h2><p>PCR and PLS deal with multicollinearity by discarding dimensions. But there is a
 fundamentally different approach: keep all $p$ predictors and instead add a <strong>penalty
 term</strong> to the OLS objective that discourages large coefficients. This trades a
 potential bias in the estimates for a reduction in variance — the classic
 bias–variance trade-off — and it sidesteps the need to choose how many components to
-retain.</p>
-<h3 id="ridge-regression">Ridge Regression</h3>
-<p>Ridge adds an $\ell_2$ penalty on the coefficient vector:</p>
-$$
+retain.</p><h3 id=ridge-regression>Ridge Regression</h3><p>Ridge adds an $\ell_2$ penalty on the coefficient vector:</p>$$
 \hat{\beta}^{\text{ridge}} = \arg\min_{\beta}
 \left\{ \|y - X\beta\|^2 + \lambda \|\beta\|_2^2 \right\}
-$$<p>The closed-form solution is</p>
-$$
+$$<p>The closed-form solution is</p>$$
 \hat{\beta}^{\text{ridge}} = (X^\top X + \lambda I)^{-1} X^\top y.
 $$<p>Adding $\lambda I$ makes the matrix positive definite even when $X^\top X$ is singular,
 so Ridge is always well-defined. As $\lambda$ grows, all coefficients are shrunk
 continuously towards zero, but <strong>none is ever set exactly to zero</strong>. Ridge is therefore
-the natural choice when you believe most predictors carry a weak but genuine signal.</p>
-<h3 id="lasso-regression">Lasso Regression</h3>
-<p>Lasso replaces the squared penalty with an $\ell_1$ penalty:</p>
-$$
+the natural choice when you believe most predictors carry a weak but genuine signal.</p><h3 id=lasso-regression>Lasso Regression</h3><p>Lasso replaces the squared penalty with an $\ell_1$ penalty:</p>$$
 \hat{\beta}^{\text{lasso}} = \arg\min_{\beta}
 \left\{ \|y - X\beta\|^2 + \lambda \|\beta\|_1 \right\}
 $$<p>where $\|\beta\|_1 = \sum_j |\beta_j|$. There is no closed form; the problem is solved
 efficiently by coordinate descent. The crucial difference from Ridge is that the
 $\ell_1$ penalty has corners at zero: for large enough $\lambda$ many coefficients are
 driven to <em>exactly</em> zero. Lasso therefore performs <strong>automatic variable selection</strong>, it
-shrinks and selects simultaneously.</p>
-<h3 id="geometric-intuition">Geometric intuition</h3>
-<p>The contrast is sharpest in the constrained formulation. Both methods minimise the RSS
-subject to a budget on $\|\beta\|$:</p>
-<ul>
-<li><strong>Ridge:</strong> $\|\beta\|_2^2 \leq t$, the feasible set is a smooth <strong>sphere</strong>.</li>
-<li><strong>Lasso:</strong> $\|\beta\|_1 \leq t$, the feasible set is a <strong>diamond</strong> with corners on
-the coordinate axes.</li>
-</ul>
-<p>The RSS contours (ellipses centred at the OLS estimate) are most likely to first touch
+shrinks and selects simultaneously.</p><h3 id=geometric-intuition>Geometric intuition</h3><p>The contrast is sharpest in the constrained formulation. Both methods minimise the RSS
+subject to a budget on $\|\beta\|$:</p><ul><li><strong>Ridge:</strong> $\|\beta\|_2^2 \leq t$, the feasible set is a smooth <strong>sphere</strong>.</li><li><strong>Lasso:</strong> $\|\beta\|_1 \leq t$, the feasible set is a <strong>diamond</strong> with corners on
+the coordinate axes.</li></ul><p>The RSS contours (ellipses centred at the OLS estimate) are most likely to first touch
 the diamond at a corner, where one or more $\beta_j = 0$. That geometric accident is
-why Lasso produces sparse solutions while Ridge does not.</p>
-<h3 id="python-example-ridge-vs-lasso">Python example (Ridge vs Lasso)</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">RidgeCV</span><span class="p">,</span> <span class="n">LassoCV</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span>
-</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># Only the first 5 predictors truly matter</span>
-</span></span><span class="line"><span class="cl"><span class="n">true_beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">true_beta</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">true_beta</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">X_s</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">ridge_cv</span> <span class="o">=</span> <span class="n">RidgeCV</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_s</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Ridge  best λ=</span><span class="si">{</span><span class="n">ridge_cv</span><span class="o">.</span><span class="n">alpha_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  &#34;</span>
-</span></span><span class="line"><span class="cl">      <span class="sa">f</span><span class="s2">&#34;non-zero coefs: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ridge_cv</span><span class="o">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">lasso_cv</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_s</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">n_nonzero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">lasso_cv</span><span class="o">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Lasso  best λ=</span><span class="si">{</span><span class="n">lasso_cv</span><span class="o">.</span><span class="n">alpha_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  &#34;</span>
-</span></span><span class="line"><span class="cl">      <span class="sa">f</span><span class="s2">&#34;non-zero coefs: </span><span class="si">{</span><span class="n">n_nonzero</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Ridge  best <span class="nv">λ</span><span class="o">=</span>53.3670  non-zero coefs: <span class="m">150</span>
-</span></span><span class="line"><span class="cl">Lasso  best <span class="nv">λ</span><span class="o">=</span>0.1263  non-zero coefs: <span class="m">26</span>
+why Lasso produces sparse solutions while Ridge does not.</p><h3 id=python-example-ridge-vs-lasso>Python example (Ridge vs Lasso)</h3><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.linear_model</span> <span class=kn>import</span> <span class=n>RidgeCV</span><span class=p>,</span> <span class=n>LassoCV</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.preprocessing</span> <span class=kn>import</span> <span class=n>StandardScaler</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rng</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>default_rng</span><span class=p>(</span><span class=mi>42</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>n</span><span class=p>,</span> <span class=n>p</span> <span class=o>=</span> <span class=mi>100</span><span class=p>,</span> <span class=mi>150</span>
+</span></span><span class=line><span class=cl><span class=n>X</span> <span class=o>=</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>((</span><span class=n>n</span><span class=p>,</span> <span class=n>p</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Only the first 5 predictors truly matter</span>
+</span></span><span class=line><span class=cl><span class=n>true_beta</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=n>p</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>true_beta</span><span class=p>[:</span><span class=mi>5</span><span class=p>]</span> <span class=o>=</span> <span class=p>[</span><span class=mi>3</span><span class=p>,</span> <span class=o>-</span><span class=mi>2</span><span class=p>,</span> <span class=mf>1.5</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>y</span> <span class=o>=</span> <span class=n>X</span> <span class=o>@</span> <span class=n>true_beta</span> <span class=o>+</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>(</span><span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>X_s</span> <span class=o>=</span> <span class=n>StandardScaler</span><span class=p>()</span><span class=o>.</span><span class=n>fit_transform</span><span class=p>(</span><span class=n>X</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ridge_cv</span> <span class=o>=</span> <span class=n>RidgeCV</span><span class=p>(</span><span class=n>alphas</span><span class=o>=</span><span class=n>np</span><span class=o>.</span><span class=n>logspace</span><span class=p>(</span><span class=o>-</span><span class=mi>3</span><span class=p>,</span> <span class=mi>3</span><span class=p>,</span> <span class=mi>100</span><span class=p>),</span> <span class=n>cv</span><span class=o>=</span><span class=mi>5</span><span class=p>)</span><span class=o>.</span><span class=n>fit</span><span class=p>(</span><span class=n>X_s</span><span class=p>,</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Ridge  best λ=</span><span class=si>{</span><span class=n>ridge_cv</span><span class=o>.</span><span class=n>alpha_</span><span class=si>:</span><span class=s2>.4f</span><span class=si>}</span><span class=s2>  &#34;</span>
+</span></span><span class=line><span class=cl>      <span class=sa>f</span><span class=s2>&#34;non-zero coefs: </span><span class=si>{</span><span class=n>np</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>ridge_cv</span><span class=o>.</span><span class=n>coef_</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>lasso_cv</span> <span class=o>=</span> <span class=n>LassoCV</span><span class=p>(</span><span class=n>cv</span><span class=o>=</span><span class=mi>5</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span><span class=o>.</span><span class=n>fit</span><span class=p>(</span><span class=n>X_s</span><span class=p>,</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>n_nonzero</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>lasso_cv</span><span class=o>.</span><span class=n>coef_</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;Lasso  best λ=</span><span class=si>{</span><span class=n>lasso_cv</span><span class=o>.</span><span class=n>alpha_</span><span class=si>:</span><span class=s2>.4f</span><span class=si>}</span><span class=s2>  &#34;</span>
+</span></span><span class=line><span class=cl>      <span class=sa>f</span><span class=s2>&#34;non-zero coefs: </span><span class=si>{</span><span class=n>n_nonzero</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>Ridge  best <span class=nv>λ</span><span class=o>=</span>53.3670  non-zero coefs: <span class=m>150</span>
+</span></span><span class=line><span class=cl>Lasso  best <span class=nv>λ</span><span class=o>=</span>0.1263  non-zero coefs: <span class=m>26</span>
 </span></span></code></pre></div><p>Ridge keeps all 150 coefficients non-zero; Lasso correctly zeroes out most of them,
-leaving only a handful near the five true predictors. Let&rsquo;s visualise:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">coef</span><span class="p">,</span> <span class="n">title</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="n">axes</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="n">ridge_cv</span><span class="o">.</span><span class="n">coef_</span><span class="p">,</span> <span class="n">lasso_cv</span><span class="o">.</span><span class="n">coef_</span><span class="p">],</span>
-</span></span><span class="line"><span class="cl">    <span class="p">[</span><span class="s2">&#34;Ridge (all 150 non-zero)&#34;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&#34;Lasso (</span><span class="si">{</span><span class="n">n_nonzero</span><span class="si">}</span><span class="s2"> non-zero)&#34;</span><span class="p">],</span>
-</span></span><span class="line"><span class="cl"><span class="p">):</span>
-</span></span><span class="line"><span class="cl">    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;steelblue&#34;</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&#34;lightgrey&#34;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coef</span><span class="p">]</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">coef</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&#34;Predictor index&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;Coefficient value&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&#34;--&#34;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&#34;True predictors marked in red&#34;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
-</span></span></code></pre></div>
-
-  
-  <img src="/notes/pls-regression/ridge_vs_lasso_coefs_hu_84d4b329c7486b2d.webp" alt="Ridge vs Lasso coefs" loading="lazy">
-
-<h3 id="elastic-net-the-best-of-both">Elastic Net: the best of both</h3>
-<p>When predictors are strongly correlated, Lasso tends to pick one arbitrarily and
+leaving only a handful near the five true predictors. Let&rsquo;s visualise:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>matplotlib.pyplot</span> <span class=k>as</span> <span class=nn>plt</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>fig</span><span class=p>,</span> <span class=n>axes</span> <span class=o>=</span> <span class=n>plt</span><span class=o>.</span><span class=n>subplots</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=n>figsize</span><span class=o>=</span><span class=p>(</span><span class=mi>12</span><span class=p>,</span> <span class=mi>4</span><span class=p>),</span> <span class=n>sharey</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>ax</span><span class=p>,</span> <span class=n>coef</span><span class=p>,</span> <span class=n>title</span> <span class=ow>in</span> <span class=nb>zip</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>axes</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>[</span><span class=n>ridge_cv</span><span class=o>.</span><span class=n>coef_</span><span class=p>,</span> <span class=n>lasso_cv</span><span class=o>.</span><span class=n>coef_</span><span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=p>[</span><span class=s2>&#34;Ridge (all 150 non-zero)&#34;</span><span class=p>,</span> <span class=sa>f</span><span class=s2>&#34;Lasso (</span><span class=si>{</span><span class=n>n_nonzero</span><span class=si>}</span><span class=s2> non-zero)&#34;</span><span class=p>],</span>
+</span></span><span class=line><span class=cl><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>colors</span> <span class=o>=</span> <span class=p>[</span><span class=s2>&#34;steelblue&#34;</span> <span class=k>if</span> <span class=n>c</span> <span class=o>!=</span> <span class=mi>0</span> <span class=k>else</span> <span class=s2>&#34;lightgrey&#34;</span> <span class=k>for</span> <span class=n>c</span> <span class=ow>in</span> <span class=n>coef</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>ax</span><span class=o>.</span><span class=n>bar</span><span class=p>(</span><span class=nb>range</span><span class=p>(</span><span class=n>p</span><span class=p>),</span> <span class=n>coef</span><span class=p>,</span> <span class=n>color</span><span class=o>=</span><span class=n>colors</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>ax</span><span class=o>.</span><span class=n>axhline</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>color</span><span class=o>=</span><span class=s2>&#34;black&#34;</span><span class=p>,</span> <span class=n>linewidth</span><span class=o>=</span><span class=mf>0.8</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>ax</span><span class=o>.</span><span class=n>set_title</span><span class=p>(</span><span class=n>title</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>ax</span><span class=o>.</span><span class=n>set_xlabel</span><span class=p>(</span><span class=s2>&#34;Predictor index&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>axes</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>set_ylabel</span><span class=p>(</span><span class=s2>&#34;Coefficient value&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>ax</span> <span class=ow>in</span> <span class=n>axes</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>ax</span><span class=o>.</span><span class=n>axvline</span><span class=p>(</span><span class=n>i</span><span class=p>,</span> <span class=n>color</span><span class=o>=</span><span class=s2>&#34;red&#34;</span><span class=p>,</span> <span class=n>linewidth</span><span class=o>=</span><span class=mi>1</span><span class=p>,</span> <span class=n>linestyle</span><span class=o>=</span><span class=s2>&#34;--&#34;</span><span class=p>,</span> <span class=n>alpha</span><span class=o>=</span><span class=mf>0.5</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>plt</span><span class=o>.</span><span class=n>suptitle</span><span class=p>(</span><span class=s2>&#34;True predictors marked in red&#34;</span><span class=p>,</span> <span class=n>fontsize</span><span class=o>=</span><span class=mi>11</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>plt</span><span class=o>.</span><span class=n>tight_layout</span><span class=p>()</span>
+</span></span></code></pre></div><img src=/notes/pls-regression/ridge_vs_lasso_coefs_hu_84d4b329c7486b2d.webp alt="Ridge vs Lasso coefs" loading=lazy><h3 id=elastic-net-the-best-of-both>Elastic Net: the best of both</h3><p>When predictors are strongly correlated, Lasso tends to pick one arbitrarily and
 discard the rest, an unstable outcome. <strong>Elastic Net</strong> combines both penalties to
-avoid this:</p>
-$$
+avoid this:</p>$$
 \hat{\beta}^{\text{EN}} = \arg\min_{\beta}
 \left\{ \|y - X\beta\|^2 + \lambda_1 \|\beta\|_1 + \lambda_2 \|\beta\|_2^2 \right\}
 $$<p>It inherits sparsity from the $\ell_1$ term and the grouping effect (correlated
 predictors shrink together) from the $\ell_2$ term. In practice it is often the safest
 default when you suspect a sparse signal but are unsure how correlated the predictors
-are.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">ElasticNetCV</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">enet_cv</span> <span class="o">=</span> <span class="n">ElasticNetCV</span><span class="p">(</span><span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_s</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">n_nonzero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">enet_cv</span><span class="o">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;ElasticNet  best λ=</span><span class="si">{</span><span class="n">enet_cv</span><span class="o">.</span><span class="n">alpha_</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">  &#34;</span>
-</span></span><span class="line"><span class="cl">      <span class="sa">f</span><span class="s2">&#34;l1_ratio=</span><span class="si">{</span><span class="n">enet_cv</span><span class="o">.</span><span class="n">l1_ratio_</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">  non-zero coefs: </span><span class="si">{</span><span class="n">n_nonzero</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ElasticNet  best <span class="nv">λ</span><span class="o">=</span>0.1445  <span class="nv">l1_ratio</span><span class="o">=</span>0.50  non-zero coefs: <span class="m">51</span>
-</span></span></code></pre></div><hr>
-<h2 id="when-to-use-each-method">When to use each method</h2>
-<p>All four methods solve the same problem, but they make different
-assumptions about where the signal lives.</p>
-<ul>
-<li><strong>Dense signal</strong> ($p \gg n$, many weak predictors) → <strong>Ridge</strong></li>
-<li><strong>Sparse signal</strong> ($p \gg n$, few true predictors) → <strong>Lasso</strong> or Elastic Net</li>
-<li><strong>Correlated predictors</strong>, sparse signal → <strong>Elastic Net</strong></li>
-<li><strong>Latent structure</strong> matters for interpretability → <strong>PLS</strong></li>
-<li><strong>Unsupervised compression</strong> of $X$ then regression → <strong>PCR</strong></li>
-</ul>
-<p>If you are unsure, cross-validate all of them on a held-out set, the differences in
-practice can be huge, as the PCR vs PLS example above shows.</p>
-
-    </div>
-
-  </div>
-</main>
-
-  </main>
-  
-
-  
-  <script src="https://jsempereh.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
-</body>
-</html>
+are.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>sklearn.linear_model</span> <span class=kn>import</span> <span class=n>ElasticNetCV</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>enet_cv</span> <span class=o>=</span> <span class=n>ElasticNetCV</span><span class=p>(</span><span class=n>cv</span><span class=o>=</span><span class=mi>5</span><span class=p>,</span> <span class=n>random_state</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span><span class=o>.</span><span class=n>fit</span><span class=p>(</span><span class=n>X_s</span><span class=p>,</span> <span class=n>y</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>n_nonzero</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>sum</span><span class=p>(</span><span class=n>enet_cv</span><span class=o>.</span><span class=n>coef_</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;ElasticNet  best λ=</span><span class=si>{</span><span class=n>enet_cv</span><span class=o>.</span><span class=n>alpha_</span><span class=si>:</span><span class=s2>.4f</span><span class=si>}</span><span class=s2>  &#34;</span>
+</span></span><span class=line><span class=cl>      <span class=sa>f</span><span class=s2>&#34;l1_ratio=</span><span class=si>{</span><span class=n>enet_cv</span><span class=o>.</span><span class=n>l1_ratio_</span><span class=si>:</span><span class=s2>.2f</span><span class=si>}</span><span class=s2>  non-zero coefs: </span><span class=si>{</span><span class=n>n_nonzero</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ElasticNet  best <span class=nv>λ</span><span class=o>=</span>0.1445  <span class=nv>l1_ratio</span><span class=o>=</span>0.50  non-zero coefs: <span class=m>51</span>
+</span></span></code></pre></div><hr><h2 id=when-to-use-each-method>When to use each method</h2><p>All four methods solve the same problem, but they make different
+assumptions about where the signal lives.</p><ul><li><strong>Dense signal</strong> ($p \gg n$, many weak predictors) → <strong>Ridge</strong></li><li><strong>Sparse signal</strong> ($p \gg n$, few true predictors) → <strong>Lasso</strong> or Elastic Net</li><li><strong>Correlated predictors</strong>, sparse signal → <strong>Elastic Net</strong></li><li><strong>Latent structure</strong> matters for interpretability → <strong>PLS</strong></li><li><strong>Unsupervised compression</strong> of $X$ then regression → <strong>PCR</strong></li></ul><p>If you are unsure, cross-validate all of them on a held-out set, the differences in
+practice can be huge, as the PCR vs PLS example above shows.</p></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
