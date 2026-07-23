@@ -1,0 +1,87 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (II): The Functional-Stochastic Model · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (II): The Functional-Stochastic Model</h1><div class=note-meta><time>2026-07-22</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#from-a-phase-time-series-to-a-regression-problem>From a phase time series to a regression problem</a></li><li><a href=#what-goes-into-the-design-matrix>What goes into the design matrix</a></li><li><a href=#estimating--generalized-least-squares>Estimating : generalized least squares</a></li><li><a href=#why-the-residual-matters-more-than-the-fit>Why the residual matters more than the fit</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the second post in the <strong>Probabilistic InSAR</strong> series. The
+<a href=/notes/insar-from-scratch/>previous post</a> worked out what the interferometric
+phase actually contains, how it wraps, and how a stack of interferograms becomes a
+phase time series per pixel. Here we take that time series and turn it into an
+honest statistical estimation problem.</p><h2 id=from-a-phase-time-series-to-a-regression-problem>From a phase time series to a regression problem</h2><p>Take a single point in space, one persistent scatterer, and look at its phase time
+series across $m$ SAR acquisitions, already converted to a deformation-equivalent
+quantity (millimeters, say) and referenced to a master acquisition and a reference
+point. Call this vector of observations $y \in \mathbb{R}^m$.</p><p>The working assumption is that $y$ is a realization of a Gaussian random vector:</p>$$
+\mathbb{E}[y] = Ax, \qquad \operatorname{Cov}(y) = Q_{yy} = \sigma^2 R_{yy},
+$$<p>where:</p><ul><li>$A \in \mathbb{R}^{m \times n}$ is a <strong>design matrix</strong>, known and fixed. It encodes
+<em>which</em> kinematic behaviors we allow the point to exhibit.</li><li>$x \in \mathbb{R}^n$ is the unknown parameter vector: the actual physical
+quantities we want to estimate (a velocity, an amplitude, an offset&mldr;).</li><li>$Q_{yy}$ is the covariance matrix of the observations, split into a scalar variance
+factor $\sigma^2$ and a cofactor matrix $R_{yy}$ that encodes the <em>relative</em>
+precision and correlation structure between epochs.</li></ul><p>This is nothing more than a linear regression model with a general, possibly
+non-diagonal covariance matrix, the same object you&rsquo;d meet in generalized least
+squares (GLS), just wearing geodetic notation. The &ldquo;generalized&rdquo; part matters: SAR
+observations at different epochs are not necessarily independent or equally precise,
+so assuming $Q_{yy} = \sigma^2 I$ is a simplification, not a law of nature.</p><h2 id=what-goes-into-the-design-matrix>What goes into the design matrix $A$</h2><p>The power of this formulation is that $A$ is a modeling choice, not something derived
+from the data. Each column of $A$ is a candidate temporal <em>shape</em> the deformation
+signal might follow, evaluated at the $m$ acquisition times $t_1, \dots, t_m$. For
+instance:</p><ul><li><strong>Steady, linear motion</strong>: a column equal to the temporal baseline itself, $t_i$,
+so that the associated parameter is a velocity in mm/year.</li><li><strong>Seasonal motion</strong>: a pair of columns $\sin(2\pi t_i)$, $\cos(2\pi t_i)$, so the
+associated parameters combine into an amplitude and phase offset of an annual
+cycle.</li><li><strong>A discrete jump</strong>: a column that is $0$ before some epoch $t_k$ and $1$ from
+$t_k$ onward (a Heaviside step), so the parameter is the size of the jump.</li></ul><p>Stacking columns builds increasingly rich models. A point with only a
+linear-velocity column has $n = 1$; a point with linear velocity plus a seasonal term
+has $n = 3$, and so on. The choice of which columns to include is exactly the choice
+of <em>which physical process we believe is happening at that point</em>, and different
+points can, in principle, warrant different $A$ matrices.</p><h2 id=estimating--generalized-least-squares>Estimating $x$: generalized least squares</h2><p>Given $A$ and $Q_{yy}$, the best linear unbiased estimator of $x$ (under the Gaussian
+assumption, also the maximum-likelihood estimator) is the familiar GLS solution:</p>$$
+\hat{x} = \left(A^T Q_{yy}^{-1} A\right)^{-1} A^T Q_{yy}^{-1} y.
+$$<p>This minimizes the weighted sum of squared residuals, where the weighting is given by
+$Q_{yy}^{-1}$: epochs with larger variance, or strong correlations with other
+epochs, contribute less &ldquo;independent&rdquo; information to the estimate.</p><p>From $\hat{x}$ we get fitted values $\hat{y} = A\hat{x}$ and residuals</p>$$
+\hat{e} = y - \hat{y} = y - A\hat{x}.
+$$<p>The residual vector $\hat{e}$ is what&rsquo;s left over after the assumed model has
+explained everything it can. Its covariance matrix is not $Q_{yy}$ itself, but a
+related, smaller quantity:</p>$$
+Q_{\hat{e}\hat{e}} = Q_{yy} - A\left(A^T Q_{yy}^{-1} A\right)^{-1} A^T.
+$$<p>This is a standard fact from linear model theory: projecting the data onto the
+column space of $A$ removes some degrees of freedom from the residual, so
+$Q_{\hat e \hat e}$ is &ldquo;smaller&rdquo; than $Q_{yy}$ in a precise sense (it&rsquo;s singular, of
+rank $m - n$).</p><h2 id=why-the-residual-matters-more-than-the-fit>Why the residual matters more than the fit</h2><p>At first glance, the natural question is &ldquo;how good is $\hat x$?&rdquo; But for the
+purposes of <em>choosing between different candidate models</em>, different design matrices
+$A$, the more useful object turns out to be the residual $\hat e$ itself, not the
+parameter estimate.</p><p>Intuitively: if the assumed model $A$ is correct, $\hat e$ should look like pure
+noise, consistent with $Q_{\hat e \hat e}$. If the model is missing something (an
+unmodeled jump, an unmodeled seasonal cycle), that missing structure will leak into
+$\hat e$ as a systematic pattern rather than pure noise. A quadratic form of the
+residual against its own covariance,</p>$$
+\hat{e}^T Q_{yy}^{-1} \hat{e},
+$$<p>turns this intuition into a number: under the assumed model and Gaussian noise, this
+quantity follows a <strong>central chi-squared distribution</strong> with $m - n$ degrees of
+freedom. If the true process includes something the model doesn&rsquo;t capture, the same
+quantity follows a <strong>noncentral</strong> chi-squared distribution instead, pulled away from
+zero by whatever structure was left unmodeled.</p><blockquote><p><strong>Note.</strong> If we multiply everything by $Q_{yy}^{-1/2}$, the inverse square root of the
+covariance matrix (this is called
+<a href=https://en.wikipedia.org/wiki/Whitening_transformation>whitening</a>), the
+transformed vector $z = Q_{yy}^{-1/2} y$ has covariance exactly $I$, its entries
+are uncorrelated and all have variance 1, instead of the correlated,
+unequal-variance noise in $y$.</p><p>Writing $\tilde A = Q_{yy}^{-1/2}A$, distribute the $Q_{yy}^{-1/2}$ factors inside
+the GLS formula. In $A^TQ_{yy}^{-1}A$, the middle collapses as
+$Q_{yy}^{1/2}Q_{yy}^{-1}Q_{yy}^{1/2} = Q_{yy}^{1/2}Q_{yy}^{-1/2}Q_{yy}^{-1/2}Q_{yy}^{1/2} = I$
+($Q_{yy}^{1/2}$ and $Q_{yy}^{-1/2}$ are functions of the same matrix, so they
+commute and cancel), leaving $A^TQ_{yy}^{-1}A = \tilde A^T\tilde A$ and, by the
+same cancellation, $A^TQ_{yy}^{-1}y = \tilde A^Tz$. Substituting,</p>$$\hat x = (\tilde A^T\tilde A)^{-1}\tilde A^Tz,$$<p>which is exactly the <strong>ordinary</strong> least-squares estimator of $z$ on $\tilde A$:
+GLS on the correlated data $y$ is just OLS on the whitened data $z$, with $\tilde A$
+playing the role of the design matrix. Now multiply the residual definition
+$\hat e = y - A\hat x$ by $Q_{yy}^{-1/2}$ and substitute this $\hat x$ in:</p>$$
+> Q_{yy}^{-1/2}\hat e = z - \tilde A\hat x
+> = z - \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^Tz = (I - \tilde P)z,
+> $$<p>where $\tilde P := \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^T$. Squaring both sides, and using that $I - \tilde P$ is
+symmetric and idempotent, gives
+$\hat e^T Q_{yy}^{-1}\hat e = z^T(I - \tilde P)z$, a rank-$(m-n)$ projector applied
+to $z$.</p><p>Any such projector splits a covariance-$I$ Gaussian vector into $m - n$
+independent, unit-variance coordinates, and a sum of $k$ squared independent
+unit-variance Gaussians is, by definition, $\chi^2_k$ (noncentral if their means
+aren&rsquo;t zero).</p></blockquote><p>This gives us a way to ask whether a residual looks
+too large to be explained by noise alone, and, more ambitiously, which among several candidate extra terms best explains why it&rsquo;s too large.</p><p>That question, comparing several candidate models against each other and not just
+against pure noise, is where the working machinery of hypothesis testing over a whole
+<em>library</em> of design matrices comes in.</p><h2 id=references>References</h2><ul><li>Koch, K. R. (1999). <em>Parameter Estimation and Hypothesis Testing in Linear Models</em>
+(2nd ed.). Springer.</li><li>Teunissen, P. J. G. (2000). <em>Testing Theory: An Introduction</em>. Delft University
+Press.</li><li>van Leijen, F. J. (2014). <em>Persistent Scatterer Interferometry based on geodetic
+estimation theory</em>. PhD thesis, Delft University of Technology.</li></ul></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
