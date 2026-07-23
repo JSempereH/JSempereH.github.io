@@ -1,0 +1,154 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For</h1><div class=note-meta><time>2026-06-30</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#the-cost-problem>The cost problem</a></li><li><a href=#separating-what-depends-on-the-point-from-what-doesnt>Separating what depends on the point from what doesn&rsquo;t</a></li><li><a href=#rewriting-the-quadratic-form-as-a-trace>Rewriting the quadratic form as a trace</a></li><li><a href=#a-note-on-what-this-assumes>A note on what this assumes</a></li><li><a href=#from-testing-to-correcting-unwrapping-errors-as-just-another-hypothesis>From testing to correcting: unwrapping errors as just another hypothesis</a></li><li><a href=#a-library-of-canonical-kinematic-functions>A library of canonical kinematic functions</a></li><li><a href=#from-six-functions-to-hundreds-of-hypotheses>From six functions to hundreds of hypotheses</a></li><li><a href=#what-this-buys-us>What this buys us</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the fourth post in the <strong>Probabilistic InSAR</strong> series. The
+<a href=/notes/insar-model-selection/>previous post</a> set up the testing machinery for
+comparing a null deformation model against a whole library of alternatives. Here we
+work out how to make that testing procedure cheap enough to run on millions of
+points, and what a realistic library of alternative models actually contains.</p><h2 id=the-cost-problem>The cost problem</h2><p>The testing procedure from the previous post sounds reasonable for one point and a
+handful of candidate models. But a realistic scene has millions of points, and the
+library of candidate alternatives can easily reach into the hundreds, since jumps
+and offsets can occur at any epoch, and combinations of canonical functions
+multiply quickly. Naively, evaluating $J$ alternative hypotheses at $N$ points means
+$J \times N$ separate computations of a matrix expression like</p>$$
+T_q^j = \hat e_0^T \, Q_{yy}^{-1} C_j \left(C_j^T Q_{yy}^{-1} Q_{\hat e_0 \hat e_0} Q_{yy}^{-1} C_j\right)^{-1} C_j^T Q_{yy}^{-1} \, \hat e_0,
+$$<p>which involves a matrix inversion inside it. If $N$ is in the millions and $J$ in
+the hundreds, this quickly becomes computationally prohibitive, even though each
+individual test looks harmless.</p><p>The way out is to notice that most of this expression doesn&rsquo;t depend on the point
+at all.</p><h2 id=separating-what-depends-on-the-point-from-what-doesnt>Separating what depends on the point from what doesn&rsquo;t</h2><p>Look again at the formula. The only point-specific ingredient is $\hat e_0$, the
+residual under the null hypothesis. Everything else, $Q_{yy}^{-1}$, $C_j$, and
+$Q_{\hat e_0 \hat e_0}$, depends only on the chosen model $H_j$ and on the assumed
+stochastic model, not on the actual observed values at a given point. In
+particular, if every point shares the same acquisition epochs and the same assumed
+covariance structure $Q_{yy}$, then $Q_{\hat e_0 \hat e_0}$ is literally identical
+across all points.</p><p>This means the entire block</p>$$
+L^j = Q_{yy}^{-1} C_j \left(C_j^T Q_{yy}^{-1} Q_{\hat e_0 \hat e_0} Q_{yy}^{-1} C_j\right)^{-1} C_j^T Q_{yy}^{-1}
+$$<p>can be computed once per hypothesis $H_j$, ahead of time, completely independent
+of the data. It&rsquo;s an $m \times m$ symmetric matrix that only needs to exist $J$
+times total (once per alternative hypothesis in the library), not $J \times N$
+times.</p><p>With $L^j$ precomputed, the test statistic collapses to a much cheaper expression:</p>$$
+T_q^j = \hat e_0^T L^j \hat e_0.
+$$<p>No inversion left to do at the point level: just a quadratic form between a fixed
+matrix and a data-dependent vector.</p><h2 id=rewriting-the-quadratic-form-as-a-trace>Rewriting the quadratic form as a trace</h2><p>There&rsquo;s a further reformulation that turns out to matter a lot in practice. Any
+scalar quadratic form $\hat e_0^T L^j \hat e_0$ can be rewritten using a basic
+identity from linear algebra: for a scalar $s = v^T M v$, we have
+$s = \operatorname{tr}(M v v^T)$, since the trace of a $1\times 1$ &ldquo;matrix&rdquo; is
+itself, and trace is invariant under cyclic permutation of a product:</p>$$
+v^T M v = \operatorname{tr}(v^T M v) = \operatorname{tr}(M v v^T).
+$$<p>Applying this here:</p>$$
+T_q^j = \hat e_0^T L^j \hat e_0 = \operatorname{tr}\left(L^j \, \hat e_0 \hat e_0^T\right).
+$$<p>This might look like a cosmetic change, but it reorganizes the computation in a
+useful way: the outer product $\hat e_0 \hat e_0^T$ is an $m \times m$ matrix that
+depends only on the point (through its null-hypothesis residual), and needs to be
+computed exactly once per point, regardless of how many alternative hypotheses will
+be tested against it. Every subsequent hypothesis test at that point becomes a
+trace of a product between this fixed matrix and each precomputed $L^j$.</p><p>This is not just a theoretical speedup. Chang & Hanssen (2016) apply exactly this
+pipeline to a real TerraSAR-X stack over Rotterdam, testing each of 748,806
+persistent scatterers against a library of roughly 508 alternative hypotheses,
+and report an average of about 31 milliseconds per point, processing the entire
+scene in minutes on ordinary desktop hardware rather than the far longer runtime a
+naive per-hypothesis refit would need.</p><h2 id=a-note-on-what-this-assumes>A note on what this assumes</h2><p>This shortcut leans on an assumption worth naming explicitly: that $Q_{yy}$, and
+therefore $Q_{\hat e_0 \hat e_0}$, is the same across all points, so that $L^j$
+truly doesn&rsquo;t need to be recomputed per point. This is a simplification. If every
+point had a genuinely different noise structure (different variance, different
+temporal correlation), each $L^j$ would need to be recomputed per point, and the
+efficiency gain would disappear. In practice, a common workaround is to assume a
+shared, relatively simple stochastic model across points (for instance,
+uncorrelated observations with a single shared variance factor), which is precise
+enough for model comparison while keeping this computational shortcut intact. This
+tradeoff, between how realistic the noise model is and how cheap the test becomes,
+is a recurring theme any time the same statistical framework needs to scale from
+one point to millions.</p><h2 id=from-testing-to-correcting-unwrapping-errors-as-just-another-hypothesis>From testing to correcting: unwrapping errors as just another hypothesis</h2><p>One elegant consequence of this framework is worth flagging before moving on. Back
+in the first post, phase unwrapping errors were described as a separate, purely
+combinatorial problem: deciding how many cycles of $2\pi$ to add or subtract at
+each epoch. Within this testing framework, though, an unwrapping error is nothing
+special: it&rsquo;s just a discrete jump of a very particular, known size (a multiple of
+half the wavelength), so it can be tested for using exactly the same machinery as a
+jump model, just with the jump size fixed in advance rather than left free.
+Concretely, Chang & Hanssen (2016) fix the outlier and offset terms $M_5$ and $M_6$
+to $\pm\lambda/2$ and test for them like any other hypothesis; if the estimated
+size comes out larger than $\lambda/4$ in magnitude, that&rsquo;s taken as evidence of a
+real cycle slip, and the observation is corrected by exactly $\lambda/2$ before
+continuing.</p><p>This is a nice illustration of the general power of the approach: once a physical
+effect can be written as a column (or set of columns) in a design matrix, it slots
+into the same hypothesis-testing pipeline as everything else, whether it&rsquo;s a smooth
+physical process like seasonal deformation or a discrete data artifact like a cycle
+slip. Which raises the natural next question: what does that column actually look
+like for a real physical process? That&rsquo;s where a library of canonical kinematic
+functions comes in.</p><h2 id=a-library-of-canonical-kinematic-functions>A library of canonical kinematic functions</h2><p>Every alternative hypothesis $H_j$ needs its columns $C_j$ to correspond to
+something physically meaningful, not an arbitrary mathematical shape. In practice,
+a small set of canonical functions turns out to cover most of the deformation
+behaviors seen at real points, and they can be combined to build a much larger
+effective library.</p><p>Writing $t$ for the temporal baseline (time since the master acquisition) and
+$\mathbf{x}$ for the spatial position of a point, six canonical building blocks are
+commonly used:</p><p><strong>Linear motion.</strong></p>$$
+M_1(v) = t \cdot v
+$$<p>A single column equal to the temporal baseline itself. The associated parameter $v$
+is a constant velocity, in millimeters per year. This is the null-hypothesis model:
+steady-state motion, nothing more.</p><p><strong>Thermal expansion.</strong></p>$$
+M_2(\eta) = \Delta T \cdot \eta
+$$<p>Instead of time, the column here is the temperature difference $\Delta T$ at each
+acquisition relative to some reference. Materials like concrete, steel, or asphalt
+expand and contract measurably with temperature, and this shows up in the phase
+time series as a signal that correlates with temperature records rather than with
+time directly. The parameter $\eta$ is a linear expansion coefficient.</p><p><strong>Seasonal (annual) oscillation.</strong></p>$$
+M_3(s, c) = \sin(2\pi t)\, s + \big(\cos(2\pi t) - 1\big)\, c
+$$<p>Two columns, $\sin(2\pi t)$ and $\cos(2\pi t) - 1$, together capture any sinusoidal
+signal with a one-year period, regardless of its phase offset. The two parameters
+$s$ and $c$ combine into an amplitude $\sqrt{s^2 + c^2}$ and a time offset, the
+calendar timing of the peak. This is a useful alternative (or complement) to $M_2$
+when temperature records aren&rsquo;t the exact driver, but the signal still repeats
+annually, for instance if the actual cause is a seasonal groundwater cycle rather
+than temperature itself.</p><p><strong>Exponential relaxation.</strong></p>$$
+M_4(\kappa, \beta) = \left(1 - \exp\left(-\frac{t}{\beta}\right)\right) \cdot \kappa
+$$<p>This captures processes that start abruptly and level off over time, such as
+consolidation settling after construction, or post-seismic relaxation after an
+earthquake. $\kappa$ is the total magnitude of the effect once it saturates, and
+$\beta$ is a time constant controlling how fast it approaches that saturation.
+Unlike the first three, this term is <strong>nonlinear</strong> in its parameters ($\beta$
+appears inside an exponential), so it can&rsquo;t simply be added as a fixed column in
+$A$: it requires linearizing the model around an approximate value of $\beta$
+first, which is a wrinkle worth returning to on its own.</p><p><strong>A single-epoch outlier.</strong></p>$$
+M_5(D_i) = D_i \, \delta_{ij}, \qquad i,j \in [1,m]
+$$<p>Here $\delta_{ij}$ is the Kronecker delta: this column is zero everywhere except at
+epoch $i$, where it equals 1. The parameter $D_i$ is the size of an anomalous,
+isolated deviation at that single acquisition, not a lasting change in the motion,
+just one bad or unusual observation. This is the natural way to represent, and
+later detect, a single outlier or (fixed to a specific value) an unwrapping error
+at one epoch.</p><p><strong>A discrete step (offset).</strong></p>$$
+M_6(\Delta_i) = \Delta_i \, \mathcal{H}(t - \tau_i), \qquad i \in [1, m-1]
+$$<p>$\mathcal{H}$ is the Heaviside step function, equal to 0 before time $\tau_i$ and 1
+from $\tau_i$ onward. Unlike $M_5$, which affects a single epoch, this represents a
+lasting jump: the deformation shifts by $\Delta_i$ at epoch $i$ and stays shifted
+afterward. This is the right shape both for genuine physical events (subsidence
+triggered by nearby construction, a sudden settling event) and, fixed to a known
+size, for unwrapping errors that affect an entire later segment of the time series
+rather than a single point.</p><h2 id=from-six-functions-to-hundreds-of-hypotheses>From six functions to hundreds of hypotheses</h2><p>The library above has only six entries, but the number of testable alternative
+hypotheses is far larger, because these functions can be combined, and several of
+them (the offset and outlier terms especially) can occur at any of the $m$ epochs.</p><p>A convenient way to organize this is a binary table: each row is one canonical
+function, each column is one alternative hypothesis $H_j$, and a 1 marks that the
+function is included in that hypothesis&rsquo;s design matrix. A small example might look
+like this:</p><table><thead><tr><th></th><th>$H_0$</th><th>$H_1$</th><th>$H_2$</th><th>$H_3$</th></tr></thead><tbody><tr><td>$M_1(v)$</td><td>1</td><td>1</td><td>0</td><td>1</td></tr><tr><td>$M_2(\eta)$</td><td>0</td><td>1</td><td>0</td><td>0</td></tr><tr><td>$M_4(\kappa,\beta)$</td><td>0</td><td>0</td><td>1</td><td>0</td></tr><tr><td>$M_6(\Delta_i)$</td><td>0</td><td>0</td><td>0</td><td>1</td></tr><tr><td>$q$</td><td></td><td>1</td><td>2</td><td>1</td></tr></tbody></table><p>$H_0$ is the bare linear-velocity null model. $H_1$ adds thermal expansion to it,
+contributing one extra degree of freedom, $q=1$. $H_2$ replaces the linear term
+entirely with an exponential relaxation, contributing $q=2$ (the exponential model
+needs both $\kappa$ and $\beta$). $H_3$ keeps linear velocity but adds a step at
+some epoch, one extra degree of freedom again.</p><p>This kind of table might list seven or eight &ldquo;structural&rdquo; combinations, but the
+true number of hypotheses actually tested is much larger, since a step or outlier
+term can be placed at any of the $m-1$ or $m$ possible epochs. Even a modest
+assumption, that there&rsquo;s at most one step and one single-epoch outlier somewhere in
+the series, already produces on the order of $2m$ alternative models to test. This
+is exactly why the computational shortcut from earlier in this post matters so
+much: without it, testing on the order of hundreds of models like this at every one
+of millions of points would simply not be feasible.</p><h2 id=what-this-buys-us>What this buys us</h2><p>Put together, the last two posts give a complete, efficient pipeline for a single
+point: assume a null model, compute its residual once, precompute a fixed matrix
+$L^j$ for every hypothesis in a physically motivated library, and cheaply evaluate
+every one of them as a trace against that single residual, then pick the
+best-supported model using power-calibrated test ratios. Everything from a steady
+drift, a seasonal wobble, a thermal signature, an abrupt settling event, or a
+leftover unwrapping artifact, is handled by the same machinery, just with a
+different column (or set of columns) plugged into $C_j$.</p><h2 id=references>References</h2><ul><li>Chang, L. & Hanssen, R. F. (2016). A probabilistic approach for InSAR time-series
+postprocessing. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 54(1),
+421-430. <a href=https://doi.org/10.1109/TGRS.2015.2459037>https://doi.org/10.1109/TGRS.2015.2459037</a></li><li>Teunissen, P. J. G. (2000). <em>Testing Theory: An Introduction</em>. Delft University
+Press.</li><li>van Leijen, F. J. (2014). <em>Persistent Scatterer Interferometry based on geodetic
+estimation theory</em>. PhD thesis, Delft University of Technology.</li></ul><p><strong>Previously:</strong> <a href=/notes/insar-model-selection/>InSAR from Scratch (III): Comparing Competing Deformation
+Models</a>.</p></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>

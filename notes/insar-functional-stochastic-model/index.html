@@ -8,7 +8,16 @@ phase time series per pixel. Here we take that time series and turn it into an
 honest statistical estimation problem.</p><h2 id=from-a-phase-time-series-to-a-regression-problem>From a phase time series to a regression problem</h2><p>Take a single point in space, one persistent scatterer, and look at its phase time
 series across $m$ SAR acquisitions, already converted to a deformation-equivalent
 quantity (millimeters, say) and referenced to a master acquisition and a reference
-point. Call this vector of observations $y \in \mathbb{R}^m$.</p><p>The working assumption is that $y$ is a realization of a Gaussian random vector:</p>$$
+point. Call this vector of observations $y \in \mathbb{R}^m$.</p><blockquote><p><strong>Note.</strong> Constructing $y$ this way is not as clean as it sounds, because
+&ldquo;referenced to a reference point&rdquo; means every point&rsquo;s series inherits whatever
+noise or instability that single reference point has. Chang & Hanssen (2016)
+correct for this with a reference-point-noise (RPN) reduction step, run once
+before any of the modeling below: fit and remove a linear trend from every
+point&rsquo;s raw series, average the leftover residual across all points epoch by
+epoch, and subtract that shared average from every series. This isolates the
+noise common to all points (coming from the reference itself) from the noise
+genuinely specific to each point, which is the only kind the model in the rest
+of this post is meant to explain.</p></blockquote><p>The working assumption is that $y$ is a realization of a Gaussian random vector:</p>$$
 \mathbb{E}[y] = Ax, \qquad \operatorname{Cov}(y) = Q_{yy} = \sigma^2 R_{yy},
 $$<p>where:</p><ul><li>$A \in \mathbb{R}^{m \times n}$ is a <strong>design matrix</strong>, known and fixed. It encodes
 <em>which</em> kinematic behaviors we allow the point to exhibit.</li><li>$x \in \mathbb{R}^n$ is the unknown parameter vector: the actual physical
@@ -81,7 +90,11 @@ unit-variance Gaussians is, by definition, $\chi^2_k$ (noncentral if their means
 aren&rsquo;t zero).</p></blockquote><p>This gives us a way to ask whether a residual looks
 too large to be explained by noise alone, and, more ambitiously, which among several candidate extra terms best explains why it&rsquo;s too large.</p><p>That question, comparing several candidate models against each other and not just
 against pure noise, is where the working machinery of hypothesis testing over a whole
-<em>library</em> of design matrices comes in.</p><h2 id=references>References</h2><ul><li>Koch, K. R. (1999). <em>Parameter Estimation and Hypothesis Testing in Linear Models</em>
+<em>library</em> of design matrices comes in.</p><h2 id=references>References</h2><ul><li>Chang, L. & Hanssen, R. F. (2016). A probabilistic approach for InSAR time-series
+postprocessing. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 54(1),
+421-430. <a href=https://doi.org/10.1109/TGRS.2015.2459037>https://doi.org/10.1109/TGRS.2015.2459037</a></li><li>Koch, K. R. (1999). <em>Parameter Estimation and Hypothesis Testing in Linear Models</em>
 (2nd ed.). Springer.</li><li>Teunissen, P. J. G. (2000). <em>Testing Theory: An Introduction</em>. Delft University
 Press.</li><li>van Leijen, F. J. (2014). <em>Persistent Scatterer Interferometry based on geodetic
-estimation theory</em>. PhD thesis, Delft University of Technology.</li></ul></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
+estimation theory</em>. PhD thesis, Delft University of Technology.</li></ul><p><strong>Previously:</strong> <a href=/notes/insar-from-scratch/>InSAR from Scratch (I): What a Radar Interferometer Actually
+Measures</a>. <strong>Next in the series:</strong> <a href=/notes/insar-model-selection/>InSAR from Scratch
+(III): Comparing Competing Deformation Models</a>.</p></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>

@@ -1,7 +1,7 @@
 <!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (III): Comparing Competing Deformation Models · Javier Sempere</title>
 <link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (III): Comparing Competing Deformation Models</h1><div class=note-meta><time>2026-06-16</time>
 <a href=/tags/insar class=tag>InSAR</a>
-<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#the-setup-one-null-model-many-alternatives>The setup: one null model, many alternatives</a></li><li><a href=#recap-the-test-statistic-and-its-distribution>Recap: the test statistic and its distribution</a></li><li><a href=#why-we-cant-just-compare-test-statistics-directly>Why we can&rsquo;t just compare test statistics directly</a></li><li><a href=#test-ratios-normalizing-by-the-critical-value>Test ratios: normalizing by the critical value</a></li><li><a href=#fixing-power-instead-of-significance>Fixing power instead of significance</a></li><li><a href=#a-worked-example>A worked example</a></li><li><a href=#why-not-just-use-aic-or-bic>Why not just use AIC or BIC?</a></li><li><a href=#putting-it-together-the-testing-sequence>Putting it together: the testing sequence</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the third post in the <strong>Probabilistic InSAR</strong> series. The
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#the-setup-one-null-model-many-alternatives>The setup: one null model, many alternatives</a></li><li><a href=#recap-the-test-statistic-and-its-distribution>Recap: the test statistic and its distribution</a></li><li><a href=#why-we-cant-just-compare-test-statistics-directly>Why we can&rsquo;t just compare test statistics directly</a></li><li><a href=#test-ratios-normalizing-by-the-critical-value>Test ratios: normalizing by the critical value</a></li><li><a href=#fixing-power-instead-of-significance>Fixing power instead of significance</a></li><li><a href=#a-worked-example>A worked example</a></li><li><a href=#why-not-just-use-aic-or-bic>Why not just use AIC or BIC?</a></li><li><a href=#putting-it-together-the-testing-sequence>Putting it together: the testing sequence</a></li><li><a href=#adaptation-is-the-estimate-actually-good-enough>Adaptation: is the estimate actually good enough?</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the third post in the <strong>Probabilistic InSAR</strong> series. The
 <a href=/notes/insar-functional-stochastic-model/>previous post</a> set up the
 functional-stochastic model for a point&rsquo;s phase time series and showed why the
 residual of a generalized least squares fit follows a chi-squared distribution. Here
@@ -67,7 +67,10 @@ $$<p>Now, for an alternative hypothesis with $q_j$ degrees of freedom instead of
 ask: what significance level $\alpha_j$ would keep the power equal to that same
 $\gamma_0$, given the noncentrality parameter that corresponds to $q_j$ degrees of
 freedom? Solving that relationship for $\alpha_j$ gives exactly the significance
-level to plug into the test ratio above.</p><p>The effect is subtle but important: instead of every test having the same
+level to plug into the test ratio above.</p><p>In practice, Chang & Hanssen (2016) fix $\alpha_0 = 1/(2m)$, tying the reference
+significance level to how many epochs $m$ the time series actually has, and
+$\gamma_0 = 50\%$, the power at which a &ldquo;just as detectable&rdquo; effect is exactly as
+likely to be caught as missed.</p><p>The effect is subtle but important: instead of every test having the same
 probability of a false positive (fixed $\alpha$), every test now has the same
 probability of correctly detecting a &ldquo;just as detectable&rdquo; true effect (fixed
 $\gamma_0$), regardless of how many parameters that effect involves. A
@@ -111,23 +114,53 @@ extra parameters emerges implicitly from requiring equal detection power, rather
 than being imposed as a fixed constant. Both approaches are, in the end, model
 selection procedures with a built-in complexity penalty, just derived from
 different first principles: information theory for AIC/BIC, hypothesis testing
-theory here.</p><h2 id=putting-it-together-the-testing-sequence>Putting it together: the testing sequence</h2><p>For a single point, the overall procedure looks like this:</p><ol><li>Test $H_0$ alone against the data, using the residual-based quadratic form from
-the previous post (this is sometimes called an overall model test). If the
-statistic doesn&rsquo;t exceed its critical value, there&rsquo;s no evidence the steady-state
-model is wrong, and we stop here.</li><li>If $H_0$ is rejected, loop over the whole library of alternative hypotheses
-$H_j$, compute each $T_{q_j}^j$, convert it into a test ratio $\underline
-T_{q_j}^j$ using the power-calibrated $\alpha_j$, and discard any $H_j$ with a
-ratio at or below 1.</li><li>Among the surviving alternatives, select the one with the largest test ratio as
-the best-supported model, and only then estimate its parameters explicitly.</li></ol><p>Notice what this buys computationally: steps 1 and 2 only ever need the residual
+theory here.</p><h2 id=putting-it-together-the-testing-sequence>Putting it together: the testing sequence</h2><p>This whole procedure has a name in geodetic testing theory: <strong>Detection,
+Identification, Adaptation (DIA)</strong>, due to Teunissen. For a single point, it looks
+like this:</p><ol><li><strong>Detection.</strong> Test $H_0$ alone against the data, using the residual-based
+quadratic form from the previous post (this is sometimes called an overall model
+test). If the statistic doesn&rsquo;t exceed its critical value, there&rsquo;s no evidence
+the steady-state model is wrong, and we stop here.</li><li><strong>Identification.</strong> If $H_0$ is rejected, loop over the whole library of
+alternative hypotheses $H_j$, compute each $T_{q_j}^j$, convert it into a test
+ratio $\underline T_{q_j}^j$ using the power-calibrated $\alpha_j$, and discard
+any $H_j$ with a ratio at or below 1. Among the survivors, the one with the
+largest test ratio is the best-supported model.</li><li><strong>Adaptation.</strong> Re-estimate the parameters under the winning model, and check
+whether that estimate is actually good enough to trust.</li></ol><p>Notice what this buys computationally: steps 1 and 2 only ever need the residual
 under $H_0$ and a handful of matrices that depend on $A$, $C_j$, and $Q_{yy}$, none
 of which depend on the actual data value $y$ beyond that single residual. This means
 the expensive part, comparing dozens or hundreds of candidate models, never requires
 explicitly refitting each candidate model to the data. That computational shortcut
 is what makes it feasible to repeat this whole procedure independently at every
-point in a scene with millions of them.</p><h2 id=references>References</h2><ul><li>Baarda, W. (1968). <em>A testing procedure for use in geodetic networks</em>. Publications
+point in a scene with millions of them.</p><h2 id=adaptation-is-the-estimate-actually-good-enough>Adaptation: is the estimate actually good enough?</h2><p>Step 3 is more than a formality. Picking the model with the best test ratio only
+says $H_j$ explains the residual better than $H_0$ does, it says nothing about
+whether the resulting parameter estimates are themselves precise and reliable
+enough to report. DIA&rsquo;s adaptation step adds that check explicitly.</p><p>Once $H_j$ is selected, re-estimate the full parameter vector $\hat x = [\hat
+x^T, \hat\nabla^T]^T$ against the enlarged design matrix $[A \;\; C_j]$, with
+covariance</p>$$
+Q_{\hat x \hat x} = \left([A \;\; C_j]^T Q_{yy}^{-1} [A \;\; C_j]\right)^{-1}.
+$$<p>This is judged against a <strong>criterion matrix</strong> $H_x$, a matrix encoding the maximum
+uncertainty considered acceptable for these parameters (for instance, the largest
+tolerable variance on an estimated velocity). Comparing the two via the generalized
+eigenvalue problem $Q_{\hat x \hat x} v = \zeta H_x v$ gives a largest eigenvalue
+$\zeta_{\max}$: the estimate is accepted only if $\zeta_{\max} \le 1$, i.e. if
+$Q_{\hat x \hat x}$ is nowhere larger than what the criterion allows.</p><p>This is the same power machinery from earlier in the post, run in reverse. Where
+detection and identification ask &ldquo;is there a signal large enough to be worth
+modeling,&rdquo; reliability asks &ldquo;if a signal of a given size were present, would this
+particular setup (this $A$, $C_j$, $Q_{yy}$, at this point) have been able to catch
+it,&rdquo; via</p>$$
+\nabla^T C_j^T Q_{\hat e_0 \hat e_0}^{-1} C_j \nabla = \lambda(\gamma, \alpha, q).
+$$<p>A small $\nabla$ pushes this equality toward requiring a large $\lambda$, meaning
+low power, meaning the setup is unreliable for effects that size. This closes the
+loop: it&rsquo;s not enough for a model to win the comparison against its rivals, the
+resulting estimate has to clear an absolute precision bar too, before it gets
+reported as the answer for that point.</p><h2 id=references>References</h2><ul><li>Chang, L. & Hanssen, R. F. (2016). A probabilistic approach for InSAR time-series
+postprocessing. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 54(1),
+421-430. <a href=https://doi.org/10.1109/TGRS.2015.2459037>https://doi.org/10.1109/TGRS.2015.2459037</a></li><li>Baarda, W. (1968). <em>A testing procedure for use in geodetic networks</em>. Publications
 on Geodesy, New Series 2(5), Netherlands Geodetic Commission.</li><li>Teunissen, P. J. G. (2000). <em>Testing Theory: An Introduction</em>. Delft University
 Press.</li><li>van Leijen, F. J. (2014). <em>Persistent Scatterer Interferometry based on geodetic
 estimation theory</em>. PhD thesis, Delft University of Technology.</li><li>Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE
 Transactions on Automatic Control</em>, 19(6), 716-723.
 <a href=https://doi.org/10.1109/TAC.1974.1100705>https://doi.org/10.1109/TAC.1974.1100705</a></li><li>Schwarz, G. (1978). Estimating the dimension of a model. <em>Annals of Statistics</em>,
-6(2), 461-464. <a href=https://doi.org/10.1214/aos/1176344136>https://doi.org/10.1214/aos/1176344136</a></li></ul></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
+6(2), 461-464. <a href=https://doi.org/10.1214/aos/1176344136>https://doi.org/10.1214/aos/1176344136</a></li></ul><p><strong>Previously:</strong> <a href=/notes/insar-functional-stochastic-model/>InSAR from Scratch (II): The Functional-Stochastic
+Model</a>. <strong>Next in the series:</strong> <a href=/notes/insar-testing-at-scale/>InSAR
+from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test
+For</a>.</p></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
