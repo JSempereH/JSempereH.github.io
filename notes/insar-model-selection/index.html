@@ -1,0 +1,133 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (III): Comparing Competing Deformation Models · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (III): Comparing Competing Deformation Models</h1><div class=note-meta><time>2026-06-16</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#the-setup-one-null-model-many-alternatives>The setup: one null model, many alternatives</a></li><li><a href=#recap-the-test-statistic-and-its-distribution>Recap: the test statistic and its distribution</a></li><li><a href=#why-we-cant-just-compare-test-statistics-directly>Why we can&rsquo;t just compare test statistics directly</a></li><li><a href=#test-ratios-normalizing-by-the-critical-value>Test ratios: normalizing by the critical value</a></li><li><a href=#fixing-power-instead-of-significance>Fixing power instead of significance</a></li><li><a href=#a-worked-example>A worked example</a></li><li><a href=#why-not-just-use-aic-or-bic>Why not just use AIC or BIC?</a></li><li><a href=#putting-it-together-the-testing-sequence>Putting it together: the testing sequence</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This is the third post in the <strong>Probabilistic InSAR</strong> series. The
+<a href=/notes/insar-functional-stochastic-model/>previous post</a> set up the
+functional-stochastic model for a point&rsquo;s phase time series and showed why the
+residual of a generalized least squares fit follows a chi-squared distribution. Here
+we use that result to compare several candidate deformation models against each
+other, not just against pure noise.</p><h2 id=the-setup-one-null-model-many-alternatives>The setup: one null model, many alternatives</h2><p>At every point, we start from a baseline assumption: steady-state motion, a single
+column in the design matrix,</p>$$
+H_0: \quad \mathbb{E}[y] = Ax, \qquad \operatorname{Cov}(y) = Q_{yy}.
+$$<p>This is the null hypothesis. But we suspect the point might actually be doing
+something richer: seasonal oscillation, a discrete jump, an exponential relaxation.
+Each of these possibilities is encoded as an extra set of columns $C_j$ added to the
+model, with an associated extra parameter vector $\nabla_j$ of dimension $q$:</p>$$
+H_j: \quad \mathbb{E}[y] = Ax + C_j \nabla_j, \qquad \nabla_j \neq 0.
+$$<p>$H_j$ is not one fixed alternative but a family: one per candidate extra term (or
+combination of terms) we&rsquo;re willing to test. The question is no longer &ldquo;is $H_0$
+true or false,&rdquo; but &ldquo;among $H_0$ and a whole library of $H_j$&rsquo;s, which one best
+explains the data.&rdquo;</p><h2 id=recap-the-test-statistic-and-its-distribution>Recap: the test statistic and its distribution</h2><p>From the previous post, the key quantity for testing $H_0$ against a specific $H_j$
+is a residual-based quadratic form. Its general version is</p>$$
+T_q^j = \hat e_0^T \, Q_{yy}^{-1} C_j \left(C_j^T Q_{yy}^{-1} Q_{\hat e_0 \hat e_0} Q_{yy}^{-1} C_j\right)^{-1} C_j^T Q_{yy}^{-1} \, \hat e_0,
+$$<p>where $\hat e_0$ is the residual computed under $H_0$ (we never need to actually fit
+$H_j$; everything is expressed in terms of the null-hypothesis residual and matrices
+that depend only on $A$, $C_j$, and $Q_{yy}$). Under $H_0$, this statistic follows a
+central chi-squared distribution with $q$ degrees of freedom. Under $H_j$, it
+follows a noncentral chi-squared with the same $q$ degrees of freedom and
+noncentrality parameter</p>$$
+\lambda_j = \nabla_j^T C_j^T Q_{yy}^{-1} Q_{\hat e_0 \hat e_0} Q_{yy}^{-1} C_j \nabla_j,
+$$<p>which, following the previous post&rsquo;s derivation, is literally the squared size of
+the part of $C_j \nabla_j$ that survives projection onto the residual space. A large
+true effect gives a large $\lambda_j$, which pushes the noncentral chi-squared away
+from zero and makes rejection more likely: this is exactly the statistical notion of
+test power.</p><h2 id=why-we-cant-just-compare-test-statistics-directly>Why we can&rsquo;t just compare test statistics directly</h2><p>Different alternative hypotheses can have different dimensions $q$. A seasonal model
+might add $q=2$ parameters (sine and cosine coefficients); a single jump adds $q=1$;
+two jumps add $q=2$; and so on. A chi-squared statistic with more degrees of freedom
+is, all else equal, larger on average just by construction, since the mean of a
+central $\chi^2_q$ is $q$ itself. Comparing $T_q^j$ across models with different $q$
+directly would systematically favor richer models for no good statistical reason,
+similar to why raw $R^2$ in ordinary regression always improves as you add
+predictors, regardless of whether they&rsquo;re meaningful.</p><p>We need a way to put statistics with different degrees of freedom on a common
+footing before comparing them.</p><h2 id=test-ratios-normalizing-by-the-critical-value>Test ratios: normalizing by the critical value</h2><p>The natural fix is to divide each test statistic by the threshold that would make it
+&ldquo;just significant&rdquo; at some chosen significance level $\alpha_j$, i.e. by the
+critical value $\chi^2_{\alpha_j}(q_j)$ of the corresponding central chi-squared
+distribution:</p>$$
+\underline{T}_{q_j}^j = T_{q_j}^j \big/ \chi^2_{\alpha_j}(q_j).
+$$<p>This is called a test ratio. Its interpretation is clean: if $\underline
+T_{q_j}^j > 1$, the observed statistic exceeds what would be needed to reject $H_0$
+at level $\alpha_j$, so $H_j$ is favored over $H_0$. If $\underline T_{q_j}^j \le
+1$, $H_j$ is not supported by the data any more than $H_0$ is, and gets discarded.
+Among all alternatives that clear this bar, the one with the largest test ratio is
+treated as the most probable model:</p>$$
+\underline T_{q_B}^B = \max_j \left\{ \underline T_{q_j}^j \right\}.
+$$<p>This still leaves an open question, though: how should $\alpha_j$ be chosen for each
+candidate model? If we just picked the same $\alpha$ for every $j$ regardless of
+$q_j$, we would again be comparing models unfairly, because the same $\alpha$
+corresponds to different amounts of statistical stringency depending on the
+dimension of the test.</p><h2 id=fixing-power-instead-of-significance>Fixing power instead of significance</h2><p>This is where a classical idea from geodetic testing theory, due to Baarda, comes
+in: instead of fixing $\alpha_j$ directly, fix the <strong>power</strong> of every test, i.e. the
+probability of correctly rejecting $H_0$ when $H_j$ is in fact true, and let
+$\alpha_j$ adjust itself for each dimension $q_j$ to match that fixed power.</p><p>Concretely, pick a reference significance level $\alpha_0$ and a reference power
+$\gamma_0$ for a test with one degree of freedom ($q=1$). This pair determines a
+noncentrality parameter $\lambda_0$ through the relationship between significance,
+power, and noncentrality for a chi-squared test:</p>$$
+\lambda_0 = \lambda(\gamma_0, \alpha_0, q=1).
+$$<p>Now, for an alternative hypothesis with $q_j$ degrees of freedom instead of $1$, we
+ask: what significance level $\alpha_j$ would keep the power equal to that same
+$\gamma_0$, given the noncentrality parameter that corresponds to $q_j$ degrees of
+freedom? Solving that relationship for $\alpha_j$ gives exactly the significance
+level to plug into the test ratio above.</p><p>The effect is subtle but important: instead of every test having the same
+probability of a false positive (fixed $\alpha$), every test now has the same
+probability of correctly detecting a &ldquo;just as detectable&rdquo; true effect (fixed
+$\gamma_0$), regardless of how many parameters that effect involves. A
+two-parameter seasonal model and a one-parameter jump model are now judged on equal
+footing: both need equally &ldquo;hard to miss&rdquo; evidence, calibrated for their own
+dimension, before being preferred over the null.</p><h2 id=a-worked-example>A worked example</h2><p>Suppose we have a single point observed at $m = 30$ epochs, and after fitting the
+steady-state null model $H_0$ (linear velocity only, $n=1$), we compute the overall
+test statistic and find it exceeds its critical value: $H_0$ is rejected. There&rsquo;s
+some structure in the residual $\hat e_0$ that a constant velocity doesn&rsquo;t explain,
+and we now need to figure out what.</p><p>Say we have two candidate alternatives in our library:</p><ul><li>$H_1$: linear velocity plus a seasonal term (columns $\sin(2\pi t_i)$,
+$\cos(2\pi t_i)$), so $q_1 = 2$.</li><li>$H_2$: linear velocity plus a single discrete jump at some known epoch, so
+$q_2 = 1$.</li></ul><p>We compute both test statistics directly from $\hat e_0$ (no need to refit
+anything), and suppose the results are</p>$$
+T_2^1 = 9.8, \qquad T_1^2 = 7.1.
+$$<p>At face value, $H_1$&rsquo;s statistic is larger. But $H_1$ has two degrees of freedom
+against $H_2$&rsquo;s one, so a naive comparison is unfair: a $\chi^2_2$ statistic tends
+to run higher than a $\chi^2_1$ statistic even under pure noise, simply because it&rsquo;s
+summing two squared terms instead of one.</p><p>This is exactly what the power-calibrated significance levels are for. Suppose,
+from the power-equalization step, we obtain $\alpha_1 \approx 0.10$ for the
+two-parameter test and $\alpha_2 \approx 0.025$ for the one-parameter test (a
+smaller $\alpha$ for fewer degrees of freedom, in this illustration, is what the
+power-matching condition happens to produce here). Looking up the corresponding
+critical values of the central chi-squared distribution:</p>$$
+\chi^2_{0.10}(2) \approx 4.61, \qquad \chi^2_{0.025}(1) \approx 5.02.
+$$<p>The test ratios become</p>$$
+\underline T_2^1 = \frac{9.8}{4.61} \approx 2.13, \qquad
+\underline T_1^2 = \frac{7.1}{5.02} \approx 1.41.
+$$<p>Both ratios exceed 1, so both $H_1$ and $H_2$ are preferred over $H_0$. But once
+we&rsquo;ve corrected for the difference in degrees of freedom, $H_1$ comes out clearly
+ahead: $2.13 > 1.41$. The seasonal model is selected as the best-supported
+explanation for this point, even though its raw test statistic wasn&rsquo;t
+proportionally as far ahead of $H_2$&rsquo;s as the uncorrected numbers suggested.</p><h2 id=why-not-just-use-aic-or-bic>Why not just use AIC or BIC?</h2><p>Information criteria like AIC and BIC solve a closely related problem: they
+penalize models with more parameters to avoid overfitting, trading off goodness of
+fit against model complexity. The B-method approach shares that spirit but reaches
+it differently. AIC and BIC compare models through a fixed penalty per parameter (2
+per parameter for AIC, $\ln m$ per parameter for BIC), independent of the actual
+noise structure or how detectable an effect is in practice. The power-based approach
+instead asks a directly statistical question: for this specific type of effect, at
+this specific noise level, would the test have caught it reliably? The penalty for
+extra parameters emerges implicitly from requiring equal detection power, rather
+than being imposed as a fixed constant. Both approaches are, in the end, model
+selection procedures with a built-in complexity penalty, just derived from
+different first principles: information theory for AIC/BIC, hypothesis testing
+theory here.</p><h2 id=putting-it-together-the-testing-sequence>Putting it together: the testing sequence</h2><p>For a single point, the overall procedure looks like this:</p><ol><li>Test $H_0$ alone against the data, using the residual-based quadratic form from
+the previous post (this is sometimes called an overall model test). If the
+statistic doesn&rsquo;t exceed its critical value, there&rsquo;s no evidence the steady-state
+model is wrong, and we stop here.</li><li>If $H_0$ is rejected, loop over the whole library of alternative hypotheses
+$H_j$, compute each $T_{q_j}^j$, convert it into a test ratio $\underline
+T_{q_j}^j$ using the power-calibrated $\alpha_j$, and discard any $H_j$ with a
+ratio at or below 1.</li><li>Among the surviving alternatives, select the one with the largest test ratio as
+the best-supported model, and only then estimate its parameters explicitly.</li></ol><p>Notice what this buys computationally: steps 1 and 2 only ever need the residual
+under $H_0$ and a handful of matrices that depend on $A$, $C_j$, and $Q_{yy}$, none
+of which depend on the actual data value $y$ beyond that single residual. This means
+the expensive part, comparing dozens or hundreds of candidate models, never requires
+explicitly refitting each candidate model to the data. That computational shortcut
+is what makes it feasible to repeat this whole procedure independently at every
+point in a scene with millions of them.</p><h2 id=references>References</h2><ul><li>Baarda, W. (1968). <em>A testing procedure for use in geodetic networks</em>. Publications
+on Geodesy, New Series 2(5), Netherlands Geodetic Commission.</li><li>Teunissen, P. J. G. (2000). <em>Testing Theory: An Introduction</em>. Delft University
+Press.</li><li>van Leijen, F. J. (2014). <em>Persistent Scatterer Interferometry based on geodetic
+estimation theory</em>. PhD thesis, Delft University of Technology.</li><li>Akaike, H. (1974). A new look at the statistical model identification. <em>IEEE
+Transactions on Automatic Control</em>, 19(6), 716-723.
+<a href=https://doi.org/10.1109/TAC.1974.1100705>https://doi.org/10.1109/TAC.1974.1100705</a></li><li>Schwarz, G. (1978). Estimating the dimension of a model. <em>Annals of Statistics</em>,
+6(2), 461-464. <a href=https://doi.org/10.1214/aos/1176344136>https://doi.org/10.1214/aos/1176344136</a></li></ul></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
