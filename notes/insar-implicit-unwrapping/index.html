@@ -1,0 +1,88 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient Assumption · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient Assumption</h1><div class=note-meta><time>2026-07-24</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#three-ways-to-handle-the-same-problem-so-far>Three ways to handle the same problem, so far</a></li><li><a href=#the-predicted-residual>The predicted residual</a></li><li><a href=#when-the-assumption-holds-and-when-it-doesnt>When the assumption holds, and when it doesn&rsquo;t</a></li><li><a href=#why-the-smoothness-constraint-is-also-the-unwrapping-constraint>Why the smoothness constraint is also the unwrapping constraint</a></li><li><a href=#what-is-left-out-here>What is left out here</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>The <a href=/notes/insar-instantaneous-state/>previous post</a> built the machinery for how
+the <em>unobserved</em> state, position and instantaneous velocity, evolves between
+epochs, but sidestepped how it actually connects to the <em>observed</em> data: a wrapped,
+modulo-$2\pi$ phase. This post closes that gap, and in doing so runs into
+unwrapping again, this time solved in a completely different way than either of the
+previous two treatments in this series.</p><h2 id=three-ways-to-handle-the-same-problem-so-far>Three ways to handle the same problem, so far</h2><p>It&rsquo;s worth naming all three side by side, since this series keeps returning to the
+same underlying issue.</p><ul><li><strong><a href=/notes/insar-from-scratch/>Post I</a></strong> treated unwrapping as a purely
+combinatorial problem: deciding how many whole $2\pi$ cycles to add back at each
+pixel of a single interferogram, with no time dimension involved at all.</li><li><strong><a href=/notes/insar-testing-at-scale/>Post IV</a></strong> treated it as <em>one hypothesis among
+many</em>: fix a candidate jump to $\pm\lambda/2$, run it through the same DIA
+machinery as a thermal or seasonal term, and accept the correction only if the
+test statistic clears its (power-calibrated) critical value.</li><li>This post treats it as an assumption <strong>built directly into the recursive
+update</strong>, with no separate test at all.</li></ul><h2 id=the-predicted-residual>The predicted residual</h2><p>Inside the recursive filter, by the time a new observation $\varphi_t$ arrives, we
+already have a prediction of what it <em>should</em> be, $A_t\hat x_{t|t-1}$, computed from
+the state before this epoch. Define the <strong>predicted residual</strong> as the difference
+between the (unknown, absolute) true phase and that prediction:</p>$$
+\Delta\phi_t = \phi_t - A_t\hat x_{t|t-1}.
+$$<p>If the state truly evolves as smoothly as the previous post&rsquo;s $(\sigma_v, \tau)$
+assume, this residual should be small, a good prediction leaves little unexplained.
+The trouble is that we never observe $\phi_t$ directly, only its wrapped version
+$\varphi_t = \mathcal{W}\{\phi_t\}$. The <strong>minimum gradient assumption</strong> is the
+claim that</p>$$
+|\Delta\phi_t| < \pi,
+$$<p>i.e. that the prediction is good enough that the true residual never exceeds half a
+wave cycle. Under that assumption, wrapping the <em>observed</em> mismatch recovers the
+<em>true</em> one exactly, because wrapping only changes a number when it lies outside
+$(-\pi,\pi]$ to begin with:</p>$$
+\Delta\phi_t = \mathcal{W}\{\varphi_t - A_t\hat x_{t|t-1}\}.
+$$<p>This closes the loop: the absolute phase is recoverable as
+$\phi_t = A_t\hat x_{t|t-1} + \Delta\phi_t$, with no combinatorial search and no
+separate hypothesis test, unwrapping happens as a byproduct of already having a
+prediction, which is why this is called <strong>implicit</strong> unwrapping.</p><h2 id=when-the-assumption-holds-and-when-it-doesnt>When the assumption holds, and when it doesn&rsquo;t</h2><p>The assumption is doing real work, and it can fail. If the true, unmodeled change
+since the last epoch is smaller than half a wavelength, wrapping the residual costs
+nothing:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>wavelength</span> <span class=o>=</span> <span class=mf>55.5</span>  <span class=c1># mm, C-band</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>wrap_to_phase</span><span class=p>(</span><span class=n>distance_mm</span><span class=p>,</span> <span class=n>wl</span><span class=o>=</span><span class=n>wavelength</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>np</span><span class=o>.</span><span class=n>angle</span><span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=mi>1</span><span class=n>j</span> <span class=o>*</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>pi</span> <span class=o>*</span> <span class=n>distance_mm</span> <span class=o>/</span> <span class=n>wl</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>recover_mm</span><span class=p>(</span><span class=n>wrapped_phase</span><span class=p>,</span> <span class=n>wl</span><span class=o>=</span><span class=n>wavelength</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>wrapped_phase</span> <span class=o>*</span> <span class=n>wl</span> <span class=o>/</span> <span class=p>(</span><span class=mi>2</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>pi</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>true_gap</span> <span class=o>=</span> <span class=mf>8.0</span>  <span class=c1># mm, well under wavelength/2 = 27.75 mm</span>
+</span></span><span class=line><span class=cl><span class=n>recovered</span> <span class=o>=</span> <span class=n>recover_mm</span><span class=p>(</span><span class=n>wrap_to_phase</span><span class=p>(</span><span class=n>true_gap</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;true gap: </span><span class=si>{</span><span class=n>true_gap</span><span class=si>}</span><span class=s2> mm, recovered: </span><span class=si>{</span><span class=n>recovered</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2> mm&#34;</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>true</span> gap: 8.0 mm, recovered: 8.000 mm
+</span></span></code></pre></div><p>But if the real change exceeds $\lambda/2$, wrapping silently throws away a whole
+cycle, and the assumption fails without any warning:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>true_gap</span> <span class=o>=</span> <span class=mf>45.0</span>  <span class=c1># mm, larger than wavelength/2 = 27.75 mm</span>
+</span></span><span class=line><span class=cl><span class=n>recovered</span> <span class=o>=</span> <span class=n>recover_mm</span><span class=p>(</span><span class=n>wrap_to_phase</span><span class=p>(</span><span class=n>true_gap</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;true gap: </span><span class=si>{</span><span class=n>true_gap</span><span class=si>}</span><span class=s2> mm, recovered: </span><span class=si>{</span><span class=n>recovered</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2> mm&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;error: </span><span class=si>{</span><span class=n>recovered</span> <span class=o>-</span> <span class=n>true_gap</span><span class=si>:</span><span class=s2>.3f</span><span class=si>}</span><span class=s2> mm&#34;</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nb>true</span> gap: 45.0 mm, recovered: -10.500 mm
+</span></span><span class=line><span class=cl>error: -55.500 mm
+</span></span></code></pre></div><p>The error is exactly one full wavelength, $55.5\,\text{mm}$, the signature of a
+missed cycle. There is no statistic here that flags this the way the DIA test in
+post IV would; the filter just absorbs the wrong absolute value and moves on,
+biased by a full cycle until, if ever, later observations happen to pull it back.</p><h2 id=why-the-smoothness-constraint-is-also-the-unwrapping-constraint>Why the smoothness constraint is also the unwrapping constraint</h2><p>This is the connection back to the previous post&rsquo;s $(\sigma_v, \tau)$: they are not
+just a prior on how fast the object is believed to move, they are simultaneously
+the thing that determines how good the prediction $A_t\hat x_{t|t-1}$ is, and
+therefore how likely the minimum gradient assumption is to hold at every epoch.
+Tighter smoothness constraints (small $\sigma_v$, large $\tau$) produce more
+conservative, more confident predictions, which makes the assumption safer, but at
+the cost of the filter being slower to recognize a real, large, sudden displacement
+for what it is rather than as a cycle slip. Looser constraints make the filter more
+willing to follow a real large jump, but also more exposed to genuinely
+misinterpreting noise as motion. This is the same trade-off from the previous post,
+just now with an unwrapping-safety dimension added on top of the accuracy one.</p><p>The paper is explicit that this is a real, currently open weakness of the method,
+not a solved problem: discontinuities and outliers larger than the assumption&rsquo;s
+reach are only detectable informally, by inspecting the predicted residuals after
+the fact, and explicit statistical handling of these cases (in the spirit of the
+DIA framework from the first arc) is flagged as future work rather than something
+already built in.</p><h2 id=what-is-left-out-here>What is left out here</h2><p>The batch <strong>initialization</strong> step (the first set of epochs, before the recursive
+filter takes over) does not use this implicit mechanism: it resolves integer
+ambiguities explicitly, via integer least squares and the LAMBDA method, an
+optimization over a discrete lattice of candidate integer values rather than an
+assumption baked into a single update equation.</p><h2 id=references>References</h2><ul><li>Wang, Y., Brouwer, W. S., van Leijen, F. J., & Hanssen, R. F. (2026).
+Instantaneous state InSAR: Estimation and prediction for near real-time
+displacement monitoring. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 64,
+5206214. <a href=https://doi.org/10.1109/TGRS.2026.3681072>https://doi.org/10.1109/TGRS.2026.3681072</a></li><li>Kampes, B. M., & Hanssen, R. F. (2004). Ambiguity resolution for permanent
+scatterer interferometry. <em>IEEE Transactions on Geoscience and Remote Sensing</em>,
+42(11), 2446-2453. <a href=https://doi.org/10.1109/TGRS.2004.835294>https://doi.org/10.1109/TGRS.2004.835294</a></li><li>Teunissen, P. J. G. (1995). The least-squares ambiguity decorrelation adjustment:
+A method for fast GPS integer ambiguity estimation. <em>Journal of Geodesy</em>, 70(1-2),
+65-82. <a href=https://doi.org/10.1007/BF00863419>https://doi.org/10.1007/BF00863419</a></li></ul><p><strong>Previously:</strong> <a href=/notes/insar-instantaneous-state/>InSAR from Scratch (VI): The Instantaneous State and the
+Ornstein-Uhlenbeck Velocity Model</a>.</p><hr><p>Today&rsquo;s song recommendation :)</p><div class=video-wrapper><iframe src=https://www.youtube-nocookie.com/embed/dGCHMEgU8tM title="Song recommendation :)" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading=lazy></iframe></div></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>

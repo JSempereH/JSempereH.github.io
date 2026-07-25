@@ -1,0 +1,130 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity Model · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity Model</h1><div class=note-meta><time>2026-07-20</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#why-velocity-not-just-position-is-part-of-the-state>Why velocity, not just position, is part of the state</a></li><li><a href=#the-ornstein-uhlenbeck-process>The Ornstein-Uhlenbeck process</a></li><li><a href=#from-the-sde-to-a-discrete-transition-matrix>From the SDE to a discrete transition matrix</a></li><li><a href=#the-process-noise>The process noise</a></li><li><a href=#simulating-the-smoothness-constraint>Simulating the smoothness constraint</a></li><li><a href=#what-this-buys-compared-to-the-first-arc>What this buys, compared to the first arc</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>The <a href=/notes/insar-recursive-estimation/>previous post</a> showed how to fold a new
+observation into an estimate without reprocessing the whole history, as long as the
+underlying parameter $x$ stays exactly time-invariant. That&rsquo;s still the limiting
+assumption. This post lifts it: instead of a fixed velocity, we let the
+<strong>instantaneous velocity</strong> itself be a random process that is allowed to wander,
+smoothly, over time. Wang et al. (2026) call the resulting state vector, position
+plus instantaneous velocity, the <strong>instantaneous state (IS)</strong>.</p><h2 id=why-velocity-not-just-position-is-part-of-the-state>Why velocity, not just position, is part of the state</h2><p>The natural first instinct is to track only position $P_t$ and let velocity be
+whatever falls out of differentiating it. Wang et al. treat velocity $v_t$ as its
+<strong>own</strong>, independently estimated state component instead. The reason is that
+position alone gives you no way to express a belief about how <em>quickly</em> things are
+allowed to change; velocity is where that belief actually lives. Making it explicit
+means we can attach a smoothness constraint directly to velocity, and let position
+inherit smooth behavior as a consequence, rather than trying to constrain position
+directly.</p><p>The state (dropping the static nuisance parameters $\Delta H$, $\eta$ for now, since
+they don&rsquo;t participate in the dynamics) is $x_t = [P_t, v_t]^T$, and the model for
+how it evolves is not &ldquo;constant velocity&rdquo; but &ldquo;velocity that drifts, with memory.&rdquo;</p><h2 id=the-ornstein-uhlenbeck-process>The Ornstein-Uhlenbeck process</h2><p>Model $v_t$ as the solution of a stochastic differential equation:</p>$$
+\dot v_t = -\rho\, v_t + z(t), \qquad \rho = 1/\tau > 0,
+$$<p>where $z(t)$ is white noise. This is the <strong>Ornstein-Uhlenbeck (OU) process</strong>: a
+zero-mean, <strong>mean-reverting</strong> random walk in velocity. Without the $-\rho v_t$ term
+this would just be a random walk (velocity drifts unboundedly). The extra term
+constantly pulls $v_t$ back toward zero, at a rate set by $\rho$, so that
+fluctuations in velocity have a finite memory instead of accumulating forever. That
+memory is exactly quantified by the autocovariance function</p>$$
+C_v(\Delta t) = \sigma_v^2\, e^{-\Delta t/\tau},
+$$<p>two velocities $\Delta t$ apart are correlated, with the correlation decaying
+exponentially, and $\tau$ is the time lag at which that correlation has dropped to
+$e^{-1}\approx 0.37$.</p><p><strong>Note:</strong> $\sigma_v$ and $\tau$ are not estimated from the data, they&rsquo;re a <strong>prior</strong> on how the object is expected to
+behave, chosen from context (the kind of structure, the physical process suspected)
+before looking at the time series. Choosing them is exactly analogous to choosing
+which columns go into $A$ back in <a href=/notes/insar-functional-stochastic-model/>post
+II</a>, it&rsquo;s a modeling decision, not a fit.</p><h2 id=from-the-sde-to-a-discrete-transition-matrix>From the SDE to a discrete transition matrix</h2><p>To use this inside a recursive estimator, we need the discrete-time equivalent of
+the OU process: given $x_{t-1} = [P_{t-1}, v_{t-1}]^T$, what&rsquo;s the exact
+distribution of $x_t$ one step later? Stack position and velocity into a linear
+system:</p>$$
+\dot x_t = F x_t + G z_t, \qquad
+F = \begin{bmatrix} 0 & 1 \\ 0 & -\rho \end{bmatrix}, \qquad
+G = \begin{bmatrix} 0 \\ 1 \end{bmatrix}.
+$$<p>The noise-free part of the solution is the matrix exponential
+$\Phi_{t,t-1} = e^{F\Delta t}$, and it can be computed by hand. $F$ has eigenvalues
+$0$ and $-\rho$ (its characteristic polynomial is $\lambda^2+\rho\lambda =
+\lambda(\lambda+\rho)$), with eigenvectors $(1,0)^T$ and $(1,-\rho)^T$
+respectively. Diagonalizing $F = V D V^{-1}$ with $V = \begin{bmatrix}1&1\\0&-\rho\end{bmatrix}$,
+$D=\operatorname{diag}(0,-\rho)$, and $V^{-1} = \begin{bmatrix}1&1/\rho\\0&-1/\rho\end{bmatrix}$,
+gives</p>$$
+e^{F\Delta t} = V\begin{bmatrix}1&0\\0&e^{-\rho\Delta t}\end{bmatrix}V^{-1}
+= \begin{bmatrix} 1 & \dfrac{1}{\rho}\left(1-e^{-\rho\Delta t}\right) \\[4pt] 0 & e^{-\rho\Delta t} \end{bmatrix}
+= \begin{bmatrix} 1 & \tau\left(1-e^{-\Delta t/\tau}\right) \\[4pt] 0 & e^{-\Delta t/\tau} \end{bmatrix},
+$$<p>using $\tau = 1/\rho$. This is exactly $\Phi_{t,t-1}$ as used in the paper: the
+first row says the new position is the old position, plus the old velocity times an
+<em>effective</em> elapsed time $\tau(1-e^{-\Delta t/\tau})$, which approaches $\Delta t$
+when $\Delta t \ll \tau$ (short steps relative to the memory: behaves like ordinary
+&ldquo;position += velocity $\times$ time&rdquo;) and saturates at $\tau$ when $\Delta t \gg
+\tau$ (long steps: the velocity has long since reverted to zero in between, so it
+contributes a bounded amount no matter how much additional time passes). The second
+row says the velocity itself just decays exponentially toward zero between updates,
+before the next noise term $d_t$ perturbs it again.</p><h2 id=the-process-noise>The process noise $Q_{d_t}$</h2><p>The transition matrix alone would make $x_t$ decay deterministically to zero, which
+is clearly not the intent, the whole point is that $v_t$ keeps getting randomly
+perturbed. That randomness is the process noise $d_t \sim \mathcal{N}(0, Q_{d_t})$,
+and its covariance also follows directly from the OU process, via</p>$$
+Q_{d_t} = \int_{t-1}^{t} \frac{2\sigma_v^2}{\tau}
+\left(e^{F(t-\zeta)}\right)^T G^T G\, e^{F(t-\zeta)}\, d\zeta.
+$$<p>Since $G=(0,1)^T$, $e^{F\Delta s}G$ is just the second column of the matrix computed
+above, $\left(\tau(1-e^{-\Delta s/\tau}),\, e^{-\Delta s/\tau}\right)^T$, so
+$G^Te^{F\Delta s\,T}e^{F\Delta s}G$ is the squared norm of that column. Writing
+$u = e^{-\Delta s/\tau}$ and substituting $\Delta s$ from $0$ to $\Delta t$, the
+velocity-velocity entry is the simplest to check by hand:</p>$$
+q_{22} = \int_0^{\Delta t} \frac{2}{\tau} e^{-2\Delta s/\tau}\, d\Delta s
+= \frac{2}{\tau}\cdot\frac{\tau}{2}\left(1-e^{-2\Delta t/\tau}\right)
+= 1-e^{-2\Delta t/\tau},
+$$<p>which matches the paper&rsquo;s $q_{22}$ exactly (with $\sigma_v^2$ factored out front).
+The position-velocity term follows the same way:</p>$$
+q_{21} = \int_0^{\Delta t} \frac{2}{\tau}\,\tau(1-u)\,u\, d\Delta s
+= 2\left[\tau(1-e^{-\Delta t/\tau}) - \tfrac{\tau}{2}(1-e^{-2\Delta t/\tau})\right]
+= \tau\left(1-e^{-\Delta t/\tau}\right)^2,
+$$<p>and expanding the square reproduces the paper&rsquo;s
+$q_{21}=2\tau\left[-e^{-\Delta t/\tau}+\tfrac{1}{2}(1+e^{-2\Delta t/\tau})\right]$
+term for term. The position-position entry $q_{11}$ is the same integral with
+$(1-u)^2$ in place of $u(1-u)$, messier to expand but mechanically identical, and it
+reproduces the paper&rsquo;s $q_{11}$ the same way.</p><h2 id=simulating-the-smoothness-constraint>Simulating the smoothness constraint</h2><p>Because $\Phi_{t,t-1}$ and $Q_{d_t}$ are now fully explicit, generating a synthetic
+IS trajectory is just running the discrete recursion
+$x_t = \Phi_{t,t-1}x_{t-1} + d_t$ forward.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>simulate</span><span class=p>(</span><span class=n>sigma_v</span><span class=p>,</span> <span class=n>tau</span><span class=p>,</span> <span class=n>n_epochs</span><span class=o>=</span><span class=mi>300</span><span class=p>,</span> <span class=n>dt</span><span class=o>=</span><span class=mf>1.0</span><span class=p>,</span> <span class=n>rng</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>rng</span> <span class=o>=</span> <span class=n>rng</span> <span class=ow>or</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>default_rng</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>Phi</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>([[</span><span class=mf>1.0</span><span class=p>,</span> <span class=n>tau</span> <span class=o>*</span> <span class=p>(</span><span class=mi>1</span> <span class=o>-</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=n>dt</span> <span class=o>/</span> <span class=n>tau</span><span class=p>))],</span>
+</span></span><span class=line><span class=cl>                    <span class=p>[</span><span class=mf>0.0</span><span class=p>,</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=n>dt</span> <span class=o>/</span> <span class=n>tau</span><span class=p>)]])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>e1</span><span class=p>,</span> <span class=n>e2</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=n>dt</span> <span class=o>/</span> <span class=n>tau</span><span class=p>),</span> <span class=n>np</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span><span class=o>-</span><span class=mi>2</span> <span class=o>*</span> <span class=n>dt</span> <span class=o>/</span> <span class=n>tau</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>q11</span> <span class=o>=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>tau</span> <span class=o>*</span> <span class=p>(</span><span class=n>dt</span> <span class=o>-</span> <span class=mf>1.5</span> <span class=o>*</span> <span class=n>tau</span> <span class=o>+</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>tau</span> <span class=o>*</span> <span class=n>e1</span> <span class=o>-</span> <span class=mf>0.5</span> <span class=o>*</span> <span class=n>tau</span> <span class=o>*</span> <span class=n>e2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>q21</span> <span class=o>=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>tau</span> <span class=o>*</span> <span class=p>(</span><span class=o>-</span><span class=n>e1</span> <span class=o>+</span> <span class=mf>0.5</span> <span class=o>*</span> <span class=p>(</span><span class=mi>1</span> <span class=o>+</span> <span class=n>e2</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>q22</span> <span class=o>=</span> <span class=mi>1</span> <span class=o>-</span> <span class=n>e2</span>
+</span></span><span class=line><span class=cl>    <span class=n>Qd</span> <span class=o>=</span> <span class=n>sigma_v</span><span class=o>**</span><span class=mi>2</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>([[</span><span class=n>q11</span><span class=p>,</span> <span class=n>q21</span><span class=p>],</span> <span class=p>[</span><span class=n>q21</span><span class=p>,</span> <span class=n>q22</span><span class=p>]])</span>
+</span></span><span class=line><span class=cl>    <span class=n>L</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>cholesky</span><span class=p>(</span><span class=n>Qd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>((</span><span class=n>n_epochs</span><span class=p>,</span> <span class=mi>2</span><span class=p>))</span>              <span class=c1># columns: position, velocity</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>k</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>n_epochs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span><span class=p>[</span><span class=n>k</span><span class=p>]</span> <span class=o>=</span> <span class=n>Phi</span> <span class=o>@</span> <span class=n>x</span><span class=p>[</span><span class=n>k</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>L</span> <span class=o>@</span> <span class=n>rng</span><span class=o>.</span><span class=n>standard_normal</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>x</span>
+</span></span></code></pre></div><p>Running this for 25 realizations at three settings of $(\sigma_v, \tau)$ shows what
+each parameter actually controls:</p><img src=/notes/insar-instantaneous-state/ou_smoothness_hu_12516ca1a371d52.webp alt="Simulated position paths for different smoothness settings" loading=lazy><p>Comparing the first two panels (same $\tau=150$ days, $\sigma_v$ raised from 1 to 5
+mm/yr) shows what $\sigma_v$ does: the paths keep the same qualitative
+smoothness, but the typical size of the excursions grows. Comparing the last two
+panels (same $\sigma_v=5$, $\tau$ dropped from 150 to 20 days) isolates what $\tau$
+does: the paths become visibly rougher, more short-wavelength wiggling, and the
+overall spread after 300 days is actually smaller, because a short memory means
+velocity reverts to zero before a deviation has time to accumulate into a large
+displacement.</p><h2 id=what-this-buys-compared-to-the-first-arc>What this buys, compared to the first arc</h2><p>In the first arc, &ldquo;does this point have a changing behavior&rdquo; was a yes/no question,
+answered by testing a library of discrete alternative hypotheses (a jump here, a
+seasonal term there) against a fixed null model. Here there is no library and no
+discrete test: the state is always free to drift, continuously, at a rate you
+control through $(\sigma_v, \tau)$ rather than through a menu of candidate shapes.
+Tightly constrained smoothness (small $\sigma_v$, large $\tau$) behaves almost like
+the old constant-velocity model; loosely constrained smoothness lets the estimate
+track real changes in behavior quickly, at the cost of also tracking noise more
+eagerly. Choosing $(\sigma_v, \tau)$ well is thus doing, informally, the same job
+that choosing which columns to test was doing in the first arc, just continuously
+instead of discretely.</p><p>What&rsquo;s still missing is how any of this connects to the actual, wrapped phase
+observation arriving at each epoch, since so far this section has only described
+how the <em>unobserved</em> state evolves. That&rsquo;s the subject of the next post.</p><h2 id=references>References</h2><ul><li>Wang, Y., Brouwer, W. S., van Leijen, F. J., & Hanssen, R. F. (2026).
+Instantaneous state InSAR: Estimation and prediction for near real-time
+displacement monitoring. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 64,
+5206214. <a href=https://doi.org/10.1109/TGRS.2026.3681072>https://doi.org/10.1109/TGRS.2026.3681072</a></li><li>Uhlenbeck, G. E., & Ornstein, L. S. (1930). On the theory of the Brownian motion.
+<em>Physical Review</em>, 36, 823-841. <a href=https://doi.org/10.1103/PhysRev.36.823>https://doi.org/10.1103/PhysRev.36.823</a></li><li>Teunissen, P. J. G. (2024). <em>Dynamic Data Processing: Recursive Least-Squares</em>
+(2nd ed.). TU Delft Open Publishing.</li></ul><p><strong>Previously:</strong> <a href=/notes/insar-recursive-estimation/>InSAR from Scratch (V): From Batch to Sequential
+Estimation</a>. <strong>Next in the series:</strong> <a href=/notes/insar-implicit-unwrapping/>InSAR
+from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient
+Assumption</a>.</p><hr><p>Today&rsquo;s song recommendation :)</p><div class=video-wrapper><iframe src=https://www.youtube-nocookie.com/embed/EILhlpY4Vg4 title="Song recommendation :)" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading=lazy></iframe></div></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>

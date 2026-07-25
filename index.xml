@@ -1,4 +1,26 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Javier Sempere</title><link>https://JSempereH.github.io/</link><description>Recent content on Javier Sempere</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Tue, 30 Jun 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://JSempereH.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For</title><link>https://JSempereH.github.io/notes/insar-testing-at-scale/</link><pubDate>Tue, 30 Jun 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-testing-at-scale/</guid><description>&lt;p>This is the fourth post in the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Javier Sempere</title><link>https://JSempereH.github.io/</link><description>Recent content on Javier Sempere</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 24 Jul 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://JSempereH.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>InSAR from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient Assumption</title><link>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</link><pubDate>Fri, 24 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</guid><description>&lt;p>The &lt;a href="https://JSempereH.github.io/notes/insar-instantaneous-state/">previous post&lt;/a> built the machinery for how
+the &lt;em>unobserved&lt;/em> state, position and instantaneous velocity, evolves between
+epochs, but sidestepped how it actually connects to the &lt;em>observed&lt;/em> data: a wrapped,
+modulo-$2\pi$ phase. This post closes that gap, and in doing so runs into
+unwrapping again, this time solved in a completely different way than either of the
+previous two treatments in this series.&lt;/p>
+&lt;h2 id="three-ways-to-handle-the-same-problem-so-far">Three ways to handle the same problem, so far&lt;/h2>
+&lt;p>It&amp;rsquo;s worth naming all three side by side, since this series keeps returning to the
+same underlying issue.&lt;/p></description></item><item><title>InSAR from Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity Model</title><link>https://JSempereH.github.io/notes/insar-instantaneous-state/</link><pubDate>Mon, 20 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-instantaneous-state/</guid><description>&lt;p>The &lt;a href="https://JSempereH.github.io/notes/insar-recursive-estimation/">previous post&lt;/a> showed how to fold a new
+observation into an estimate without reprocessing the whole history, as long as the
+underlying parameter $x$ stays exactly time-invariant. That&amp;rsquo;s still the limiting
+assumption. This post lifts it: instead of a fixed velocity, we let the
+&lt;strong>instantaneous velocity&lt;/strong> itself be a random process that is allowed to wander,
+smoothly, over time. Wang et al. (2026) call the resulting state vector, position
+plus instantaneous velocity, the &lt;strong>instantaneous state (IS)&lt;/strong>.&lt;/p></description></item><item><title>InSAR from Scratch (V): From Batch to Sequential Estimation</title><link>https://JSempereH.github.io/notes/insar-recursive-estimation/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-recursive-estimation/</guid><description>&lt;p>This post opens a second arc within the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
+&lt;a href="https://JSempereH.github.io/notes/insar-testing-at-scale/">previous post&lt;/a> closed the first arc, built around
+Chang &amp;amp; Hanssen (2016): a null model, a library of alternatives, and a way to pick
+the best-supported one via hypothesis testing. That whole pipeline assumes a
+&lt;strong>batch&lt;/strong> of data: you already have all $m$ epochs, and you fit one, time-invariant
+set of parameters to explain the entire period at once. This post starts asking what
+changes when new SAR acquisitions keep arriving and you want an answer &lt;em>now&lt;/em>, not
+after reprocessing everything from scratch. This arc follows Wang, Brouwer, van
+Leijen &amp;amp; Hanssen (2026).&lt;/p></description></item><item><title>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For</title><link>https://JSempereH.github.io/notes/insar-testing-at-scale/</link><pubDate>Tue, 30 Jun 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-testing-at-scale/</guid><description>&lt;p>This is the fourth post in the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
 &lt;a href="https://JSempereH.github.io/notes/insar-model-selection/">previous post&lt;/a> set up the testing machinery for
 comparing a null deformation model against a whole library of alternatives. Here we
 work out how to make that testing procedure cheap enough to run on millions of

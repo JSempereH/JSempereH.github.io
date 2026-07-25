@@ -1,0 +1,123 @@
+<!doctype html><html lang=en-us dir=ltr><head><meta charset=UTF-8><link rel=icon type=image/x-icon href=/favicon.ico><meta name=viewport content="width=device-width,initial-scale=1"><title>InSAR from Scratch (V): From Batch to Sequential Estimation · Javier Sempere</title>
+<link rel=stylesheet href=https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js></script><script defer src=https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js onload='renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1}]})'></script></head><body><header><div class=header-inner><a href=/ class=header-logo>Javier Sempere</a><nav class=header-nav><a href=https://github.com/JSempereH target=_blank>GitHub</a></nav></div></header><main><main class=note-single><div class=note-container><a href=/notes class=back>← notes</a><h1 class=note-heading>InSAR from Scratch (V): From Batch to Sequential Estimation</h1><div class=note-meta><time>2026-07-11</time>
+<a href=/tags/insar class=tag>InSAR</a>
+<a href=/tags/math class=tag>Math</a></div><details class=toc open><summary class=toc-title>Content</summary><nav id=TableOfContents><ul><li><a href=#what-breaks-about-batch-estimation-for-monitoring>What breaks about batch estimation for monitoring</a></li><li><a href=#recursive-least-squares-updating-an-estimate-with-one-new-observation>Recursive least squares: updating an estimate with one new observation</a></li><li><a href=#the-recursion-is-exact>The recursion is exact</a></li><li><a href=#what-recursive-least-squares-still-cant-do>What recursive least squares still can&rsquo;t do</a></li><li><a href=#references>References</a></li></ul></nav></details><div class=note-body><p>This post opens a second arc within the <strong>Probabilistic InSAR</strong> series. The
+<a href=/notes/insar-testing-at-scale/>previous post</a> closed the first arc, built around
+Chang & Hanssen (2016): a null model, a library of alternatives, and a way to pick
+the best-supported one via hypothesis testing. That whole pipeline assumes a
+<strong>batch</strong> of data: you already have all $m$ epochs, and you fit one, time-invariant
+set of parameters to explain the entire period at once. This post starts asking what
+changes when new SAR acquisitions keep arriving and you want an answer <em>now</em>, not
+after reprocessing everything from scratch. This arc follows Wang, Brouwer, van
+Leijen & Hanssen (2026).</p><h2 id=what-breaks-about-batch-estimation-for-monitoring>What breaks about batch estimation for monitoring</h2><p>Every model in the first arc, $\mathbb{E}[y] = Ax$, treats $x$ as a single,
+time-invariant vector that describes the <em>entire</em> observation period. That&rsquo;s a
+perfectly reasonable assumption if your goal is to look back at a finished dataset
+and characterize what happened. It&rsquo;s a much worse fit for monitoring, for two
+separate reasons.</p><p>The first is purely computational: every time a new acquisition arrives, $y$ grows
+by one entry, and recomputing $\hat x = (A^TQ_{yy}^{-1}A)^{-1}A^TQ_{yy}^{-1}y$ from
+scratch means redoing an $\mathcal{O}(m)$-sized linear solve, over again, for every
+one of possibly millions of points, every few days. Reprocessing an ever-growing
+history from zero doesn&rsquo;t scale.</p><p>The secnd is: even if you could afford to
+refit instantly, a <em>time-invariant</em> $x$ cannot represent a scatterer whose actual
+behavior changes partway through the series, a building that was stable and starts
+subsiding once construction begins nearby, say. Refitting the same static model more
+often doesn&rsquo;t fix this; the model itself is the wrong shape for the job. Batch
+refitting with a growing window, run incrementally, does track the average trend
+eventually, but it does so with a lag: since every past observation still pulls
+equally on a single time-invariant estimate, a real change in behavior gets averaged
+against years of &ldquo;before&rdquo; data and takes a long time to dominate the fit.</p><p>Both problems point the same way: we need to update an estimate one new observation
+at a time, without reprocessing the full history, and we need to let the estimate
+itself evolve rather than staying frozen. This post handles the first requirement;
+the next one handles the second.</p><h2 id=recursive-least-squares-updating-an-estimate-with-one-new-observation>Recursive least squares: updating an estimate with one new observation</h2><p>Start with the easier version of the problem: $x$ really is time-invariant (nothing
+changes over the observation period), but we still want to fold in each new
+observation as it arrives, without re-solving the whole GLS system.</p><p>Suppose that after some epochs we already have an estimate $\hat x_{t-1}$ with
+covariance $Q_{\hat x_{t-1}}$, summarizing everything observed up to epoch $t-1$.
+Treat this estimate itself as a <strong>pseudo-observation</strong>: a noisy measurement of the
+true $x$, $\hat x_{t-1} = x + e_p$, with $e_p \sim \mathcal{N}(0, Q_{\hat x_{t-1}})$.
+A new real observation then arrives, $\varphi_t = A_t x + e_t$, with
+$e_t \sim \mathcal{N}(0, Q_{\varphi_t})$, independent of $e_p$. Stack the two:</p><p>$$
+\begin{bmatrix} \hat x_{t-1} \ \varphi_t \end{bmatrix}
+= \begin{bmatrix} I \ A_t \end{bmatrix} x</p><ul><li>\begin{bmatrix} e_p \ e_t \end{bmatrix}, \qquad
+\operatorname{Cov} = \begin{bmatrix} Q_{\hat x_{t-1}} & 0 \ 0 & Q_{\varphi_t} \end{bmatrix}.
+$$</li></ul><p>This is exactly the GLS setup from the <a href=/notes/insar-functional-stochastic-model/>second
+post</a>, just with a stacked design matrix
+and a block-diagonal covariance. Plugging it into the usual GLS formula
+$\hat x = (\mathbf{A}^T Q^{-1} \mathbf{A})^{-1}\mathbf{A}^T Q^{-1}\mathbf{y}$ and
+expanding the blocks gives</p>$$
+\hat x_t = \left(Q_{\hat x_{t-1}}^{-1} + A_t^T Q_{\varphi_t}^{-1} A_t\right)^{-1}
+\left(Q_{\hat x_{t-1}}^{-1} \hat x_{t-1} + A_t^T Q_{\varphi_t}^{-1} \varphi_t\right),
+\qquad
+Q_{\hat x_t} = \left(Q_{\hat x_{t-1}}^{-1} + A_t^T Q_{\varphi_t}^{-1} A_t\right)^{-1}.
+$$<p>Notice what this says about <strong>precision</strong> (the inverse of covariance): the new
+precision is simply the old precision plus the precision contributed by the new
+observation, $Q_{\hat x_t}^{-1} = Q_{\hat x_{t-1}}^{-1} + A_t^T Q_{\varphi_t}^{-1} A_t$.
+Independent Gaussian information adds in precision, not in covariance, this is the
+whole mechanism, and it means updating requires only $\hat x_{t-1}$ and
+$Q_{\hat x_{t-1}}$, never the raw observations that produced them.</p><blockquote><p><strong>Note.</strong> The formula above can be rearranged into the more familiar
+<em>measurement-update</em> form. Multiply the definition
+$Q_{\hat x_t}^{-1} = Q_{\hat x_{t-1}}^{-1} + A_t^T Q_{\varphi_t}^{-1} A_t$ on the
+left by $Q_{\hat x_t}$:</p>$$
+> I = Q_{\hat x_t} Q_{\hat x_{t-1}}^{-1} + Q_{\hat x_t} A_t^T Q_{\varphi_t}^{-1} A_t
+> \quad\Longrightarrow\quad
+> Q_{\hat x_t} Q_{\hat x_{t-1}}^{-1} = I - Q_{\hat x_t} A_t^T Q_{\varphi_t}^{-1} A_t.
+> $$<p>Substitute this into $\hat x_t = Q_{\hat x_t}\left(Q_{\hat x_{t-1}}^{-1} \hat
+> x_{t-1} + A_t^T Q_{\varphi_t}^{-1} \varphi_t\right)$, distributing the first term:</p><p>$$
+\hat x_t = \left(I - Q_{\hat x_t} A_t^T Q_{\varphi_t}^{-1} A_t\right)\hat x_{t-1}</p><ul><li>Q_{\hat x_t} A_t^T Q_{\varphi_t}^{-1}\varphi_t
+= \hat x_{t-1} + Q_{\hat x_t} A_t^T Q_{\varphi_t}^{-1}
+\left(\varphi_t - A_t \hat x_{t-1}\right).
+$$</li></ul><p>So, the update is: predict what the new observation <em>should</em> be,
+$A_t \hat x_{t-1}$, compare it to what was actually observed, $\varphi_t$, and
+nudge the estimate in proportion to that mismatch, weighted by how much precision
+the new observation carries relative to the current estimate.</p></blockquote><h2 id=the-recursion-is-exact>The recursion is exact</h2><p>It&rsquo;s worth being explicit about something easy to miss: this recursive update
+produces <em>exactly</em> the same $\hat x_t$ and $Q_{\hat x_t}$ you would get by running
+the full batch GLS solve on all $t$ observations at once, under the time-invariant
+model. Nothing is being approximated, the algebra
+above is just a rearrangement of the same GLS problem into an incremental form. The
+only thing that changes is that the cost of incorporating one new epoch no longer
+grows with how much history came before it.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>numpy</span> <span class=k>as</span> <span class=nn>np</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>rng</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>random</span><span class=o>.</span><span class=n>default_rng</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>m</span><span class=p>,</span> <span class=n>n</span> <span class=o>=</span> <span class=mi>40</span><span class=p>,</span> <span class=mi>2</span>                      <span class=c1># 40 epochs, 2 parameters (offset, velocity)</span>
+</span></span><span class=line><span class=cl><span class=n>t</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span><span class=n>m</span><span class=p>,</span> <span class=n>dtype</span><span class=o>=</span><span class=nb>float</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>A</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>column_stack</span><span class=p>([</span><span class=n>np</span><span class=o>.</span><span class=n>ones</span><span class=p>(</span><span class=n>m</span><span class=p>),</span> <span class=n>t</span><span class=p>])</span>
+</span></span><span class=line><span class=cl><span class=n>true_x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>([</span><span class=mf>1.5</span><span class=p>,</span> <span class=mf>0.30</span><span class=p>])</span>    <span class=c1># offset (mm), velocity (mm/epoch)</span>
+</span></span><span class=line><span class=cl><span class=n>sigma</span> <span class=o>=</span> <span class=mf>0.8</span>
+</span></span><span class=line><span class=cl><span class=n>y</span> <span class=o>=</span> <span class=n>A</span> <span class=o>@</span> <span class=n>true_x</span> <span class=o>+</span> <span class=n>rng</span><span class=o>.</span><span class=n>normal</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>sigma</span><span class=p>,</span> <span class=n>m</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>Q</span> <span class=o>=</span> <span class=n>sigma</span><span class=o>**</span><span class=mi>2</span> <span class=o>*</span> <span class=n>np</span><span class=o>.</span><span class=n>eye</span><span class=p>(</span><span class=n>m</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># batch solve using all m observations at once</span>
+</span></span><span class=line><span class=cl><span class=n>x_batch</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>solve</span><span class=p>(</span><span class=n>A</span><span class=o>.</span><span class=n>T</span> <span class=o>@</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>solve</span><span class=p>(</span><span class=n>Q</span><span class=p>,</span> <span class=n>A</span><span class=p>),</span> <span class=n>A</span><span class=o>.</span><span class=n>T</span> <span class=o>@</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>solve</span><span class=p>(</span><span class=n>Q</span><span class=p>,</span> <span class=n>y</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># recursive solve, one epoch at a time: precision, not covariance, accumulates</span>
+</span></span><span class=line><span class=cl><span class=n>x_hat</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=n>n</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>Q_x</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>eye</span><span class=p>(</span><span class=n>n</span><span class=p>)</span> <span class=o>*</span> <span class=mf>1e8</span>   <span class=c1># essentially uninformative prior</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>k</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>m</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>Ak</span> <span class=o>=</span> <span class=n>A</span><span class=p>[</span><span class=n>k</span><span class=p>:</span><span class=n>k</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span> <span class=p>:]</span>
+</span></span><span class=line><span class=cl>    <span class=n>Qk</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>array</span><span class=p>([[</span><span class=n>sigma</span><span class=o>**</span><span class=mi>2</span><span class=p>]])</span>
+</span></span><span class=line><span class=cl>    <span class=n>Qx_inv_new</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>inv</span><span class=p>(</span><span class=n>Q_x</span><span class=p>)</span> <span class=o>+</span> <span class=n>Ak</span><span class=o>.</span><span class=n>T</span> <span class=o>@</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>inv</span><span class=p>(</span><span class=n>Qk</span><span class=p>)</span> <span class=o>@</span> <span class=n>Ak</span>
+</span></span><span class=line><span class=cl>    <span class=n>Q_x_new</span> <span class=o>=</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>inv</span><span class=p>(</span><span class=n>Qx_inv_new</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>x_hat</span> <span class=o>=</span> <span class=n>Q_x_new</span> <span class=o>@</span> <span class=p>(</span><span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>inv</span><span class=p>(</span><span class=n>Q_x</span><span class=p>)</span> <span class=o>@</span> <span class=n>x_hat</span> <span class=o>+</span> <span class=n>Ak</span><span class=o>.</span><span class=n>T</span> <span class=o>@</span> <span class=n>np</span><span class=o>.</span><span class=n>linalg</span><span class=o>.</span><span class=n>inv</span><span class=p>(</span><span class=n>Qk</span><span class=p>)</span> <span class=o>@</span> <span class=n>y</span><span class=p>[</span><span class=n>k</span><span class=p>:</span><span class=n>k</span><span class=o>+</span><span class=mi>1</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>Q_x</span> <span class=o>=</span> <span class=n>Q_x_new</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;batch:    &#34;</span><span class=p>,</span> <span class=n>x_batch</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;recursive:&#34;</span><span class=p>,</span> <span class=n>x_hat</span><span class=p>)</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>batch:     <span class=o>[</span>1.32792507 0.30634459<span class=o>]</span>
+</span></span><span class=line><span class=cl>recursive: <span class=o>[</span>1.32792507 0.30634459<span class=o>]</span>
+</span></span></code></pre></div><p>The two agree to machine precision, exactly as the derivation promised.</p><h2 id=what-recursive-least-squares-still-cant-do>What recursive least squares still can&rsquo;t do</h2><p>This recursion buys computational efficiency, but it hasn&rsquo;t touched the conceptual
+problem at all: $x$ is still, silently, assumed time-invariant across the whole
+run. A real behavior change partway through will show up as a growing mismatch
+between predictions and observations, but the update above has no mechanism to
+<em>let</em> the estimate drift to follow it, every new observation still gets folded into
+one permanent, ever-more-confident $\hat x$. Making the state itself capable of
+evolving over time, rather than merely being estimated more efficiently, is the
+subject of the next post.</p><h2 id=references>References</h2><ul><li>Wang, Y., Brouwer, W. S., van Leijen, F. J., & Hanssen, R. F. (2026).
+Instantaneous state InSAR: Estimation and prediction for near real-time
+displacement monitoring. <em>IEEE Transactions on Geoscience and Remote Sensing</em>, 64,
+5206214. <a href=https://doi.org/10.1109/TGRS.2026.3681072>https://doi.org/10.1109/TGRS.2026.3681072</a></li><li>Kalman, R. E. (1960). A new approach to linear filtering and prediction problems.
+<em>Transactions of the ASME, Journal of Basic Engineering</em>, 82(1), 35-45.</li><li>Teunissen, P. J. G. (2024). <em>Dynamic Data Processing: Recursive Least-Squares</em>
+(2nd ed.). TU Delft Open Publishing.</li></ul><p><strong>Previously:</strong> <a href=/notes/insar-testing-at-scale/>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What
+to Test For</a>. <strong>Next in the series:</strong> <a href=/notes/insar-instantaneous-state/>InSAR from
+Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity
+Model</a>.</p><hr><p>Today&rsquo;s song recommendation :)</p><div class=video-wrapper><iframe src=https://www.youtube-nocookie.com/embed/StZcUAPRRac title="Song recommendation :)" frameborder=0 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading=lazy></iframe></div></div></div></main></main><script src=https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js defer></script></body></html>
