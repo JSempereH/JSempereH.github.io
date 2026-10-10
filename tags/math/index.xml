@@ -1,61 +1,75 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Math on Javier Sempere</title><link>https://JSempereH.github.io/tags/math/</link><description>Recent content in Math on Javier Sempere</description><generator>Hugo</generator><language>en-us</language><lastBuildDate>Fri, 24 Jul 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://JSempereH.github.io/tags/math/index.xml" rel="self" type="application/rss+xml"/><item><title>InSAR from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient Assumption</title><link>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</link><pubDate>Fri, 24 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</guid><description>&lt;p>The &lt;a href="https://JSempereH.github.io/notes/insar-instantaneous-state/">previous post&lt;/a> built the machinery for how
-the &lt;em>unobserved&lt;/em> state, position and instantaneous velocity, evolves between
-epochs, but sidestepped how it actually connects to the &lt;em>observed&lt;/em> data: a wrapped,
-modulo-$2\pi$ phase. This post closes that gap, and in doing so runs into
-unwrapping again, this time solved in a completely different way than either of the
-previous two treatments in this series.&lt;/p>
-&lt;h2 id="three-ways-to-handle-the-same-problem-so-far">Three ways to handle the same problem, so far&lt;/h2>
-&lt;p>It&amp;rsquo;s worth naming all three side by side, since this series keeps returning to the
-same underlying issue.&lt;/p></description></item><item><title>InSAR from Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity Model</title><link>https://JSempereH.github.io/notes/insar-instantaneous-state/</link><pubDate>Mon, 20 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-instantaneous-state/</guid><description>&lt;p>The &lt;a href="https://JSempereH.github.io/notes/insar-recursive-estimation/">previous post&lt;/a> showed how to fold a new
-observation into an estimate without reprocessing the whole history, as long as the
-underlying parameter $x$ stays exactly time-invariant. That&amp;rsquo;s still the limiting
-assumption. This post lifts it: instead of a fixed velocity, we let the
-&lt;strong>instantaneous velocity&lt;/strong> itself be a random process that is allowed to wander,
-smoothly, over time. Wang et al. (2026) call the resulting state vector, position
-plus instantaneous velocity, the &lt;strong>instantaneous state (IS)&lt;/strong>.&lt;/p></description></item><item><title>InSAR from Scratch (V): From Batch to Sequential Estimation</title><link>https://JSempereH.github.io/notes/insar-recursive-estimation/</link><pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-recursive-estimation/</guid><description>&lt;p>This post opens a second arc within the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
-&lt;a href="https://JSempereH.github.io/notes/insar-testing-at-scale/">previous post&lt;/a> closed the first arc, built around
-Chang &amp;amp; Hanssen (2016): a null model, a library of alternatives, and a way to pick
-the best-supported one via hypothesis testing. That whole pipeline assumes a
-&lt;strong>batch&lt;/strong> of data: you already have all $m$ epochs, and you fit one, time-invariant
-set of parameters to explain the entire period at once. This post starts asking what
-changes when new SAR acquisitions keep arriving and you want an answer &lt;em>now&lt;/em>, not
-after reprocessing everything from scratch. This arc follows Wang, Brouwer, van
-Leijen &amp;amp; Hanssen (2026).&lt;/p></description></item><item><title>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For</title><link>https://JSempereH.github.io/notes/insar-testing-at-scale/</link><pubDate>Tue, 30 Jun 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-testing-at-scale/</guid><description>&lt;p>This is the fourth post in the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
-&lt;a href="https://JSempereH.github.io/notes/insar-model-selection/">previous post&lt;/a> set up the testing machinery for
-comparing a null deformation model against a whole library of alternatives. Here we
-work out how to make that testing procedure cheap enough to run on millions of
-points, and what a realistic library of alternative models actually contains.&lt;/p>
-&lt;h2 id="the-cost-problem">The cost problem&lt;/h2>
-&lt;p>The testing procedure from the previous post sounds reasonable for one point and a
-handful of candidate models. But a realistic scene has millions of points, and the
-library of candidate alternatives can easily reach into the hundreds, since jumps
-and offsets can occur at any epoch, and combinations of canonical functions
-multiply quickly. Naively, evaluating $J$ alternative hypotheses at $N$ points means
-$J \times N$ separate computations of a matrix expression like&lt;/p></description></item><item><title>InSAR from Scratch (III): Comparing Competing Deformation Models</title><link>https://JSempereH.github.io/notes/insar-model-selection/</link><pubDate>Tue, 16 Jun 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-model-selection/</guid><description>&lt;p>This is the third post in the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
-&lt;a href="https://JSempereH.github.io/notes/insar-functional-stochastic-model/">previous post&lt;/a> set up the
-functional-stochastic model for a point&amp;rsquo;s phase time series and showed why the
-residual of a generalized least squares fit follows a chi-squared distribution. Here
-we use that result to compare several candidate deformation models against each
-other, not just against pure noise.&lt;/p>
-&lt;h2 id="the-setup-one-null-model-many-alternatives">The setup: one null model, many alternatives&lt;/h2>
-&lt;p>At every point, we start from a baseline assumption: steady-state motion, a single
-column in the design matrix,&lt;/p></description></item><item><title>InSAR from Scratch (II): The Functional-Stochastic Model</title><link>https://JSempereH.github.io/notes/insar-functional-stochastic-model/</link><pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/insar-functional-stochastic-model/</guid><description>&lt;p>This is the second post in the &lt;strong>Probabilistic InSAR&lt;/strong> series. The
-&lt;a href="https://JSempereH.github.io/notes/insar-from-scratch/">previous post&lt;/a> worked out what the interferometric
-phase actually contains, how it wraps, and how a stack of interferograms becomes a
-phase time series per pixel. Here we take that time series and turn it into an
-honest statistical estimation problem.&lt;/p>
-&lt;h2 id="from-a-phase-time-series-to-a-regression-problem">From a phase time series to a regression problem&lt;/h2>
-&lt;p>Take a single point in space, one persistent scatterer, and look at its phase time
-series across $m$ SAR acquisitions, already converted to a deformation-equivalent
-quantity (millimeters, say) and referenced to a master acquisition and a reference
-point. Call this vector of observations $y \in \mathbb{R}^m$.&lt;/p></description></item><item><title>Regression under multicollinearity: PCR, PLS, and penalised methods</title><link>https://JSempereH.github.io/notes/pls-regression/</link><pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/pls-regression/</guid><description>&lt;p>Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes
-singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post
-surveys four strategies for dealing with that problem. The first two (PCR and PLS)
-compress the predictors into a small number of components before regressing. The last
-two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.
-They attack the same problem from opposite directions, and which one works best depends
-entirely on the structure of the signal in your data.&lt;/p></description></item><item><title>Aproximación de puntos vía curvas de Bézier</title><link>https://JSempereH.github.io/notes/tfg/</link><pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/tfg/</guid><description>&lt;p>Hi!&lt;/p>
-&lt;p>I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p>
-&lt;p>I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p></description></item><item><title>PCA is equivalent to a Linear Autoencoder</title><link>https://JSempereH.github.io/notes/pca-lae/</link><pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate><guid>https://JSempereH.github.io/notes/pca-lae/</guid><description>&lt;p>Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p>
-&lt;h2 id="principal-component-analysis-pca">Principal Component Analysis (PCA)&lt;/h2>
-&lt;p>Given $n$ data vector $\{x_1, \dots, x_n\} \in \mathbb{R}^m$, &lt;strong>assuming that are mean centered&lt;/strong>, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em>explains most of the variation of the projected data&lt;/em>. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p></description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Math on Javier Sempere</title>
+    <link>https://JSempereH.github.io/tags/math/</link>
+    <description>Recent content in Math on Javier Sempere</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 24 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://JSempereH.github.io/tags/math/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>InSAR from Scratch (VII): Implicit Phase Unwrapping via the Minimum Gradient Assumption</title>
+      <link>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</link>
+      <pubDate>Fri, 24 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-implicit-unwrapping/</guid>
+      <description>&lt;p&gt;The &lt;a href=&#34;https://JSempereH.github.io/notes/insar-instantaneous-state/&#34;&gt;previous post&lt;/a&gt; built the machinery for how&#xA;the &lt;em&gt;unobserved&lt;/em&gt; state, position and instantaneous velocity, evolves between&#xA;epochs, but sidestepped how it actually connects to the &lt;em&gt;observed&lt;/em&gt; data: a wrapped,&#xA;modulo-$2\pi$ phase. This post closes that gap, and in doing so runs into&#xA;unwrapping again, this time solved in a completely different way than either of the&#xA;previous two treatments in this series.&lt;/p&gt;&#xA;&lt;h2 id=&#34;three-ways-to-handle-the-same-problem-so-far&#34;&gt;Three ways to handle the same problem, so far&lt;/h2&gt;&#xA;&lt;p&gt;It&amp;rsquo;s worth naming all three side by side, since this series keeps returning to the&#xA;same underlying issue.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>InSAR from Scratch (VI): The Instantaneous State and the Ornstein-Uhlenbeck Velocity Model</title>
+      <link>https://JSempereH.github.io/notes/insar-instantaneous-state/</link>
+      <pubDate>Mon, 20 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-instantaneous-state/</guid>
+      <description>&lt;p&gt;The &lt;a href=&#34;https://JSempereH.github.io/notes/insar-recursive-estimation/&#34;&gt;previous post&lt;/a&gt; showed how to fold a new&#xA;observation into an estimate without reprocessing the whole history, as long as the&#xA;underlying parameter $x$ stays exactly time-invariant. That&amp;rsquo;s still the limiting&#xA;assumption. This post lifts it: instead of a fixed velocity, we let the&#xA;&lt;strong&gt;instantaneous velocity&lt;/strong&gt; itself be a random process that is allowed to wander,&#xA;smoothly, over time. Wang et al. (2026) call the resulting state vector, position&#xA;plus instantaneous velocity, the &lt;strong&gt;instantaneous state (IS)&lt;/strong&gt;.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>InSAR from Scratch (V): From Batch to Sequential Estimation</title>
+      <link>https://JSempereH.github.io/notes/insar-recursive-estimation/</link>
+      <pubDate>Sat, 11 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-recursive-estimation/</guid>
+      <description>&lt;p&gt;This post opens a second arc within the &lt;strong&gt;Probabilistic InSAR&lt;/strong&gt; series. The&#xA;&lt;a href=&#34;https://JSempereH.github.io/notes/insar-testing-at-scale/&#34;&gt;previous post&lt;/a&gt; closed the first arc, built around&#xA;Chang &amp;amp; Hanssen (2016): a null model, a library of alternatives, and a way to pick&#xA;the best-supported one via hypothesis testing. That whole pipeline assumes a&#xA;&lt;strong&gt;batch&lt;/strong&gt; of data: you already have all $m$ epochs, and you fit one, time-invariant&#xA;set of parameters to explain the entire period at once. This post starts asking what&#xA;changes when new SAR acquisitions keep arriving and you want an answer &lt;em&gt;now&lt;/em&gt;, not&#xA;after reprocessing everything from scratch. This arc follows Wang, Brouwer, van&#xA;Leijen &amp;amp; Hanssen (2026).&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>InSAR from Scratch (IV): Making Hundreds of Tests Cheap, and What to Test For</title>
+      <link>https://JSempereH.github.io/notes/insar-testing-at-scale/</link>
+      <pubDate>Tue, 30 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-testing-at-scale/</guid>
+      <description>&lt;p&gt;This is the fourth post in the &lt;strong&gt;Probabilistic InSAR&lt;/strong&gt; series. The&#xA;&lt;a href=&#34;https://JSempereH.github.io/notes/insar-model-selection/&#34;&gt;previous post&lt;/a&gt; set up the testing machinery for&#xA;comparing a null deformation model against a whole library of alternatives. Here we&#xA;work out how to make that testing procedure cheap enough to run on millions of&#xA;points, and what a realistic library of alternative models actually contains.&lt;/p&gt;&#xA;&lt;h2 id=&#34;the-cost-problem&#34;&gt;The cost problem&lt;/h2&gt;&#xA;&lt;p&gt;The testing procedure from the previous post sounds reasonable for one point and a&#xA;handful of candidate models. But a realistic scene has millions of points, and the&#xA;library of candidate alternatives can easily reach into the hundreds, since jumps&#xA;and offsets can occur at any epoch, and combinations of canonical functions&#xA;multiply quickly. Naively, evaluating $J$ alternative hypotheses at $N$ points means&#xA;$J \times N$ separate computations of a matrix expression like&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>InSAR from Scratch (III): Comparing Competing Deformation Models</title>
+      <link>https://JSempereH.github.io/notes/insar-model-selection/</link>
+      <pubDate>Tue, 16 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-model-selection/</guid>
+      <description>&lt;p&gt;This is the third post in the &lt;strong&gt;Probabilistic InSAR&lt;/strong&gt; series. The&#xA;&lt;a href=&#34;https://JSempereH.github.io/notes/insar-functional-stochastic-model/&#34;&gt;previous post&lt;/a&gt; set up the&#xA;functional-stochastic model for a point&amp;rsquo;s phase time series and showed why the&#xA;residual of a generalized least squares fit follows a chi-squared distribution. Here&#xA;we use that result to compare several candidate deformation models against each&#xA;other, not just against pure noise.&lt;/p&gt;&#xA;&lt;h2 id=&#34;the-setup-one-null-model-many-alternatives&#34;&gt;The setup: one null model, many alternatives&lt;/h2&gt;&#xA;&lt;p&gt;At every point, we start from a baseline assumption: steady-state motion, a single&#xA;column in the design matrix,&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>InSAR from Scratch (II): The Functional-Stochastic Model</title>
+      <link>https://JSempereH.github.io/notes/insar-functional-stochastic-model/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/insar-functional-stochastic-model/</guid>
+      <description>&lt;p&gt;This is the second post in the &lt;strong&gt;Probabilistic InSAR&lt;/strong&gt; series. The&#xA;&lt;a href=&#34;https://JSempereH.github.io/notes/insar-from-scratch/&#34;&gt;previous post&lt;/a&gt; worked out what the interferometric&#xA;phase actually contains, how it wraps, and how a stack of interferograms becomes a&#xA;phase time series per pixel. Here we take that time series and turn it into an&#xA;honest statistical estimation problem.&lt;/p&gt;&#xA;&lt;h2 id=&#34;from-a-phase-time-series-to-a-regression-problem&#34;&gt;From a phase time series to a regression problem&lt;/h2&gt;&#xA;&lt;p&gt;Take a single point in space, one persistent scatterer, and look at its phase time&#xA;series across $m$ SAR acquisitions, already converted to a deformation-equivalent&#xA;quantity (millimeters, say) and referenced to a master acquisition and a reference&#xA;point. Call this vector of observations $y \in \mathbb{R}^m$.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Regression under multicollinearity: PCR, PLS, and penalised methods</title>
+      <link>https://JSempereH.github.io/notes/pls-regression/</link>
+      <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/pls-regression/</guid>
+      <description>&lt;p&gt;Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes&#xA;singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post&#xA;surveys four strategies for dealing with that problem. The first two (PCR and PLS)&#xA;compress the predictors into a small number of components before regressing. The last&#xA;two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.&#xA;They attack the same problem from opposite directions, and which one works best depends&#xA;entirely on the structure of the signal in your data.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Aproximación de puntos vía curvas de Bézier</title>
+      <link>https://JSempereH.github.io/notes/tfg/</link>
+      <pubDate>Sat, 01 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/tfg/</guid>
+      <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my BSc thesis from 2023. I don’t think anyone will find much value in it, I just wanted to mix design and math and play around with it 🙂&lt;/p&gt;&#xA;&lt;p&gt;I&amp;rsquo;ll keep it here, in my own little corner of the internet, as a memory of a time I hold close to my heart. A lot happened that year. I started living with my boyfriend in a tiny apartment in Madrid, studying A LOT, and working part-time to cover expenses. It was exhausting, but I miss it somehow.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>PCA is equivalent to a Linear Autoencoder</title>
+      <link>https://JSempereH.github.io/notes/pca-lae/</link>
+      <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
+      <guid>https://JSempereH.github.io/notes/pca-lae/</guid>
+      <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;&#xA;&lt;h2 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)&lt;/h2&gt;&#xA;&lt;p&gt;Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
