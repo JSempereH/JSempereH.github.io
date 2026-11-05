@@ -5,13 +5,38 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InSAR from Scratch (II): The Functional-Stochastic Model · Javier Sempere</title>
+<meta name="description" content="This is the second post in the Probabilistic InSAR series. The previous post worked out what the interferometric phase actually contains, how it wraps, and how a stack of interferograms becomes a …">
+<meta name="author" content="Javier Sempere">
+<meta name="theme-color" content="#050505">
+<link rel="canonical" href="https://jsempereh.github.io/notes/insar-functional-stochastic-model/">
+<link rel="alternate" type="application/rss+xml" title="Javier Sempere" href="https://jsempereh.github.io/index.xml">
+
+<meta property="og:site_name" content="Javier Sempere">
+<meta property="og:type" content="article">
+<meta property="og:title" content="InSAR from Scratch (II): The Functional-Stochastic Model · Javier Sempere">
+<meta property="og:description" content="This is the second post in the Probabilistic InSAR series. The previous post worked out what the interferometric phase actually contains, how it wraps, and how a stack of interferograms becomes a …">
+<meta property="og:url" content="https://jsempereh.github.io/notes/insar-functional-stochastic-model/">
+<meta property="og:image" content="https://jsempereh.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-06-15T00:00:00Z">
+<meta property="article:author" content="Javier Sempere">
+<meta property="article:tag" content="InSAR">
+<meta property="article:tag" content="Math">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","jobTitle":"Data Scientist \u0026 ML Engineer","name":"Javier Sempere","sameAs":["https://github.com/JSempereH","https://linkedin.com/in/javier-sempere"],"url":"https://jsempereh.github.io/"},"dateModified":"2026-06-15","datePublished":"2026-06-15","description":"This is the second post in the Probabilistic InSAR series. The previous post worked out what the interferometric phase actually contains, how it wraps, and how a stack of interferograms becomes a …","headline":"InSAR from Scratch (II): The Functional-Stochastic Model","image":"https://jsempereh.github.io/og-image.png","inLanguage":"en","keywords":"InSAR, Math","mainEntityOfPage":"https://jsempereh.github.io/notes/insar-functional-stochastic-model/","url":"https://jsempereh.github.io/notes/insar-functional-stochastic-model/"}</script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=JetBrains+Mono:wght@400;700&display=swap">
 
 
 
 
 
 
-<link rel="stylesheet" href="https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css" integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://jsempereh.github.io/css/bundle.min.377f43ffa15eaeeaca4700b39cfbf708a594510bfd08189b204f0633e70217d5.css" integrity="sha256-N39D/6FerurKRwCznPv3CKWUUQv9CBibIE8GM&#43;cCF9U=" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -30,9 +55,17 @@
     <div class="header-inner">
   <a href="/" class="header-logo">Javier Sempere</a>
   <nav class="header-nav">
+    
+    <a href="/notes/" aria-current="page">Notes</a>
+    <a href="/projects/">Projects</a>
+    <a href="/CV-May-2026.pdf" target="_blank">CV</a>
     <a href="https://github.com/JSempereH" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/javier-sempere" target="_blank">LinkedIn</a>
+    <a href="mailto:work.javiersempere@pm.me">Email</a>
+    <a href="/index.xml">RSS</a>
   </nav>
 </div>
+
   </header>
   
   <main>
@@ -183,10 +216,7 @@ $$\hat x = (\tilde A^T\tilde A)^{-1}\tilde A^Tz,$$<p>which is exactly the <stron
 GLS on the correlated data $y$ is just OLS on the whitened data $z$, with $\tilde A$
 playing the role of the design matrix. Now multiply the residual definition
 $\hat e = y - A\hat x$ by $Q_{yy}^{-1/2}$ and substitute this $\hat x$ in:</p>
-$$
-> Q_{yy}^{-1/2}\hat e = z - \tilde A\hat x
-> = z - \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^Tz = (I - \tilde P)z,
-> $$<p>where $\tilde P := \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^T$.  Squaring both sides, and using that $I - \tilde P$ is
+$$ Q_{yy}^{-1/2}\hat e = z - \tilde A\hat x = z - \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^Tz = (I - \tilde P)z, $$<p>where $\tilde P := \tilde A(\tilde A^T\tilde A)^{-1}\tilde A^T$.  Squaring both sides, and using that $I - \tilde P$ is
 symmetric and idempotent, gives
 $\hat e^T Q_{yy}^{-1}\hat e = z^T(I - \tilde P)z$, a rank-$(m-n)$ projector applied
 to $z$.</p>
@@ -236,6 +266,6 @@ Measures</a>. <strong>Next in the series:</strong> <a href="/notes/insar-model-s
   
 
   
-  <script src="https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
+  <script src="https://jsempereh.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
 </body>
 </html>

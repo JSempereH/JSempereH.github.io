@@ -5,13 +5,38 @@
 <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PCA is equivalent to a Linear Autoencoder · Javier Sempere</title>
+<meta name="description" content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations. Principal Component Analysis (PCA) Given data vector , assuming that are mean …">
+<meta name="author" content="Javier Sempere">
+<meta name="theme-color" content="#050505">
+<link rel="canonical" href="https://jsempereh.github.io/notes/pca-lae/">
+<link rel="alternate" type="application/rss+xml" title="Javier Sempere" href="https://jsempereh.github.io/index.xml">
+
+<meta property="og:site_name" content="Javier Sempere">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCA is equivalent to a Linear Autoencoder · Javier Sempere">
+<meta property="og:description" content="Our objective is to compact the representation of data while minimizing the information loss using linear transformations. Principal Component Analysis (PCA) Given data vector , assuming that are mean …">
+<meta property="og:url" content="https://jsempereh.github.io/notes/pca-lae/">
+<meta property="og:image" content="https://jsempereh.github.io/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-10-03T00:00:00Z">
+<meta property="article:author" content="Javier Sempere">
+<meta property="article:tag" content="Math">
+<meta property="article:tag" content="ML">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","jobTitle":"Data Scientist \u0026 ML Engineer","name":"Javier Sempere","sameAs":["https://github.com/JSempereH","https://linkedin.com/in/javier-sempere"],"url":"https://jsempereh.github.io/"},"dateModified":"2025-10-03","datePublished":"2025-10-03","description":"Our objective is to compact the representation of data while minimizing the information loss using linear transformations. Principal Component Analysis (PCA) Given data vector , assuming that are mean …","headline":"PCA is equivalent to a Linear Autoencoder","image":"https://jsempereh.github.io/og-image.png","inLanguage":"en","keywords":"Math, ML","mainEntityOfPage":"https://jsempereh.github.io/notes/pca-lae/","url":"https://jsempereh.github.io/notes/pca-lae/"}</script>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@900&family=JetBrains+Mono:wght@400;700&display=swap">
 
 
 
 
 
 
-<link rel="stylesheet" href="https://JSempereH.github.io/css/bundle.min.ffd17cff27517104048b712f8d2bc19928a8da5d695fb2c3bb3ec347add5f11a.css" integrity="sha256-/9F8/ydRcQQEi3EvjSvBmSio2l1pX7LDuz7DR63V8Ro=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://jsempereh.github.io/css/bundle.min.377f43ffa15eaeeaca4700b39cfbf708a594510bfd08189b204f0633e70217d5.css" integrity="sha256-N39D/6FerurKRwCznPv3CKWUUQv9CBibIE8GM&#43;cCF9U=" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
@@ -30,9 +55,17 @@
     <div class="header-inner">
   <a href="/" class="header-logo">Javier Sempere</a>
   <nav class="header-nav">
+    
+    <a href="/notes/" aria-current="page">Notes</a>
+    <a href="/projects/">Projects</a>
+    <a href="/CV-May-2026.pdf" target="_blank">CV</a>
     <a href="https://github.com/JSempereH" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/javier-sempere" target="_blank">LinkedIn</a>
+    <a href="mailto:work.javiersempere@pm.me">Email</a>
+    <a href="/index.xml">RSS</a>
   </nav>
 </div>
+
   </header>
   
   <main>
@@ -257,9 +290,7 @@ $$<p>which is precisely the truncated SVD reconstruction (the PCA rank-$k$ appro
 <blockquote>
 <p>Without regularization, LAEs learn this subspace but cannot learn the principal directions themselves due to the symmetry of $\mathcal{L}$  under the action group $GL_k(\mathbb{R})$ of invertible $k \times k$ matrices defined by $(W_d, W_e) \mapsto (GW_d, W_e G^{-1})$:
 </p>
-$$
-X - (W_e G^{-1})(G W_d)X = X - W_e W_d X
-$$</blockquote>
+$$ X - (W_e G^{-1})(G W_d)X = X - W_e W_d X $$</blockquote>
 <p>They proved that LAEs with $L_2$-regularization do in fact learn the principal directions as the left singular vectors of the decoder, since the regularization reduces the symmetry group from $GL_k(\mathbb{R})$ to the orthogonal group $O_k (\mathbb{R})$, which preserves the structure of SVD. The loss is then defined as:</p>
 $$
 \mathcal{L}_\lambda(W_e, W_d) = \mathcal{L}(W_e, W_d) + \lambda (\left\| W_1 \right\|_F^2 + \left\| W_2 \right\|_F^2 )
@@ -292,6 +323,6 @@ $$<p>This loss function also satifies $W_e = W_d^T$ and the global minimum recov
   
 
   
-  <script src="https://JSempereH.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
+  <script src="https://jsempereh.github.io/js/copy-code.min.b3558178274337b882b1967853b008aba6ef9acae3b9386d18077522ea422f97.js" defer></script>
 </body>
 </html>

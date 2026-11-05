@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ML on Javier Sempere</title>
-    <link>https://JSempereH.github.io/tags/ml/</link>
-    <description>Recent content in ML on Javier Sempere</description>
+    <title>ML · Javier Sempere</title>
+    <link>https://jsempereh.github.io/tags/ml/</link>
+    <description>Data scientist and ML engineer building machine learning systems that work in production. Notes and projects.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
+    <managingEditor>work.javiersempere@pm.me (Javier Sempere)</managingEditor>
+    <webMaster>work.javiersempere@pm.me (Javier Sempere)</webMaster>
     <lastBuildDate>Fri, 22 May 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://JSempereH.github.io/tags/ml/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://jsempereh.github.io/tags/ml/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Regression under multicollinearity: PCR, PLS, and penalised methods</title>
-      <link>https://JSempereH.github.io/notes/pls-regression/</link>
+      <link>https://jsempereh.github.io/notes/pls-regression/</link>
       <pubDate>Fri, 22 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://JSempereH.github.io/notes/pls-regression/</guid>
-      <description>&lt;p&gt;Ordinary least squares breaks down when $p \gg n$: the matrix $X^\top X$ becomes&#xA;singular and $\hat{\beta} = (X^\top X)^{-1} X^\top Y$ does not exist. This post&#xA;surveys four strategies for dealing with that problem. The first two (PCR and PLS)&#xA;compress the predictors into a small number of components before regressing. The last&#xA;two (Ridge and Lasso) keep all $p$ predictors but penalise large coefficients.&#xA;They attack the same problem from opposite directions, and which one works best depends&#xA;entirely on the structure of the signal in your data.&lt;/p&gt;</description>
+      <guid isPermaLink="true">https://jsempereh.github.io/notes/pls-regression/</guid>
+      <category>Math</category>
+      <category>ML</category>
+      <description>Ordinary least squares breaks down when : the matrix becomes singular and does not exist. This post surveys four strategies for dealing with that problem. The first two (PCR and PLS) compress the predictors into a small number of components before regressing. The last two (Ridge and Lasso) keep all …</description>
     </item>
     <item>
       <title>Privacy-Enhancing Machine Learning</title>
-      <link>https://JSempereH.github.io/notes/tfm/</link>
+      <link>https://jsempereh.github.io/notes/tfm/</link>
       <pubDate>Sun, 02 Nov 2025 00:00:00 +0000</pubDate>
-      <guid>https://JSempereH.github.io/notes/tfm/</guid>
-      <description>&lt;p&gt;Hi!&lt;/p&gt;&#xA;&lt;p&gt;I wanted to share my MSc thesis &lt;em&gt;Privacy-Enhancing Machine Learning&lt;/em&gt; (2024), based mostly on my first year working at GMV.&lt;/p&gt;&#xA;&lt;p&gt;My tutors were &lt;a href=&#34;https://www.ucm.es/directorio?id=7440&#34;&gt;Carlos Gregorio Rodríguez&lt;/a&gt; and &lt;a href=&#34;https://es.linkedin.com/in/jmaunon&#34;&gt;Juan Miguel Auñón García&lt;/a&gt; (if you have the opportunity, I recommend working with them, I learnt a lot).&lt;/p&gt;&#xA;&lt;p&gt;&lt;a href=&#34;TFM.pdf&#34;&gt;Here&lt;/a&gt; is the PDF :)&lt;/p&gt;</description>
+      <guid isPermaLink="true">https://jsempereh.github.io/notes/tfm/</guid>
+      <category>ML</category>
+      <description>Hi! I wanted to share my MSc thesis Privacy-Enhancing Machine Learning (2024), based mostly on my first year working at GMV. My tutors were Carlos Gregorio Rodríguez and Juan Miguel Auñón García (if you have the opportunity, I recommend working with them, I learnt a lot). Here is the PDF :) </description>
     </item>
     <item>
       <title>PCA is equivalent to a Linear Autoencoder</title>
-      <link>https://JSempereH.github.io/notes/pca-lae/</link>
+      <link>https://jsempereh.github.io/notes/pca-lae/</link>
       <pubDate>Fri, 03 Oct 2025 00:00:00 +0000</pubDate>
-      <guid>https://JSempereH.github.io/notes/pca-lae/</guid>
-      <description>&lt;p&gt;Our objective is to compact the representation of data while minimizing the information loss using linear transformations.&lt;/p&gt;&#xA;&lt;h2 id=&#34;principal-component-analysis-pca&#34;&gt;Principal Component Analysis (PCA)&lt;/h2&gt;&#xA;&lt;p&gt;Given $n$ data vector $\{x_1,  \dots, x_n\} \in \mathbb{R}^m$, &lt;strong&gt;assuming that are mean centered&lt;/strong&gt;, and given a target number of dimensions $k &lt; m$. PCA finds an orthonormal basis $\{u_1, \dots, u_k\} \in \mathbb{R}^m$ that &lt;em&gt;explains most of the variation of the projected data&lt;/em&gt;. Let $U \in \mathbb{R}^{m \times k}$ the matrix whose columns are $u_j \in \mathbb{R}^m$ and $X \in \mathbb{R}^{m \times n}$ is a matrix whose columns are the data vector $x_j \in \mathbb{R}^m$.&lt;/p&gt;</description>
+      <guid isPermaLink="true">https://jsempereh.github.io/notes/pca-lae/</guid>
+      <category>Math</category>
+      <category>ML</category>
+      <description>Our objective is to compact the representation of data while minimizing the information loss using linear transformations. Principal Component Analysis (PCA) Given data vector , assuming that are mean centered, and given a target number of dimensions . PCA finds an orthonormal basis that explains …</description>
     </item>
   </channel>
 </rss>
